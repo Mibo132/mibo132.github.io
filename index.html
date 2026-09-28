@@ -1,0 +1,2132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clash of Cities</title>
+<meta name="description" content="GPS territory strategy game on Google Maps: claim real-world hexes, build on them and walk to use them.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Clash of Cities">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://maps.googleapis.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+</head>
+<body>
+
+<style>
+  :root {
+    color-scheme: light dark;
+    --blue: #007aff; --green: #34c759; --red: #ff3b30; --orange: #ff9500; --yellow: #ffcc00;
+    --indigo: #5856d6; --teal: #30b0c7; --gray: #8e8e93;
+    --blue-t: rgba(0, 122, 255, .14); --green-t: rgba(52, 199, 89, .16); --red-t: rgba(255, 59, 48, .14); --orange-t: rgba(255, 149, 0, .17);
+    --label: #000; --label2: rgba(60, 60, 67, .6); --label3: rgba(60, 60, 67, .3); --sep: rgba(60, 60, 67, .29);
+    --page: #f2f2f7; --row: #fff; --row-hi: #e5e5ea;
+    --fill: rgba(120, 120, 128, .2); --fill3: rgba(118, 118, 128, .12);
+    --glass: rgba(255, 255, 255, .72); --glass-edge: rgba(255, 255, 255, .6); --sheet: rgba(242, 242, 247, .9); --alert: rgba(242, 242, 247, .9);
+    --seg-on: #fff;
+    --shadow: 0 6px 24px rgba(0, 0, 0, .12), 0 1px 3px rgba(0, 0, 0, .08);
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+    --round: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --st: env(safe-area-inset-top, 0px);
+    --sb: env(safe-area-inset-bottom, 0px);
+    --sheet-bottom: calc(var(--sb) + 30px);
+    --ctl-bottom: calc(var(--sb) + 40px);
+    --spring: cubic-bezier(.32, .72, 0, 1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --blue: #0a84ff; --green: #30d158; --red: #ff453a; --orange: #ff9f0a; --yellow: #ffd60a; --indigo: #5e5ce6; --teal: #40cbe0;
+      --blue-t: rgba(10, 132, 255, .22); --green-t: rgba(48, 209, 88, .2); --red-t: rgba(255, 69, 58, .2); --orange-t: rgba(255, 159, 10, .2);
+      --label: #fff; --label2: rgba(235, 235, 245, .6); --label3: rgba(235, 235, 245, .3); --sep: rgba(84, 84, 88, .65);
+      --page: #1c1c1e; --row: #2c2c2e; --row-hi: #3a3a3c;
+      --fill: rgba(120, 120, 128, .36); --fill3: rgba(118, 118, 128, .24);
+      --glass: rgba(40, 40, 43, .72); --glass-edge: rgba(255, 255, 255, .1); --sheet: rgba(28, 28, 30, .92); --alert: rgba(44, 44, 46, .9);
+      --seg-on: #636366;
+      --shadow: 0 6px 24px rgba(0, 0, 0, .45);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    font: 17px/1.3 var(--font); color: var(--label); background: var(--page);
+    -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none; user-select: none; overscroll-behavior: none; touch-action: manipulation;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  input { -webkit-user-select: text; user-select: text; }
+  svg { display: block; }
+  [hidden] { display: none !important; }
+
+  #app { position: fixed; inset: 0; overflow: hidden; }
+  #map { position: absolute; inset: 0; background: #e5e3df; }
+  @media (prefers-color-scheme: dark) { #map { background: #242424; } }
+
+  .glass {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow), inset 0 0 0 .5px var(--glass-edge);
+  }
+
+  /* ---------------------------------------------------------------- top: resources, status, map buttons */
+  .top { position: absolute; z-index: 5; top: calc(var(--st) + 8px); left: 10px; right: 10px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .hud { pointer-events: auto; display: grid; grid-template-columns: 1.35fr 1fr 1fr; padding: 9px 2px 10px; border-radius: 22px; }
+  .stat { min-width: 0; padding: 0 12px; }
+  .stat + .stat { border-left: .5px solid var(--sep); }
+  .stat-k { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-v { display: flex; align-items: center; gap: 5px; margin-top: 1px; font: 600 19px/24px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stat-v small { font: 500 13px var(--round); color: var(--label2); }
+  .stat-v .ic { width: 18px; height: 18px; flex: none; }
+  .stat-v .ic svg { width: 100%; height: 100%; }
+  .ic.coin { color: var(--yellow); } .ic.hexic { color: var(--green); } .ic.ham { color: var(--orange); }
+  .meter { height: 4px; margin-top: 4px; border-radius: 2px; background: var(--fill); overflow: hidden; }
+  .meter i { display: block; width: 0; height: 100%; border-radius: 2px; background: var(--yellow); transition: width .4s; }
+  .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
+  .chips { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+  .capsule {
+    pointer-events: auto; display: inline-flex; align-items: center; gap: 7px; max-width: 100%; height: 32px; padding: 0 13px 0 11px;
+    border: 0; border-radius: 16px; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden;
+  }
+  .capsule > span:not(.dot) { overflow: hidden; text-overflow: ellipsis; }
+  .capsule .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .capsule.warn .dot { background: var(--orange); } .capsule.bad .dot { background: var(--red); } .capsule.sim .dot { background: var(--blue); }
+  .capsule.idle .dot { background: var(--gray); }
+  .capsule .ic { flex: none; width: 16px; height: 16px; } .capsule .ic svg { width: 100%; height: 100%; }
+  .keychip .ic:first-child { color: var(--orange); } .keychip.bad .ic:first-child { color: var(--red); }
+  .keychip .ic:last-child { width: 11px; height: 11px; color: var(--label3); }
+  .fabs { pointer-events: auto; flex: none; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; }
+  .fab { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; background: none; color: var(--blue); }
+  .fab + .fab { border-top: .5px solid var(--sep); }
+  .fab svg { width: 22px; height: 22px; }
+  .fab:active { background: var(--fill3); }
+  .fab.gear { color: var(--label2); }
+
+  /* ---------------------------------------------------------------- simulated-walking joystick */
+  .stick {
+    position: absolute; z-index: 4; left: 16px; bottom: var(--ctl-bottom); width: 96px; height: 96px; border-radius: 50%;
+    touch-action: none; transition: bottom .42s var(--spring);
+  }
+  .knob {
+    position: absolute; left: 50%; top: 50%; width: 42px; height: 42px; margin: -21px 0 0 -21px; border-radius: 50%;
+    display: grid; place-items: center; background: #fff; color: #007aff; box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+  }
+  .knob svg { width: 22px; height: 22px; }
+
+  /* ---------------------------------------------------------------- bottom sheet (selected hex) */
+  .sheet {
+    position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); max-height: var(--sheet-max, 60%);
+    overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 16px; border-radius: 28px;
+    background: var(--sheet); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .22), inset 0 0 0 .5px var(--glass-edge);
+    transition: transform .42s var(--spring), visibility 0s;
+  }
+  .sheet.off { transform: translateY(calc(100% + 60px)); visibility: hidden; transition: transform .3s var(--spring), visibility 0s .3s; }
+  .grab { padding-top: 7px; touch-action: none; }
+  .grabber { width: 36px; height: 5px; margin: 0 auto 9px; border-radius: 3px; background: var(--label3); }
+  .sheet-head { display: flex; align-items: center; gap: 12px; }
+  .titles { flex: 1; min-width: 0; }
+  .titles h2 { margin: 0; font-size: 22px; line-height: 27px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .titles p { margin: 1px 0 0; font-size: 15px; line-height: 20px; color: var(--label2); }
+  .xbtn { flex: none; align-self: flex-start; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: var(--fill3); color: var(--label2); }
+  .xbtn svg { width: 14px; height: 14px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 8px; border-radius: 13px; font-size: 13px; font-weight: 600; background: var(--fill3); color: var(--label2); }
+  .tag svg { width: 14px; height: 14px; }
+  .tag.green { background: var(--green-t); color: var(--green); }
+  .tag.orange { background: var(--orange-t); color: var(--orange); }
+  .tag.red { background: var(--red-t); color: var(--red); }
+  .tag.blue { background: var(--blue-t); color: var(--blue); }
+  .prog { margin-top: 14px; padding: 12px 14px 13px; border-radius: 14px; background: var(--row); }
+  .prog-row { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; }
+  .prog-row span:last-child { color: var(--label2); font-variant-numeric: tabular-nums; }
+  .bar { height: 6px; margin-top: 8px; border-radius: 3px; background: var(--fill); overflow: hidden; }
+  .bar i { display: block; width: 0; height: 100%; border-radius: 3px; background: var(--orange); transition: width .45s; }
+  .bar.yellow i { background: var(--yellow); }
+  .note { margin: 12px 4px 0; font-size: 13px; line-height: 18px; color: var(--label2); }
+  .sheet .group { margin-top: 14px; }
+  .sheet .group .row { min-height: 62px; }
+
+  /* ---------------------------------------------------------------- buttons, lists, controls */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin-top: 12px; padding: 0 20px;
+    border: 0; border-radius: 25px; background: var(--blue); color: #fff; font-size: 17px; font-weight: 600; text-decoration: none;
+  }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn:active { opacity: .7; }
+  .btn:disabled { background: var(--fill3); color: var(--label3); opacity: 1; }
+  .btn.tinted { background: var(--blue-t); color: var(--blue); }
+  .btn.plain { min-height: 44px; margin-top: 4px; background: none; color: var(--blue); font-weight: 400; }
+  .btn.danger { color: var(--red); }
+  .bi:empty { display: none; }
+  .btn-why { margin: 6px 12px 0; text-align: center; font-size: 13px; line-height: 18px; color: var(--orange); }
+  .pill { flex: none; min-width: 64px; height: 32px; padding: 0 13px; border: 0; border-radius: 16px; background: var(--blue-t); color: var(--blue); font-size: 15px; font-weight: 600; }
+  .pill:active { opacity: .7; }
+  .pill:disabled { background: var(--fill3); color: var(--label3); }
+
+  .group { border-radius: 12px; background: var(--row); overflow: hidden; }
+  .row {
+    position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 8px 16px;
+    border: 0; background: none; color: var(--label); text-align: left; font-size: 17px;
+  }
+  .row + .row::before { content: ''; position: absolute; top: 0; right: 0; left: 16px; border-top: .5px solid var(--sep); }
+  .row.t + .row.t::before { left: 58px; }
+  button.row:active { background: var(--row-hi); }
+  .row-main { flex: 1; min-width: 0; }
+  .row-title { font-size: 17px; line-height: 22px; }
+  .row-sub { margin-top: 1px; font-size: 13px; line-height: 18px; color: var(--label2); }
+  .row-sub.warn { color: var(--orange); }
+  .row-value { flex: none; font-size: 17px; color: var(--label2); }
+  .row-chev { flex: none; width: 13px; height: 13px; color: var(--label3); }
+  .row-chev svg { width: 100%; height: 100%; }
+  .row.danger .row-title { color: var(--red); }
+  .row.action .row-title { color: var(--blue); }
+  .tile { flex: none; display: grid; place-items: center; color: #fff; background: var(--gray); }
+  .tile.sm { width: 30px; height: 30px; border-radius: 8px; }
+  .tile.sm svg { width: 18px; height: 18px; }
+  .tile.lg { width: 48px; height: 48px; border-radius: 13px; }
+  .tile.lg svg { width: 28px; height: 28px; }
+  .tint-blue { background: var(--blue); } .tint-green { background: var(--green); } .tint-red { background: var(--red); }
+  .tint-orange { background: var(--orange); } .tint-indigo { background: var(--indigo); } .tint-teal { background: var(--teal); }
+  .tint-gray { background: var(--gray); } .tint-yellow { background: var(--yellow); }
+
+  .switch { position: relative; flex: none; width: 51px; height: 31px; }
+  .switch input { width: 100%; height: 100%; margin: 0; border-radius: 16px; background: var(--fill); -webkit-appearance: none; appearance: none; transition: background .25s; cursor: pointer; }
+  .switch input:checked { background: var(--green); }
+  .switch span { position: absolute; left: 2px; top: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, .15), 0 3px 1px rgba(0, 0, 0, .06); transition: transform .25s var(--spring); pointer-events: none; }
+  .switch input:checked + span { transform: translateX(20px); }
+  .seg { flex: none; display: flex; height: 32px; padding: 2px; border-radius: 9px; background: var(--fill3); }
+  .seg button { min-width: 70px; border: 0; border-radius: 7px; background: none; font-size: 13px; font-weight: 500; }
+  .seg button.on { background: var(--seg-on); font-weight: 600; box-shadow: 0 3px 8px rgba(0, 0, 0, .12), 0 3px 1px rgba(0, 0, 0, .04); }
+  .field { width: 100%; height: 28px; padding: 0; border: 0; outline: none; background: none; color: var(--label); font: 17px var(--font); }
+  .field::placeholder { color: var(--label3); }
+  .steps .row { align-items: flex-start; padding-top: 11px; padding-bottom: 11px; font-size: 15px; line-height: 20px; }
+  .steps .row + .row::before { left: 50px; }
+  .num { flex: none; display: grid; place-items: center; width: 22px; height: 22px; margin-top: -1px; border-radius: 50%; background: var(--blue); color: #fff; font: 600 13px var(--round); }
+
+  /* ---------------------------------------------------------------- banner, busy indicator */
+  .banner {
+    position: absolute; z-index: 15; top: calc(var(--st) + 10px); left: 50%; display: flex; align-items: center; gap: 10px;
+    width: max-content; max-width: calc(100% - 28px); padding: 11px 18px 11px 13px; border-radius: 27px; font-size: 15px; font-weight: 600; line-height: 20px;
+    background: var(--sheet); transform: translate(-50%, calc(-100% - 40px)); transition: transform .5s var(--spring); pointer-events: none;
+  }
+  .banner.show { transform: translate(-50%, 0); }
+  .banner svg { width: 24px; height: 24px; flex: none; color: var(--green); }
+  .banner.err svg { color: var(--orange); }
+  .busy { position: absolute; z-index: 9; left: 50%; top: 50%; display: flex; width: max-content; max-width: calc(100% - 40px); align-items: center; gap: 10px; padding: 12px 18px; border-radius: 22px; font-size: 15px; font-weight: 600; transform: translate(-50%, -50%); pointer-events: none; }
+  .spinner { position: relative; flex: none; width: 20px; height: 20px; }
+  .spinner i { position: absolute; left: 9px; top: 0; width: 2.4px; height: 6px; border-radius: 1.2px; background: var(--label2); transform-origin: 1.2px 10px; animation: spin-fade .8s linear infinite; }
+  .spinner i:nth-child(1) { transform: rotate(0deg); animation-delay: -.7s; }
+  .spinner i:nth-child(2) { transform: rotate(45deg); animation-delay: -.6s; }
+  .spinner i:nth-child(3) { transform: rotate(90deg); animation-delay: -.5s; }
+  .spinner i:nth-child(4) { transform: rotate(135deg); animation-delay: -.4s; }
+  .spinner i:nth-child(5) { transform: rotate(180deg); animation-delay: -.3s; }
+  .spinner i:nth-child(6) { transform: rotate(225deg); animation-delay: -.2s; }
+  .spinner i:nth-child(7) { transform: rotate(270deg); animation-delay: -.1s; }
+  .spinner i:nth-child(8) { transform: rotate(315deg); animation-delay: 0s; }
+  @keyframes spin-fade { from { opacity: 1; } to { opacity: .15; } }
+
+  /* ---------------------------------------------------------------- modal page sheets */
+  .modal { position: fixed; inset: 0; z-index: 20; }
+  .scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, .32); opacity: 0; transition: opacity .35s; }
+  .page {
+    position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--st) + 14px); display: flex; flex-direction: column;
+    border-radius: 16px 16px 0 0; background: var(--page); box-shadow: 0 -4px 30px rgba(0, 0, 0, .18); overflow: hidden;
+    transform: translateY(100%); transition: transform .45s var(--spring);
+  }
+  .modal.open .scrim { opacity: 1; }
+  .modal.open .page { transform: none; }
+  .nav { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 56px; padding: 0 16px; }
+  .nav h3 { margin: 0; font-size: 17px; font-weight: 600; }
+  .nav-btn { justify-self: end; padding: 8px 0; border: 0; background: none; color: var(--blue); font-size: 17px; }
+  .nav-btn.left { justify-self: start; }
+  .nav-btn.strong { font-weight: 600; }
+  .page-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 16px calc(var(--sb) + 28px); }
+  .sec-h { margin: 24px 16px 7px; font-size: 13px; font-weight: 400; line-height: 18px; color: var(--label2); text-transform: uppercase; }
+  .sec-f { margin: 7px 16px 0; font-size: 13px; line-height: 18px; color: var(--label2); }
+  .lead { margin: 8px 4px 0; font-size: 15px; line-height: 20px; color: var(--label2); }
+  .center { text-align: center; }
+  .page .group + .btn { margin-top: 24px; }
+
+  .welcome-body { display: flex; flex-direction: column; padding: 40px 28px calc(var(--sb) + 20px); }
+  .appicon { width: 76px; height: 76px; margin: 0 auto 18px; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 14px rgba(0, 0, 0, .16); }
+  .appicon svg { width: 100%; height: 100%; }
+  .w-title { margin: 0; text-align: center; font-size: 34px; line-height: 41px; font-weight: 700; }
+  .w-list { display: flex; flex-direction: column; gap: 24px; margin: 34px 4px 30px; }
+  .w-item { display: flex; align-items: flex-start; gap: 16px; }
+  .w-ic { flex: none; width: 42px; height: 42px; }
+  .w-ic svg { width: 100%; height: 100%; }
+  .w-item b { display: block; font-size: 17px; line-height: 22px; font-weight: 600; }
+  .w-item p { margin: 2px 0 0; font-size: 15px; line-height: 20px; color: var(--label2); }
+  .w-foot { margin-top: auto; }
+  .w-privacy { display: flex; gap: 8px; margin: 0 4px 6px; font-size: 12px; line-height: 16px; color: var(--label2); }
+  .w-privacy .ic { flex: none; width: 18px; height: 18px; color: var(--blue); }
+  .w-privacy .ic svg { width: 100%; height: 100%; }
+  .hero-ic { display: grid; place-items: center; width: 64px; height: 64px; margin: 20px auto 12px; border-radius: 50%; background: var(--blue-t); color: var(--blue); }
+  .hero-ic svg { width: 32px; height: 32px; }
+  .h-title { margin: 0; text-align: center; font-size: 28px; line-height: 34px; font-weight: 700; }
+
+  /* ---------------------------------------------------------------- alert */
+  .alert-wrap { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(0, 0, 0, .3); opacity: 0; transition: opacity .2s; }
+  .alert-wrap.open { opacity: 1; }
+  .alert {
+    width: 270px; border-radius: 14px; overflow: hidden; text-align: center; background: var(--alert);
+    -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+    transform: scale(1.12); transition: transform .3s var(--spring);
+  }
+  .alert-wrap.open .alert { transform: none; }
+  .alert-text { padding: 19px 16px 18px; }
+  .alert h4 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 600; }
+  .alert p { margin: 3px 0 0; font-size: 13px; line-height: 18px; }
+  .alert-actions { display: flex; border-top: .5px solid var(--sep); }
+  .alert-actions button { flex: 1; height: 44px; padding: 0 8px; border: 0; background: none; color: var(--blue); font-size: 17px; }
+  .alert-actions button + button { border-left: .5px solid var(--sep); }
+  .alert-actions button:active { background: var(--fill3); }
+  .alert-actions .strong { font-weight: 600; }
+  .alert-actions .destructive { color: var(--red); }
+
+  .fatal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 32px; background: var(--page); text-align: center; }
+  .fatal h2 { margin: 0; font-size: 22px; line-height: 28px; }
+  .fatal p { margin: 6px 0 12px; font-size: 15px; color: var(--label2); }
+  .fatal .hero-ic { background: var(--orange-t); color: var(--orange); }
+
+  /* ---------------------------------------------------------------- map overlay: building pins and the location puck */
+  .ov { position: absolute; left: 0; top: 0; --pz: 1; }
+  .ov.hide-pins .pin { display: none; }
+  .pin, .puck { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .pi { position: absolute; left: 0; top: 0; transform: scale(var(--pz)); transform-origin: 0 0; }
+  .pb {
+    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border: 2.5px solid #fff; border-radius: 50%;
+    display: grid; place-items: center; color: #fff; background: var(--pc, #8e8e93); box-shadow: 0 2px 6px rgba(0, 0, 0, .32);
+  }
+  .pb svg { width: 17px; height: 17px; }
+  .t-hq .pb { left: -20px; top: -20px; width: 40px; height: 40px; }
+  .t-hq .pb svg { width: 21px; height: 21px; }
+  .pin.own.t-hq { --pc: #007aff; } .pin.own.t-generator { --pc: #ff9500; } .pin.own.t-storage { --pc: #5856d6; } .pin.rival { --pc: #ff3b30; }
+  .pin.busy .pb { background: conic-gradient(#ff9500 calc(var(--p, 0) * 360deg), #8e8e93 0); }
+  .pin.far .pi { opacity: .6; }
+  .lvl {
+    position: absolute; left: 8px; top: 5px; min-width: 17px; height: 17px; padding: 0 4px; border: 1.5px solid #fff; border-radius: 9px;
+    background: #1c1c1e; color: #fff; font: 700 10px/14px var(--round); text-align: center;
+  }
+  .t-hq .lvl { left: 11px; top: 8px; }
+  .cap {
+    position: absolute; left: 0; bottom: 20px; display: flex; align-items: center; gap: 4px; height: 21px; padding: 0 8px 0 6px; border-radius: 11px;
+    background: #fff; color: #1c1c1e; font: 700 12px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .28); transform: translateX(-50%);
+  }
+  .cap:empty { display: none; }
+  .t-hq .cap { bottom: 23px; }
+  .cap::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #ffcc00; box-shadow: inset 0 0 0 1.5px #e6a700; }
+  .cap.timer::before { background: none; box-shadow: inset 0 0 0 1.8px #ff9500; }
+  .cap.full { background: #ff9500; color: #fff; }
+  .cap.full::before { background: #fff; box-shadow: none; }
+  .nm { position: absolute; left: 0; bottom: 23px; transform: translateX(-50%); font: 600 12px var(--font); color: #d70015; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
+  .nm:empty { display: none; }
+  .puck .halo { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 122, 255, .24); animation: puck 2.4s ease-out infinite; }
+  .puck .dot { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border: 3.5px solid #fff; border-radius: 50%; background: #007aff; box-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
+  .puck .cone {
+    position: absolute; left: -26px; top: -52px; width: 52px; height: 52px; opacity: 0; transform-origin: 50% 100%; transform: rotate(var(--hd, 0deg));
+    background: radial-gradient(circle at 50% 100%, rgba(0, 122, 255, .55), rgba(0, 122, 255, 0) 72%); clip-path: polygon(50% 100%, 10% 0, 90% 0); transition: opacity .3s;
+  }
+  .puck.moving .cone { opacity: 1; }
+  @keyframes puck { from { transform: scale(.45); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .puck .halo { animation: none; opacity: .5; }
+    .sheet, .page, .banner, .alert, .stick { transition-duration: .01s !important; }
+  }
+</style>
+
+<div id="app">
+  <div id="map" role="application" aria-label="Map"></div>
+
+  <div class="top" id="top">
+    <header class="hud glass" id="hud">
+      <div class="stat">
+        <div class="stat-k">Credits</div>
+        <div class="stat-v"><span class="ic coin" data-icon="coin"></span><span id="credits">–</span><small id="creditsCap"></small></div>
+        <div class="meter"><i id="creditsBar"></i></div>
+      </div>
+      <div class="stat">
+        <div class="stat-k" id="hexesK">Hexes</div>
+        <div class="stat-v"><span class="ic hexic" data-icon="hex"></span><span id="hexes">–</span><small id="hexesMax"></small></div>
+      </div>
+      <div class="stat">
+        <div class="stat-k">Builders</div>
+        <div class="stat-v"><span class="ic ham" data-icon="hammer"></span><span id="builders">–</span><small id="buildersMax"></small></div>
+      </div>
+    </header>
+    <div class="top-row">
+      <div class="chips">
+        <button class="capsule glass idle" id="status" type="button"><span class="dot"></span><span id="statusText">Loading…</span></button>
+        <button class="capsule glass keychip" id="keyChip" type="button" hidden><span class="ic" data-icon="warn"></span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
+      </div>
+      <div class="fabs glass">
+        <button class="fab gear" id="settingsBtn" type="button" aria-label="Settings"><span data-icon="gear"></span></button>
+        <button class="fab" id="locateBtn" type="button" aria-label="Follow my location" aria-pressed="true"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stick glass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob" data-icon="walk"></div></div>
+
+  <section class="sheet off" id="sheet" aria-live="polite">
+    <div class="grab" id="sheetGrab">
+      <div class="grabber"></div>
+      <header class="sheet-head">
+        <div class="tile lg" id="sheetTile"></div>
+        <div class="titles"><h2 id="sheetTitle"></h2><p id="sheetSub"></p></div>
+        <button class="xbtn" id="sheetClose" type="button" aria-label="Close"><span data-icon="x"></span></button>
+      </header>
+    </div>
+    <div class="tags" id="sheetTags"></div>
+    <div class="prog" id="sheetProg" hidden>
+      <div class="prog-row"><span id="progLabel"></span><span id="progValue"></span></div>
+      <div class="bar" id="progBarWrap"><i id="progBar"></i></div>
+    </div>
+    <div id="sheetPrimary"></div>
+    <div class="group" id="sheetRows"></div>
+    <p class="note" id="sheetNote"></p>
+  </section>
+
+  <div class="banner glass" id="toast" role="status"><span id="toastIcon"></span><span id="toastText"></span></div>
+  <div class="busy glass" id="busy" hidden><span class="spinner"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="busyText">Loading…</span></div>
+
+  <div class="modal" id="welcome" hidden>
+    <div class="scrim"></div>
+    <div class="page">
+      <div class="page-body welcome-body">
+        <div class="appicon" id="appIcon"></div>
+        <h1 class="w-title">Welcome to Clash&nbsp;of&nbsp;Cities</h1>
+        <div class="w-list">
+          <div class="w-item"><div class="w-ic" style="color: var(--green)" data-icon="hex"></div><div><b>Claim Real Places</b><p>Found your Headquarters where you stand, then grow your territory one hex at a time.</p></div></div>
+          <div class="w-item"><div class="w-ic" style="color: var(--orange)" data-icon="hammer"></div><div><b>Build Your Base</b><p>Generators make credits and Vaults store them, even while you're away.</p></div></div>
+          <div class="w-item"><div class="w-ic" style="color: var(--blue)" data-icon="walk"></div><div><b>Walk to Play</b><p>You can act on hexes within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
+        </div>
+        <div class="w-foot">
+          <p class="w-privacy"><span class="ic" data-icon="arrow"></span><span>Your location is only used while the game is open. Your progress is saved on this device. Watch where you walk and stay off roads, rail tracks and private property.</span></p>
+          <button class="btn" id="welcomeGo" type="button">Continue</button>
+          <button class="btn plain" id="welcomeSim" type="button">Play with Simulated Walking</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settings" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><span></span><h3>Settings</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
+      <div class="page-body">
+        <h4 class="sec-h">Location</h4>
+        <div class="group">
+          <div class="row t"><div class="tile sm tint-blue" data-icon="walk"></div><div class="row-main"><div class="row-title">Simulated Walking</div></div><label class="switch"><input type="checkbox" id="simSwitch" aria-label="Simulated walking"><span></span></label></div>
+          <div class="row t" id="speedRow"><div class="tile sm tint-gray" data-icon="fwd"></div><div class="row-main"><div class="row-title">Speed</div></div><div class="seg" id="speedSeg"><button type="button" data-speed="walk">1.4 m/s</button><button type="button" data-speed="fast">20 m/s</button></div></div>
+        </div>
+        <p class="sec-f" id="locFoot"></p>
+        <h4 class="sec-h">Testing</h4>
+        <div class="group">
+          <button class="row t action" id="skip10" type="button"><div class="tile sm tint-indigo" data-icon="clock"></div><div class="row-main"><div class="row-title">Skip 10 Minutes</div></div></button>
+          <button class="row t action" id="skip60" type="button"><div class="tile sm tint-indigo" data-icon="clock"></div><div class="row-main"><div class="row-title">Skip 1 Hour</div></div></button>
+        </div>
+        <p class="sec-f">Construction finishes and Generators fill up as if the time had passed.</p>
+        <h4 class="sec-h">Map</h4>
+        <div class="group">
+          <button class="row t" id="keyRow" type="button"><div class="tile sm tint-green" data-icon="map"></div><div class="row-main"><div class="row-title">Google Maps Key</div></div><span class="row-value" id="keyValue"></span><span class="row-chev" data-icon="chev"></span></button>
+        </div>
+        <p class="sec-f" id="mapFoot"></p>
+        <div class="group" style="margin-top: 32px">
+          <button class="row danger" id="resetRow" type="button"><div class="row-main"><div class="row-title">Start Over</div></div></button>
+        </div>
+        <p class="sec-f">Progress is saved in this browser on this device.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="keySheet" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><button class="nav-btn left" type="button" data-close>Cancel</button><h3>Google Maps</h3><button class="nav-btn strong" id="keySave" type="button">Save</button></nav>
+      <div class="page-body">
+        <p class="lead">The map is Google Maps. Without an API key, Google dims it and marks it “for development purposes only”. A key from your own Google Cloud account removes that.</p>
+        <h4 class="sec-h">API Key</h4>
+        <div class="group"><div class="row"><input class="field" id="keyInput" type="text" placeholder="AIza…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="API key"></div></div>
+        <p class="sec-f" id="keyFoot"></p>
+        <h4 class="sec-h">Map ID (Optional)</h4>
+        <div class="group"><div class="row"><input class="field" id="mapIdInput" type="text" placeholder="DEMO_MAP_ID" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Map ID"></div></div>
+        <p class="sec-f">With a key, the game uses Google's vector map, which follows your phone's light or dark mode. Leave this empty to use Google's demo map ID.</p>
+        <h4 class="sec-h">How to Get a Key</h4>
+        <div class="group steps">
+          <div class="row"><span class="num">1</span><div class="row-main">In Google Cloud Console, create a project and link a billing account. Google includes free monthly map loads, which cover testing.</div></div>
+          <div class="row"><span class="num">2</span><div class="row-main">Enable the <b>Maps JavaScript API</b>.</div></div>
+          <div class="row"><span class="num">3</span><div class="row-main">Under <b>Keys &amp; Credentials</b>, create an API key.</div></div>
+          <div class="row"><span class="num">4</span><div class="row-main">Restrict the key to the website <b id="originText"></b> and to the Maps JavaScript API.</div></div>
+          <div class="row"><span class="num">5</span><div class="row-main">Paste the key above and tap <b>Save</b>.</div></div>
+        </div>
+        <a class="btn tinted" id="consoleLink" href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" rel="noopener">Open Google Cloud Console</a>
+        <button class="btn plain danger" id="keyRemove" type="button">Remove Key from This Device</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="locHelp" hidden>
+    <div class="scrim"></div>
+    <div class="page">
+      <div class="page-body">
+        <div class="hero-ic" data-icon="arrow"></div>
+        <h2 class="h-title">Allow Location Access</h2>
+        <p class="lead center" id="locHelpWhy"></p>
+        <div class="group steps" style="margin-top: 20px">
+          <div class="row"><span class="num">1</span><div class="row-main">In Safari, open the page menu next to the address (<b>aA</b> or <b>⋯</b>), then tap <b>Website Settings → Location → Allow</b>.</div></div>
+          <div class="row"><span class="num">2</span><div class="row-main">In <b>Settings → Privacy &amp; Security → Location Services</b>, make sure Location Services is on and <b>Safari Websites</b> is set to <b>While Using the App</b>.</div></div>
+          <div class="row"><span class="num">3</span><div class="row-main">Come back here and tap <b>Try Again</b>.</div></div>
+        </div>
+        <p class="sec-f">Pages inside other apps, like the Claude app, can't use your location. Open the game's address in Safari.</p>
+        <button class="btn" id="locRetry" type="button">Try Again</button>
+        <button class="btn plain" id="locSim" type="button">Use Simulated Walking</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-wrap" id="alert" hidden>
+    <div class="alert" role="alertdialog" aria-labelledby="alertTitle" aria-describedby="alertMsg">
+      <div class="alert-text"><h4 id="alertTitle"></h4><p id="alertMsg"></p></div>
+      <div class="alert-actions" id="alertActions"></div>
+    </div>
+  </div>
+
+  <div class="fatal" id="fatal" hidden>
+    <div>
+      <div class="hero-ic" data-icon="warn"></div>
+      <h2 id="fatalTitle"></h2>
+      <p id="fatalMsg"></p>
+      <button class="btn" id="fatalRetry" type="button">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/h3-js@4.5.0/dist/h3-js.umd.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const appEl = $('app');
+  const topEl = $('top');
+  const sheetEl = $('sheet');
+  document.addEventListener('touchstart', () => {}, { passive: true }); // lets iOS Safari show :active (pressed) styles
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => {
+    try {
+      if (v === null) localStorage.removeItem(k);
+      else localStorage.setItem(k, v);
+    } catch (e) { /* storage unavailable (private mode): keep playing */ }
+  };
+
+  // ------------------------------------------------------------------ icons (drawn in the style of iOS symbols)
+  const GEAR = (() => {
+    const pts = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2, tip = Math.PI / 8 * 0.5, root = Math.PI / 8 * 0.78;
+      pts.push([a - root, 7.9], [a - tip, 10.4], [a + tip, 10.4], [a + root, 7.9]);
+    }
+    const d = pts.map(([a, r], i) => `${i ? 'L' : 'M'}${(12 + r * Math.sin(a)).toFixed(2)} ${(12 - r * Math.cos(a)).toFixed(2)}`).join('');
+    return `<path d="${d}ZM12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2z" fill="currentColor" fill-rule="evenodd"/>`;
+  })();
+  const ICONS = {
+    hex: '<path d="M12 2.6 20.1 7.3v9.4L12 21.4l-8.1-4.7V7.3z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+    flag: '<path d="M6.2 21V3.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M7 4h11c.8 0 1.2.9.7 1.5L16.3 8.6l2.4 3.1c.5.6.1 1.5-.7 1.5H7z" fill="currentColor"/>',
+    bolt: '<path d="M13.4 2.3 4.6 13c-.5.6 0 1.4.7 1.4h5.2l-1.3 7.2c-.2.8.8 1.2 1.3.6l8.9-10.9c.5-.6 0-1.4-.7-1.4h-5.1l1.4-6.9c.1-.8-.9-1.2-1.4-.7z" fill="currentColor"/>',
+    lock: '<path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5" fill="none" stroke="currentColor" stroke-width="2.3"/><rect x="5" y="10" width="14" height="11.2" rx="2.6" fill="currentColor"/>',
+    hammer: '<path d="m13.6 9.3-9.1 9.1a1.9 1.9 0 0 0 2.7 2.7l9.1-9.1z" fill="currentColor"/><path d="M11.3 4.6c2.5-1.8 5.9-1.6 8.1.6l.6.6c.4.4.4 1 0 1.4l-1.2 1.2.5.5c.4.4.4 1 0 1.4l-1.7 1.7c-.4.4-1 .4-1.4 0l-4.7-4.7c-.4-.4-.4-1 0-1.4l.7-.7-.9-.4c-.3-.2-.3-.6 0-.8z" fill="currentColor"/>',
+    coin: '<circle cx="12" cy="12" r="9.6" fill="currentColor"/><circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="1.8"/>',
+    arrow: '<path d="M20.4 3.6 4.1 10.4c-.8.3-.7 1.5.1 1.7l6.5 1.4 1.4 6.5c.2.8 1.4.9 1.7.1z" fill="currentColor"/>',
+    arrowo: '<path d="M20.4 3.6 4.1 10.4c-.8.3-.7 1.5.1 1.7l6.5 1.4 1.4 6.5c.2.8 1.4.9 1.7.1z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>',
+    gear: GEAR,
+    x: '<path d="m6.5 6.5 11 11m0-11-11 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+    chev: '<path d="m8.5 4.5 7.5 7.5-7.5 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+    check: '<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.4 12.4 3.1 3.1 6.1-6.5" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>',
+    warn: '<path d="M10.3 3.7 2.3 17.9a2 2 0 0 0 1.7 3h16a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0z" fill="currentColor"/><path d="M12 8.8v5" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><circle cx="12" cy="17.1" r="1.35" fill="#fff"/>',
+    pin: '<path d="M12 22s7.2-6.3 7.2-12.2a7.2 7.2 0 0 0-14.4 0C4.8 15.7 12 22 12 22z" fill="currentColor"/><circle cx="12" cy="9.8" r="2.7" fill="#fff"/>',
+    walk: '<circle cx="13.6" cy="3.9" r="2.1" fill="currentColor"/><path d="M11.9 8.2 9.3 14.1l3.3 2.6.9 5.1M12 8.3l-3.6 1.9-1 3.6M12 8.3l2.7 3.3 3.6 1.1M9.3 14.1 6.8 21.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+    dir: '<path d="M10.6 2.6a2 2 0 0 1 2.8 0l8 8a2 2 0 0 1 0 2.8l-8 8a2 2 0 0 1-2.8 0l-8-8a2 2 0 0 1 0-2.8z" fill="currentColor"/><path d="M9 15.2v-2.6c0-.9.7-1.6 1.6-1.6h4.8m-2-2.4 2.4 2.4-2.4 2.4" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>',
+    up: '<path d="M12 19.5V5.5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    clock: '<circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 7.3v5l3.2 1.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+    map: '<path d="M9 4.2 3.8 6.1v13.7L9 17.9l6 2 5.2-1.9V4.3L15 6.2z" fill="currentColor"/><path d="M9 4.2v13.7M15 6.2v13.7" stroke="#000" stroke-opacity=".25" stroke-width="1.4"/>',
+    collect: '<path d="M12 3.8v10.4m-4.4-4.4 4.4 4.4 4.4-4.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14.6v2.9A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5v-2.9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+    fwd: '<path d="M3.5 6.6v10.8c0 .8.9 1.2 1.5.7l6.6-5.4v4.7c0 .8.9 1.2 1.5.7l6.8-5.4c.5-.4.5-1.2 0-1.6l-6.8-5.4c-.6-.5-1.5-.1-1.5.7v4.7L5 5.9c-.6-.5-1.5-.1-1.5.7z" fill="currentColor"/>',
+  };
+  const svg = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+  for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = svg(el.dataset.icon);
+  $('appIcon').innerHTML = '<svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="ai" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f9bff"/><stop offset="1" stop-color="#0055d4"/></linearGradient></defs>' +
+    '<rect width="80" height="80" fill="url(#ai)"/><path d="M40 15.5 61.2 27.7v24.6L40 64.5 18.8 52.3V27.7z" fill="none" stroke="#fff" stroke-width="5.5" stroke-linejoin="round"/>' +
+    '<path d="M34.5 51V29.5" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M35.5 30h12.2c.9 0 1.4 1 .8 1.7l-2.6 3.6 2.6 3.6c.6.7.1 1.7-.8 1.7H35.5z" fill="#fff"/></svg>';
+
+  function busy(text) {
+    $('busy').hidden = !text;
+    if (text) $('busyText').textContent = text;
+  }
+  function fatal(title, msg) {
+    busy(null);
+    $('fatalTitle').textContent = title;
+    $('fatalMsg').textContent = msg;
+    $('fatal').hidden = false;
+  }
+  $('fatalRetry').addEventListener('click', () => location.reload());
+
+  if (!window.h3) {
+    fatal("Can't Load the Game", 'Check your internet connection and try again.');
+    return;
+  }
+
+  // Mirrors server/config/game.json. In the full game the server checks all of this.
+  const CFG = {
+    res: 11,
+    reach: 100,
+    claimCooldownMs: 5000,
+    startCredits: 750,
+    maxAccuracy: 65,
+    maxActionSpeed: 8,
+    maxFixAgeMs: 30000,
+    expansion: { base: 100, quadratic: 12.5, linear: 37.5, roundTo: 5 },
+    hq: [
+      { builders: 1, maxCells: 7, limits: { generator: 2, storage: 1 } },
+      { builders: 1, maxCells: 19, limits: { generator: 3, storage: 2 } },
+      { builders: 2, maxCells: 37, limits: { generator: 5, storage: 3 } },
+    ],
+    buildings: {
+      hq: {
+        name: 'Headquarters', buildable: false,
+        levels: [
+          { cost: 0, secs: 0, reqHq: 0, storage: 1000 },
+          { cost: 1200, secs: 900, reqHq: 0, storage: 2500 },
+          { cost: 4500, secs: 3600, reqHq: 0, storage: 6000 },
+        ],
+      },
+      generator: {
+        name: 'Generator', buildable: true,
+        levels: [
+          { cost: 150, secs: 60, reqHq: 1, rate: 120, buffer: 720 },
+          { cost: 600, secs: 600, reqHq: 2, rate: 200, buffer: 1200 },
+          { cost: 1800, secs: 2700, reqHq: 3, rate: 320, buffer: 1920 },
+        ],
+      },
+      storage: {
+        name: 'Vault', buildable: true,
+        levels: [
+          { cost: 300, secs: 120, reqHq: 1, storage: 1500 },
+          { cost: 1000, secs: 900, reqHq: 2, storage: 3500 },
+          { cost: 2800, secs: 3600, reqHq: 3, storage: 7000 },
+        ],
+      },
+    },
+  };
+  const ICON_FOR = { hq: 'flag', generator: 'bolt', storage: 'lock' };
+  const TINT_FOR = { hq: 'blue', generator: 'orange', storage: 'indigo' };
+
+  const SULTANAHMET = { lat: 41.0055, lng: 28.9768 };
+  const ISTANBUL = [28.6, 40.8, 29.4, 41.3]; // west, south, east, north: hand-placed rivals inside, generated ones elsewhere
+  const SPEED = { fast: 20, walk: 1.4 };
+  const ISTANBUL_RIVALS = [
+    { key: 'kartal', name: 'Kartal_1453', at: { lat: 41.0256, lng: 28.9741 }, hq: 2, ring: 2, build: ['generator', 'generator', 'generator', 'storage', 'storage'] },
+    { key: 'fox', name: 'BosphorusFox', at: { lat: 41.0265, lng: 29.0155 }, hq: 1, ring: 1, build: ['generator'] },
+    { key: 'selim', name: 'SelimTheBold', at: { lat: 41.0107, lng: 28.968 }, hq: 1, ring: 1, build: ['generator', 'generator', 'storage'] },
+  ];
+  const RIVAL_NAMES = ['NightOwl_7', 'Kartal_1453', 'SelimTheBold'];
+
+  // ------------------------------------------------------------------ mutable module state
+  let mode = null; // 'gps' (real location) | 'sim' (simulated walking)
+  let state = null;
+  let version = 0; // bumps whenever territory changes
+  let saveDue = false;
+  let selected = null;
+  let walkTarget = null;
+  let heading = 0;
+  let follow = true;
+
+  // ------------------------------------------------------------------ geo
+  const R = 6371008.8, RAD = Math.PI / 180, MLAT = R * RAD;
+  function distM(a, b) {
+    const dLat = (b.lat - a.lat) * RAD, dLng = (b.lng - a.lng) * RAD;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * RAD) * Math.cos(b.lat * RAD) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+  function bearing(a, b) {
+    const y = Math.sin((b.lng - a.lng) * RAD) * Math.cos(b.lat * RAD);
+    const x = Math.cos(a.lat * RAD) * Math.sin(b.lat * RAD) - Math.sin(a.lat * RAD) * Math.cos(b.lat * RAD) * Math.cos((b.lng - a.lng) * RAD);
+    return (Math.atan2(y, x) / RAD + 360) % 360;
+  }
+  const compass = (deg) => ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][Math.round(deg / 45) % 8];
+  function offsetLL(p, meters, brgDeg) {
+    const n = meters * Math.cos(brgDeg * RAD), e = meters * Math.sin(brgDeg * RAD);
+    return { lat: p.lat + n / MLAT, lng: p.lng + e / (MLAT * Math.cos(p.lat * RAD)) };
+  }
+
+  // ------------------------------------------------------------------ hex cells
+  const cellCache = new Map();
+  const cellAt = (lat, lng) => h3.latLngToCell(lat, lng, CFG.res);
+  function cell(id) {
+    let c = cellCache.get(id);
+    if (!c) {
+      if (cellCache.size > 30000) cellCache.clear();
+      const [lat, lng] = h3.cellToLatLng(id);
+      c = { id, lat, lng, path: h3.cellToBoundary(id).map(([la, ln]) => ({ lat: la, lng: ln })) };
+      cellCache.set(id, c);
+    }
+    return c;
+  }
+  function ringCells(center, k) {
+    const inner = new Set(h3.gridDisk(center, k - 1));
+    return h3.gridDisk(center, k).filter((c) => !inner.has(c));
+  }
+  let spacing = 53; // distance between neighbouring hex centres here (m)
+  let reachRings = 3; // hex rings that can contain a hex in reach
+  function measureGrid(p) {
+    const id = cellAt(p.lat, p.lng);
+    spacing = distM(cell(id), cell(ringCells(id, 1)[0]));
+    reachRings = Math.ceil(CFG.reach / spacing) + 1;
+  }
+  const hexAcross = () => Math.round((2 * spacing) / Math.sqrt(3));
+
+  // ------------------------------------------------------------------ saving
+  const SAVE_V = 3; // v3: H3 resolution 11
+  const keyFor = (m) => `clash-of-cities.web.${m}.v${SAVE_V}`;
+  const PREF = 'clash-of-cities.web.mode';
+  function load(m) {
+    try {
+      const s = JSON.parse(lsGet(keyFor(m)) || 'null');
+      return s && s.v === SAVE_V ? s : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function save() {
+    saveDue = false;
+    if (state) lsSet(keyFor(mode), JSON.stringify(state));
+  }
+
+  // ------------------------------------------------------------------ world
+  function generatedRivals(o) {
+    const seed = Math.floor(Math.abs(o.lat * 1e4) * 7 + Math.abs(o.lng * 1e4) * 13) % 360;
+    const specs = [
+      { d: 420, hq: 1, ring: 1, build: ['generator', 'generator'] },
+      { d: 760, hq: 2, ring: 2, build: ['generator', 'generator', 'storage'] },
+      { d: 1100, hq: 1, ring: 1, build: ['generator'] },
+    ];
+    return specs.map((sp, i) => ({ key: 'r' + i, name: RIVAL_NAMES[i], at: offsetLL(o, sp.d, (seed + i * 127) % 360), ...sp }));
+  }
+  const inIstanbul = (p) => p.lng > ISTANBUL[0] && p.lng < ISTANBUL[2] && p.lat > ISTANBUL[1] && p.lat < ISTANBUL[3];
+  function newGame(m, origin) {
+    const s = { v: SAVE_V, mode: m, origin: { ...origin }, pos: { ...origin }, offset: 0, credits: CFG.startCredits, cells: {}, b: {}, lastClaim: 0, fast: true, seq: 1, rivals: {} };
+    const t = Date.now();
+    const keepClear = new Set(h3.gridDisk(cellAt(origin.lat, origin.lng), 4)); // the player's start area stays free
+    for (const r of inIstanbul(origin) ? ISTANBUL_RIVALS : generatedRivals(origin)) {
+      s.rivals[r.key] = { name: r.name };
+      const ids = h3.gridDisk(cellAt(r.at.lat, r.at.lng), r.ring).filter((id) => !keepClear.has(id) && !s.cells[id]);
+      for (const id of ids) s.cells[id] = { o: r.key, t };
+      ['hq', ...r.build].forEach((type, i) => {
+        const id = ids[i];
+        if (!id) return;
+        const bid = 'r' + s.seq++;
+        s.b[bid] = { id: bid, o: r.key, cell: id, type, lvl: type === 'hq' ? r.hq : 1, st: 'active', ends: null, stored: 0, at: t };
+      });
+    }
+    return s;
+  }
+  const now = () => Date.now() + state.offset;
+
+  // ------------------------------------------------------------------ rules (same as the server)
+  const def = (type, lvl) => CFG.buildings[type].levels[lvl - 1];
+  function settle(b, t) {
+    if (b.st !== 'active' && b.ends && b.ends <= t) {
+      const done = b.ends;
+      if (b.st === 'upgrading') b.lvl += 1;
+      b.st = 'active';
+      b.ends = null;
+      b.at = done; // production starts when construction finished
+    }
+    if (b.st === 'active') {
+      const d = def(b.type, b.lvl);
+      if (d.rate && t > b.at) b.stored = Math.max(b.stored, Math.min(d.buffer, b.stored + (d.rate * (t - b.at)) / 3.6e6));
+      if (t > b.at) b.at = t;
+    }
+  }
+  function settleAll() { if (state) { const t = now(); for (const b of Object.values(state.b)) settle(b, t); } }
+  const myBuildings = () => Object.values(state.b).filter((b) => b.o === 'me');
+  function hqLevel() {
+    for (const b of Object.values(state.b)) if (b.o === 'me' && b.type === 'hq') return b.lvl;
+    return 0;
+  }
+  const hqRules = () => CFG.hq[hqLevel() - 1] || null;
+  function capacity() {
+    let c = 0;
+    for (const b of myBuildings()) if (b.st !== 'constructing') c += def(b.type, b.lvl).storage || 0;
+    return c;
+  }
+  function builders() {
+    const total = hqRules() ? hqRules().builders : 0;
+    const busyCount = myBuildings().filter((b) => b.st !== 'active').length;
+    return { total, busy: busyCount };
+  }
+  const myCells = () => Object.keys(state.cells).filter((id) => state.cells[id].o === 'me');
+  function expansionCost(owned) {
+    const n = owned + 1;
+    if (n <= 1) return 0;
+    const k = n - 2, e = CFG.expansion;
+    return Math.round((e.base + e.quadratic * k * k + e.linear * k) / e.roundTo) * e.roundTo;
+  }
+  function buildingOn(id) {
+    for (const b of Object.values(state.b)) if (b.cell === id) return b;
+    return null;
+  }
+  const countType = (type) => myBuildings().filter((b) => b.type === type).length;
+  const touchesMine = (id) => h3.gridDisk(id, 1).some((n) => n !== id && state.cells[n] && state.cells[n].o === 'me');
+  const rivalName = (key) => (state.rivals[key] && state.rivals[key].name) || 'Rival';
+
+  // ------------------------------------------------------------------ location (GPS or simulated)
+  const gps = { acc: null, speed: 0, at: 0, err: null, watch: null, ref: null };
+
+  /** Why physical actions are not possible right now (null = fine). Mirrors the server's location checks. */
+  function locationBlock() {
+    if (mode !== 'gps') return null;
+    if (!gps.at || Date.now() - gps.at > CFG.maxFixAgeMs) return 'Waiting for a fresh GPS position…';
+    if (gps.acc > CFG.maxAccuracy) return `GPS too weak here (±${Math.round(gps.acc)} m). Move to an open spot.`;
+    if (gps.speed > CFG.maxActionSpeed) return 'Actions pause while you travel fast. Stay safe!';
+    return null;
+  }
+  function startGps() {
+    if (!('geolocation' in navigator)) {
+      onGpsError({ code: 2 });
+      return;
+    }
+    gps.err = null;
+    if (gps.watch !== null) navigator.geolocation.clearWatch(gps.watch);
+    gps.watch = navigator.geolocation.watchPosition(onFix, onGpsError, { enableHighAccuracy: true, maximumAge: 2000, timeout: 30000 });
+    if (!state) busy('Finding your location…');
+  }
+  function stopGps() {
+    if (gps.watch !== null && navigator.geolocation) navigator.geolocation.clearWatch(gps.watch);
+    gps.watch = null;
+  }
+  function onFix(p) {
+    const c = p.coords;
+    const fix = { lat: c.latitude, lng: c.longitude };
+    const t = Date.now();
+    // Speed: device value if present, else measured over >= 3 s minus both accuracy radii (like the server).
+    let speed = typeof c.speed === 'number' && c.speed >= 0 ? c.speed : null;
+    if (gps.ref) {
+      const dt = (t - gps.ref.t) / 1000;
+      if (dt >= 3) {
+        const est = Math.max(0, distM(gps.ref, fix) - c.accuracy - gps.ref.acc) / dt;
+        speed = speed === null ? est : Math.max(speed, est);
+        gps.ref = { ...fix, t, acc: c.accuracy };
+      }
+    } else {
+      gps.ref = { ...fix, t, acc: c.accuracy };
+    }
+    if (speed !== null) gps.speed = speed;
+    gps.acc = c.accuracy;
+    gps.at = t;
+    gps.err = null;
+    closeModal('locHelp');
+    if (mode !== 'gps') return;
+    if (!state) {
+      startGame('gps', fix);
+      return;
+    }
+    state.pos = fix;
+    saveDue = true;
+    playerMoved(true);
+  }
+  function onGpsError(e) {
+    gps.err = e.code === 1 ? 'denied' : e.code === 3 ? 'timeout' : 'unavailable';
+    if (mode !== 'gps') return;
+    refreshStatus();
+    if (e.code === 3 && state) return; // keep playing; the status shows the stale fix
+    showLocHelp(e.code === 1
+      ? 'Location access is turned off for this page.'
+      : e.code === 3 ? 'Your phone did not report a position in time.' : 'Your phone could not determine a position.');
+  }
+
+  // ------------------------------------------------------------------ actions
+  class GameError extends Error {}
+  const fail = (msg) => { throw new GameError(msg); };
+  function requireReach(c) {
+    const blocked = locationBlock();
+    if (blocked) fail(blocked);
+    const d = distM(state.pos, c);
+    if (d > CFG.reach) fail(`Too far away (${Math.round(d)} m). Walk within ${CFG.reach} m.`);
+  }
+  function addBuilding(cellId, type, secs) {
+    const t = now(), id = 'b' + state.seq++;
+    state.b[id] = { id, o: 'me', cell: cellId, type, lvl: 1, st: secs > 0 ? 'constructing' : 'active', ends: secs > 0 ? t + secs * 1000 : null, stored: 0, at: t };
+    return state.b[id];
+  }
+  const actions = {
+    claim(id) {
+      const c = cell(id);
+      const owner = state.cells[id] && state.cells[id].o;
+      if (owner === 'me') fail('You already control this hex.');
+      if (owner) fail('Another commander controls this hex.');
+      const mine = myCells(), first = mine.length === 0;
+      if (!first) {
+        if (!touchesMine(id)) fail('You can only expand next to your own territory.');
+        if (mine.length >= hqRules().maxCells) fail('Upgrade your Headquarters to control more territory.');
+        const wait = CFG.claimCooldownMs - (now() - state.lastClaim);
+        if (wait > 0) fail(`Wait ${Math.ceil(wait / 1000)}s before claiming again.`);
+      }
+      requireReach(c);
+      const cost = expansionCost(mine.length);
+      if (state.credits < cost) fail(`Not enough credits (need ${cost}).`);
+      state.credits -= cost;
+      state.cells[id] = { o: 'me', t: now() };
+      state.lastClaim = now();
+      version++;
+      if (first) {
+        addBuilding(id, 'hq', 0);
+        return 'Headquarters founded';
+      }
+      return `Hex claimed for ${fmtNum(cost)} credits`;
+    },
+    build(id, type) {
+      const bd = CFG.buildings[type];
+      if (!bd || !bd.buildable) fail("That can't be built.");
+      if (!state.cells[id] || state.cells[id].o !== 'me') fail('You can only build on your own territory.');
+      if (buildingOn(id)) fail('This hex already has a building.');
+      const hq = hqLevel();
+      if (!hq) fail('Found your Headquarters first.');
+      const l = bd.levels[0];
+      if (l.reqHq > hq) fail(`Requires Headquarters level ${l.reqHq}.`);
+      const max = hqRules().limits[type] || 0;
+      if (countType(type) >= max) fail(`You can have ${max} ${bd.name}${max === 1 ? '' : 's'} at this Headquarters level.`);
+      if (l.secs > 0) { const bs = builders(); if (bs.busy >= bs.total) fail('All builders are busy.'); }
+      requireReach(cell(id));
+      if (state.credits < l.cost) fail(`Not enough credits (need ${l.cost}).`);
+      state.credits -= l.cost;
+      addBuilding(id, type, l.secs);
+      return `${bd.name} construction started`;
+    },
+    upgrade(bid) {
+      const b = state.b[bid];
+      if (!b || b.o !== 'me') fail('Building not found.');
+      if (b.st !== 'active') fail('This building is under construction.');
+      const next = CFG.buildings[b.type].levels[b.lvl];
+      if (!next) fail('Already at the maximum level.');
+      if (next.reqHq > hqLevel()) fail(`Requires Headquarters level ${next.reqHq}.`);
+      if (next.secs > 0) { const bs = builders(); if (bs.busy >= bs.total) fail('All builders are busy.'); }
+      requireReach(cell(b.cell));
+      if (state.credits < next.cost) fail(`Not enough credits (need ${next.cost}).`);
+      state.credits -= next.cost;
+      let auto = 0;
+      if (def(b.type, b.lvl).rate && b.stored >= 1) {
+        // Production pauses during upgrades, so collect what fits first.
+        auto = Math.max(0, Math.min(Math.floor(b.stored), Math.floor(capacity() - state.credits)));
+        b.stored -= auto;
+        state.credits += auto;
+      }
+      b.st = 'upgrading';
+      b.ends = now() + next.secs * 1000;
+      return `Upgrade to level ${b.lvl + 1} started${auto ? ` (collected ${auto} first)` : ''}`;
+    },
+    collect(bid) {
+      const b = state.b[bid];
+      if (!b || b.o !== 'me') fail('Building not found.');
+      const d = def(b.type, b.lvl);
+      if (!d.rate) fail('This building does not produce credits.');
+      if (b.st !== 'active') fail('This building is under construction.');
+      const avail = Math.floor(b.stored);
+      if (avail < 1) fail('Nothing to collect yet.');
+      const free = Math.floor(capacity() - state.credits);
+      if (free <= 0) fail('Your storage is full. Build or upgrade a Vault.');
+      requireReach(cell(b.cell));
+      const take = Math.min(avail, free);
+      b.stored -= take;
+      state.credits += take;
+      return `Collected ${fmtNum(take)} credits`;
+    },
+  };
+  function run(kind, ...args) {
+    settleAll();
+    const before = version;
+    try {
+      toast(actions[kind](...args), false);
+      save();
+    } catch (e) {
+      if (!(e instanceof GameError)) throw e;
+      toast(e.message, true);
+    }
+    if (version !== before) territoryChanged();
+    refreshUi();
+  }
+
+  // What the selected hex offers (port of the game client's CellActions rules).
+  function effect(type, l) {
+    if (l.rate) return `+${l.rate} per hour`;
+    if (type === 'hq') return 'more territory';
+    return `holds ${fmtNum(l.storage)}`;
+  }
+  function describe(id) {
+    const c = cell(id), d = distM(state.pos, c), inReach = d <= CFG.reach;
+    const blocked = locationBlock();
+    const reachWhy = blocked || (inReach ? null : `Walk closer: ${fmtDist(d)} away`);
+    const owner = state.cells[id] && state.cells[id].o;
+    const out = { title: '', sub: '', tile: { icon: 'hex', tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' };
+    const act = (kind, label, icon, why, extra) => ({ key: kind, kind, label, icon, why, enabled: !why, reachOnly: !!why && why === reachWhy && !blocked, ...extra });
+    out.tags.push(cellAt(state.pos.lat, state.pos.lng) === id ? { tint: 'green', icon: 'pin', text: 'You are here' }
+      : inReach ? { tint: 'green', icon: 'check', text: `${fmtDist(d)} away · In reach` }
+      : { tint: 'orange', icon: 'walk', text: `${fmtDist(d)} ${compass(bearing(state.pos, c))} · Out of reach` });
+    const mine = myCells(), bs = builders();
+    if (!owner) {
+      out.title = 'Neutral Hex';
+      if (!mine.length) {
+        out.sub = 'Found your Headquarters here. Your first hex is free.';
+        out.tile = { icon: 'flag', tint: 'blue' };
+        out.primary.push(act('claim', 'Found Headquarters', 'flag', reachWhy));
+      } else {
+        const cost = expansionCost(mine.length), max = hqRules().maxCells, borders = touchesMine(id);
+        out.sub = `Your territory: ${mine.length} of ${max} hexes`;
+        out.tile = { icon: 'hex', tint: borders ? 'orange' : 'gray' };
+        let why = null;
+        if (!borders) why = 'Must border your territory';
+        else if (mine.length >= max) why = 'Upgrade your Headquarters to claim more hexes';
+        else if (state.credits < cost) why = `Need ${fmtNum(cost)} credits`;
+        if (borders) out.tags.push({ tint: 'orange', icon: 'hex', text: 'Borders your territory' });
+        out.primary.push(act('claim', `Claim for ${fmtNum(cost)} Credits`, 'flag', why || reachWhy));
+      }
+    } else if (owner !== 'me') {
+      const b = buildingOn(id);
+      out.title = rivalName(owner);
+      out.sub = b ? `${CFG.buildings[b.type].name} · Level ${b.lvl}` : 'Rival territory';
+      out.tile = { icon: b ? ICON_FOR[b.type] : 'hex', tint: 'red' };
+      out.tags.push({ tint: 'red', icon: 'flag', text: 'Rival territory' });
+      out.note = 'Scouting and raids arrive in a later update.';
+    } else {
+      const b = buildingOn(id);
+      out.tags.push({ tint: 'green', icon: 'hex', text: 'Your territory' });
+      if (!b) {
+        out.title = 'Your Hex';
+        out.sub = 'Empty. One building fits on each hex.';
+        out.tile = { icon: 'hex', tint: 'green' };
+        for (const [type, bd] of Object.entries(CFG.buildings)) {
+          if (!bd.buildable) continue;
+          const l = bd.levels[0], max = hqRules().limits[type] || 0, n = countType(type);
+          let why = null;
+          if (l.reqHq > hqLevel()) why = `Requires Headquarters level ${l.reqHq}`;
+          else if (n >= max) why = `Limit reached (${n} of ${max}). Upgrade your Headquarters.`;
+          else if (l.secs > 0 && bs.busy >= bs.total) why = 'All builders are busy';
+          else if (state.credits < l.cost) why = `Need ${fmtNum(l.cost)} credits`;
+          why = why || reachWhy;
+          out.rows.push({ key: 'build-' + type, kind: 'build', type, icon: ICON_FOR[type], tint: TINT_FOR[type], title: bd.name,
+            sub: why || `${fmtNum(l.cost)} credits · ${fmtDur(l.secs)} · ${effect(type, l)}`, why: !!why, button: 'Build', enabled: !why });
+        }
+      } else {
+        const bd = CFG.buildings[b.type], l = def(b.type, b.lvl);
+        out.title = bd.name;
+        out.tile = { icon: ICON_FOR[b.type], tint: TINT_FOR[b.type] };
+        out.sub = `Level ${b.lvl} · ${l.rate ? `${l.rate} credits per hour` : `Holds ${fmtNum(l.storage)} credits`}`;
+        if (b.st !== 'active') {
+          const total = (b.st === 'constructing' ? l.secs : bd.levels[b.lvl].secs) * 1000;
+          const left = Math.max(0, b.ends - now());
+          out.progress = { label: b.st === 'constructing' ? 'Under construction' : `Upgrading to level ${b.lvl + 1}`, value: `${fmtLeft(left)} left`, frac: total ? 1 - left / total : 1, tint: 'orange' };
+        } else if (l.rate) {
+          out.progress = { label: 'Stored', value: `${fmtNum(b.stored)} of ${fmtNum(l.buffer)}`, frac: b.stored / l.buffer, tint: 'yellow' };
+        }
+        if (l.rate) {
+          const stored = Math.floor(b.stored);
+          let why = null;
+          if (b.st !== 'active') why = 'Available when construction finishes';
+          else if (stored < 1) why = 'Nothing to collect yet';
+          else if (state.credits >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
+          out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', 'collect', why || reachWhy, { id: b.id }));
+        }
+        const next = bd.levels[b.lvl];
+        if (next) {
+          let why = null;
+          if (b.st !== 'active') why = 'Under construction';
+          else if (next.reqHq > hqLevel()) why = `Requires Headquarters level ${next.reqHq}`;
+          else if (next.secs > 0 && bs.busy >= bs.total) why = 'All builders are busy';
+          else if (state.credits < next.cost) why = `Need ${fmtNum(next.cost)} credits`;
+          why = why || reachWhy;
+          out.rows.push({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: 'up', tint: 'blue', title: `Level ${b.lvl + 1}`,
+            sub: why || `${fmtNum(next.cost)} credits · ${fmtDur(next.secs)} · ${effect(b.type, next)}`, why: !!why, button: 'Upgrade', enabled: !why });
+        } else {
+          out.rows.push({ key: 'max', kind: 'none', icon: 'up', tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
+        }
+        if (b.type === 'hq') {
+          const nx = CFG.hq[b.lvl];
+          out.note = nx
+            ? `Level ${b.lvl + 1} allows ${nx.maxCells} hexes, ${nx.limits.generator} Generators, ${nx.limits.storage} Vaults and ${nx.builders} builder${nx.builders === 1 ? '' : 's'}.`
+            : 'Your Headquarters is at the highest level in this test build.';
+        }
+      }
+    }
+    if (!inReach) {
+      out.primary.push(mode === 'gps'
+        ? { key: 'route', kind: 'route', label: 'Directions', icon: 'dir', enabled: true, lat: c.lat, lng: c.lng }
+        : { key: 'walk', kind: 'walk', label: 'Walk Here', icon: 'walk', enabled: true });
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------------ formatting
+  function fmtDur(secs) {
+    if (secs <= 0) return 'instant';
+    if (secs < 60) return `${secs} s`;
+    if (secs < 3600) return `${Math.round(secs / 60)} min`;
+    const h = Math.floor(secs / 3600), m = Math.round((secs % 3600) / 60);
+    return m ? `${h} h ${m} min` : `${h} h`;
+  }
+  function fmtLeft(ms) {
+    const s = Math.max(0, Math.ceil(ms / 1000));
+    if (s < 60) return `${s} s`;
+    if (s < 3600) return `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s`;
+    return `${Math.floor(s / 3600)} h ${String(Math.floor((s % 3600) / 60)).padStart(2, '0')} min`;
+  }
+  function fmtClock(ms) {
+    const s = Math.max(0, Math.ceil(ms / 1000));
+    const mm = String(Math.floor((s % 3600) / 60)), ss = String(s % 60).padStart(2, '0');
+    return s >= 3600 ? `${Math.floor(s / 3600)}:${mm.padStart(2, '0')}:${ss}` : `${mm}:${ss}`;
+  }
+  const fmtNum = (n) => Math.floor(n).toLocaleString('en-US');
+  const fmtDist = (m) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`);
+
+  // ------------------------------------------------------------------ Google Maps
+  const KEY_STORE = 'clash-of-cities.gmaps.key';
+  const MAPID_STORE = 'clash-of-cities.gmaps.mapId';
+  const BUILD_KEY = ""; // filled in by build.py from GOOGLE_MAPS_API_KEY
+  const MAP = { zoom: 17, pinZoom: 17.5, gridMinZoom: 15.5, pinMinZoom: 14, maxGridRings: 18 };
+  const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
+
+  // A key can also arrive as ?key=… (it is saved on this device and removed from the address).
+  const keyInfo = (() => {
+    try {
+      const u = new URL(location.href);
+      const k = u.searchParams.get('key');
+      if (k !== null) {
+        lsSet(KEY_STORE, k.trim() || null);
+        u.searchParams.delete('key');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      }
+    } catch (e) { /* not a normal page URL */ }
+    const own = lsGet(KEY_STORE);
+    if (own) return { key: own, source: 'device' };
+    if (BUILD_KEY && !BUILD_KEY.startsWith('__')) return { key: BUILD_KEY, source: 'site' };
+    return { key: '', source: 'none' };
+  })();
+  const siteOrigin = () => (/^https?:$/.test(location.protocol) ? location.origin : 'https://mibo132.github.io');
+
+  let gm = null, map = null, overlay = null, puckEl = null;
+  let authFailed = false;
+  const layers = { sel: null, reach: null, acc: null };
+  const gridFeats = new Map(); // hex id -> google.maps.Data.Feature
+  let outlineFeats = [];
+  let frontier = new Set();
+  let reachSet = new Set();
+  let playerCell = null;
+  const pins = new Map(); // building id -> pin
+
+  function loadMapsScript(key) {
+    return new Promise((resolve, reject) => {
+      const cb = '__cocMapsReady';
+      window[cb] = () => resolve();
+      const q = new URLSearchParams({ v: 'weekly', loading: 'async', callback: cb });
+      if (key) q.set('key', key);
+      const s = document.createElement('script');
+      s.src = `https://maps.googleapis.com/maps/api/js?${q}`;
+      s.async = true;
+      s.onerror = () => reject(new Error('Google Maps did not load'));
+      document.head.appendChild(s);
+      setTimeout(() => reject(new Error('Google Maps timed out')), 25000);
+    });
+  }
+
+  async function initMap(center, zoom) {
+    window.gm_authFailure = onMapsAuthFailure;
+    await loadMapsScript(keyInfo.key);
+    const { Map: GMap } = await google.maps.importLibrary('maps');
+    gm = google.maps;
+    const opts = {
+      center, zoom, minZoom: 3, maxZoom: 21,
+      disableDefaultUI: true, clickableIcons: false, keyboardShortcuts: false, gestureHandling: 'greedy',
+      headingInteractionEnabled: false, tiltInteractionEnabled: false,
+    };
+    if (keyInfo.key) {
+      // Vector map (needs a map ID); it can follow the phone's light/dark mode.
+      opts.mapId = lsGet(MAPID_STORE) || 'DEMO_MAP_ID';
+      if (gm.ColorScheme) opts.colorScheme = gm.ColorScheme.FOLLOW_SYSTEM;
+    } else {
+      dismissDevDialog();
+    }
+    map = new GMap($('map'), opts);
+    const dark = !!opts.colorScheme && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    const grid = dark ? '#ffffff' : '#3c3c43';
+    const base = { clickable: false };
+    const STYLES = {
+      own: { ...base, fillColor: COL.own, fillOpacity: 0.3, strokeColor: COL.own, strokeOpacity: 0.6, strokeWeight: 1, zIndex: 4 },
+      rival: { ...base, fillColor: COL.rival, fillOpacity: 0.22, strokeColor: COL.rival, strokeOpacity: 0.55, strokeWeight: 1, zIndex: 3 },
+      claimR: { ...base, fillColor: COL.claim, fillOpacity: 0.2, strokeColor: COL.claim, strokeOpacity: 1, strokeWeight: 2, zIndex: 2 },
+      claim: { ...base, fillColor: COL.claim, fillOpacity: 0.07, strokeColor: COL.claim, strokeOpacity: 0.75, strokeWeight: 1.5, zIndex: 2 },
+      nR: { ...base, fillColor: COL.blue, fillOpacity: 0.07, strokeColor: grid, strokeOpacity: 0.6, strokeWeight: 1, zIndex: 1 },
+      n: { ...base, fillOpacity: 0, strokeColor: grid, strokeOpacity: 0.3, strokeWeight: 1, zIndex: 1 },
+      oMe: { ...base, fillOpacity: 0, strokeColor: COL.own, strokeOpacity: 1, strokeWeight: 3, zIndex: 5 },
+      oRival: { ...base, fillOpacity: 0, strokeColor: COL.rival, strokeOpacity: 1, strokeWeight: 2.5, zIndex: 5 },
+    };
+    map.data.setStyle((f) => STYLES[f.getProperty('s')] || STYLES.n);
+    layers.sel = new gm.Polygon({ map, paths: [], visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 1, strokeWeight: 3.5, fillColor: COL.blue, fillOpacity: 0.12, zIndex: 20 });
+    layers.reach = new gm.Circle({ map, center, radius: CFG.reach, visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 0.75, strokeWeight: 2, fillColor: COL.blue, fillOpacity: 0.04, zIndex: 10 });
+    layers.acc = new gm.Circle({ map, center, radius: 1, visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 0.25, strokeWeight: 1, fillColor: COL.blue, fillOpacity: 0.1, zIndex: 11 });
+
+    class GameOverlay extends gm.OverlayView {
+      constructor() {
+        super();
+        this.root = document.createElement('div');
+        this.root.className = 'ov';
+      }
+      onAdd() { this.getPanes().markerLayer.appendChild(this.root); }
+      draw() { placeAll(); }
+      onRemove() { this.root.remove(); }
+    }
+    overlay = new GameOverlay();
+    puckEl = document.createElement('div');
+    puckEl.className = 'puck';
+    puckEl.hidden = true;
+    puckEl.innerHTML = '<div class="cone"></div><div class="halo"></div><div class="dot"></div>';
+    overlay.root.appendChild(puckEl);
+    overlay.setMap(map);
+
+    map.addListener('click', (e) => { if (state && e.latLng) select(cellAt(e.latLng.lat(), e.latLng.lng())); });
+    map.addListener('dragstart', () => setFollow(false));
+    let recenterOnIdle = false;
+    map.addListener('zoom_changed', () => { onZoom(); recenterOnIdle = follow; });
+    map.addListener('idle', () => {
+      scheduleGridSync();
+      if (recenterOnIdle && follow) followCamera(true);
+      recenterOnIdle = false;
+    });
+    onZoom();
+    // Wait for the first render so screen positions (sheet, follow offset) can be computed.
+    await new Promise((resolve) => {
+      gm.event.addListenerOnce(map, 'idle', resolve);
+      setTimeout(resolve, 4000);
+    });
+  }
+
+  // Without an API key Google shows a "can't load Google Maps correctly" dialog under our controls.
+  // The game explains the missing key itself (the chip under the resources), so the dialog is closed.
+  function dismissDevDialog() {
+    const mo = new MutationObserver(() => {
+      const b = $('map').querySelector('.dismissButton');
+      if (b) b.click();
+    });
+    mo.observe($('map'), { childList: true, subtree: true });
+    setTimeout(() => mo.disconnect(), 20000);
+  }
+  function onMapsAuthFailure() {
+    authFailed = true;
+    updateKeyChip();
+    showAlert('Google Maps Key Not Accepted',
+      `Google rejected the API key for this site. Check that the Maps JavaScript API is enabled and that the key allows ${siteOrigin()}/*.`,
+      [{ label: 'OK' }, { label: 'Change Key', style: 'strong', onTap: openKeySheet }]);
+  }
+
+  // ------------------------------------------------------------------ map layers: hex grid, territory, reach
+  let gridTimer = 0;
+  function scheduleGridSync() {
+    if (!gridTimer) gridTimer = setTimeout(() => { gridTimer = 0; syncGrid(); }, 120);
+  }
+  function styleKey(id) {
+    const c = state.cells[id];
+    if (c) return c.o === 'me' ? 'own' : 'rival';
+    const r = reachSet.has(id);
+    if (frontier.has(id)) return r ? 'claimR' : 'claim';
+    return r ? 'nR' : 'n';
+  }
+  /** Hexes drawn: the grid around the view (when zoomed in), the player's surroundings and all territory. */
+  function syncGrid() {
+    if (!map || !state) return;
+    const want = new Set();
+    const center = map.getCenter(), bounds = map.getBounds();
+    if (map.getZoom() >= MAP.gridMinZoom && center && bounds) {
+      const ne = bounds.getNorthEast(), sw = bounds.getSouthWest();
+      const halfW = distM({ lat: center.lat(), lng: sw.lng() }, { lat: center.lat(), lng: ne.lng() }) / 2;
+      const halfH = distM({ lat: sw.lat(), lng: center.lng() }, { lat: ne.lat(), lng: center.lng() }) / 2;
+      const rings = Math.min(MAP.maxGridRings, Math.ceil(Math.hypot(halfW, halfH) / spacing) + 1);
+      for (const id of h3.gridDisk(cellAt(center.lat(), center.lng()), rings)) want.add(id);
+    }
+    for (const id of h3.gridDisk(cellAt(state.pos.lat, state.pos.lng), reachRings + 1)) want.add(id);
+    for (const id of Object.keys(state.cells)) want.add(id);
+    for (const [id, f] of gridFeats) {
+      if (!want.has(id)) {
+        map.data.remove(f);
+        gridFeats.delete(id);
+      }
+    }
+    for (const id of want) {
+      if (gridFeats.has(id)) continue;
+      gridFeats.set(id, map.data.add({ id, geometry: new gm.Data.Polygon([cell(id).path]), properties: { s: styleKey(id) } }));
+    }
+  }
+  function restyleGrid() {
+    for (const [id, f] of gridFeats) {
+      const k = styleKey(id);
+      if (f.getProperty('s') !== k) f.setProperty('s', k);
+    }
+  }
+  function syncOutlines() {
+    for (const f of outlineFeats) map.data.remove(f);
+    outlineFeats = [];
+    const byOwner = {};
+    for (const [id, c] of Object.entries(state.cells)) (byOwner[c.o] = byOwner[c.o] || []).push(id);
+    for (const [owner, ids] of Object.entries(byOwner)) {
+      const geometry = { type: 'MultiPolygon', coordinates: h3.cellsToMultiPolygon(ids, true) };
+      outlineFeats.push(...map.data.addGeoJson({ type: 'Feature', id: 'o:' + owner, properties: { s: owner === 'me' ? 'oMe' : 'oRival' }, geometry }));
+    }
+  }
+  function computeFrontier() {
+    const f = new Set(), mine = myCells(), rules = hqRules();
+    if (!rules || mine.length >= rules.maxCells) return f;
+    for (const id of mine) for (const n of h3.gridDisk(id, 1)) if (!state.cells[n]) f.add(n);
+    return f;
+  }
+  function territoryChanged() {
+    frontier = computeFrontier();
+    syncGrid();
+    syncOutlines();
+    restyleGrid();
+    syncPins();
+  }
+  /** Recomputes which hexes are in reach; restyles only when that set changes. */
+  function updateReach(force) {
+    if (!state || !map) return;
+    const pc = cellAt(state.pos.lat, state.pos.lng);
+    const next = new Set();
+    for (const id of h3.gridDisk(pc, reachRings)) if (distM(state.pos, cell(id)) <= CFG.reach) next.add(id);
+    const changed = force || next.size !== reachSet.size || [...next].some((id) => !reachSet.has(id));
+    reachSet = next;
+    if (pc !== playerCell) {
+      playerCell = pc;
+      syncGrid();
+    }
+    if (changed) {
+      restyleGrid();
+      syncPins();
+      if (selected) renderSheet();
+    }
+  }
+  function resetLayers() {
+    for (const f of gridFeats.values()) map.data.remove(f);
+    gridFeats.clear();
+    for (const f of outlineFeats) map.data.remove(f);
+    outlineFeats = [];
+    for (const pin of pins.values()) pin.el.remove();
+    pins.clear();
+    frontier = new Set();
+    reachSet = new Set();
+    playerCell = null;
+  }
+
+  // ------------------------------------------------------------------ map overlay: building pins and the location puck
+  const place = (el, p) => { if (p) el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px)`; };
+  function placeAll() {
+    const proj = overlay && overlay.getProjection();
+    if (!proj) return;
+    for (const pin of pins.values()) place(pin.el, proj.fromLatLngToDivPixel(pin.ll));
+    placePuck();
+  }
+  function placePuck() {
+    const proj = overlay && overlay.getProjection();
+    if (!proj || !state) return;
+    place(puckEl, proj.fromLatLngToDivPixel(new gm.LatLng(state.pos.lat, state.pos.lng)));
+  }
+  function onZoom() {
+    const z = map.getZoom();
+    overlay.root.style.setProperty('--pz', Math.max(0.5, Math.min(1.2, Math.pow(2, (z - MAP.pinZoom) * 0.5))).toFixed(3));
+    overlay.root.classList.toggle('hide-pins', z < MAP.pinMinZoom);
+    scheduleGridSync();
+  }
+  function syncPins() {
+    if (!overlay || !state) return;
+    const t = now(), seen = new Set();
+    for (const b of Object.values(state.b)) {
+      seen.add(b.id);
+      let pin = pins.get(b.id);
+      if (!pin) {
+        const c = cell(b.cell);
+        const el = document.createElement('div');
+        el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="lvl"></div><div class="nm"></div></div>';
+        pin = { el, ll: new gm.LatLng(c.lat, c.lng), cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '' };
+        pins.set(b.id, pin);
+        overlay.root.insertBefore(el, puckEl);
+        const proj = overlay.getProjection();
+        if (proj) place(el, proj.fromLatLngToDivPixel(pin.ll));
+      }
+      const own = b.o === 'me', active = b.st === 'active', d = def(b.type, b.lvl);
+      pin.el.className = `pin t-${b.type} ${own ? 'own' : 'rival'}${active ? '' : ' busy'}${own && !reachSet.has(b.cell) ? ' far' : ''}`;
+      const glyph = active ? ICON_FOR[b.type] : 'hammer';
+      if (pin.glyph !== glyph) {
+        pin.glyph = glyph;
+        pin.pb.innerHTML = svg(glyph);
+      }
+      pin.lvl.textContent = b.lvl;
+      let cap = '', capCls = 'cap';
+      if (!active) {
+        const total = (b.st === 'constructing' ? d.secs : CFG.buildings[b.type].levels[b.lvl].secs) * 1000;
+        pin.pb.style.setProperty('--p', total ? Math.min(1, 1 - (b.ends - t) / total).toFixed(3) : '1');
+        if (own) { cap = fmtClock(b.ends - t); capCls = 'cap timer'; }
+      } else if (own && d.rate && b.stored >= 1) {
+        const full = b.stored >= d.buffer;
+        cap = full ? 'Full' : `+${fmtNum(b.stored)}`;
+        if (full) capCls = 'cap full';
+      }
+      if (pin.cap.textContent !== cap) pin.cap.textContent = cap;
+      pin.cap.className = capCls;
+      pin.nm.textContent = !own && b.type === 'hq' ? rivalName(b.o) : '';
+    }
+    for (const [id, pin] of pins) {
+      if (!seen.has(id)) {
+        pin.el.remove();
+        pins.delete(id);
+      }
+    }
+  }
+  function updatePlayerVisuals() {
+    if (!map || !state) return;
+    puckEl.hidden = false;
+    puckEl.style.setProperty('--hd', `${heading.toFixed(1)}deg`);
+    layers.reach.setCenter(state.pos);
+    layers.reach.setVisible(true);
+    const showAcc = mode === 'gps' && gps.acc > 0;
+    layers.acc.setVisible(showAcc);
+    if (showAcc) {
+      layers.acc.setCenter(state.pos);
+      layers.acc.setRadius(Math.min(gps.acc, 2000));
+    }
+    placePuck();
+  }
+
+  // ------------------------------------------------------------------ camera: follow the player in the visible part of the map
+  const sheetBottomPx = () => parseFloat(getComputedStyle(sheetEl).bottom) || 0;
+  let sheetOpen = false;
+  function visibleBand() {
+    const H = appEl.clientHeight;
+    const top = topEl.getBoundingClientRect().bottom;
+    const bottom = sheetOpen ? H - sheetBottomPx() - sheetEl.offsetHeight : H;
+    return { top, bottom, center: (top + bottom) / 2 };
+  }
+  // Screen maths from the map's own projection and camera: unlike the overlay's projection it is
+  // already up to date right after setCenter/setZoom (the map fills the screen, north up).
+  function toPx(p) {
+    const proj = map && map.getProjection(), c = map && map.getCenter();
+    if (!proj || !c) return null;
+    const s = 2 ** map.getZoom(), a = proj.fromLatLngToPoint(new gm.LatLng(p.lat, p.lng)), o = proj.fromLatLngToPoint(c);
+    return { x: (a.x - o.x) * s + appEl.clientWidth / 2, y: (a.y - o.y) * s + appEl.clientHeight / 2 };
+  }
+  function fromPx(x, y) {
+    const proj = map && map.getProjection(), c = map && map.getCenter();
+    if (!proj || !c) return null;
+    const s = 2 ** map.getZoom(), o = proj.fromLatLngToPoint(c);
+    const ll = proj.fromPointToLatLng(new gm.Point(o.x + (x - appEl.clientWidth / 2) / s, o.y + (y - appEl.clientHeight / 2) / s));
+    return { lat: ll.lat(), lng: ll.lng() };
+  }
+  /** The map centre that shows `pos` in the middle of the area not covered by the controls and the sheet. */
+  function centerFor(pos) {
+    const p = toPx(pos);
+    if (!p) return pos;
+    return fromPx(p.x, p.y - (visibleBand().center - appEl.clientHeight / 2)) || pos;
+  }
+  function followCamera(animate) {
+    if (!follow || !map || !state) return;
+    const target = centerFor(state.pos);
+    if (animate) map.panTo(target);
+    else map.setCenter(target);
+  }
+  function setFollow(on) {
+    follow = on;
+    $('locateBtn').innerHTML = svg(on ? 'arrow' : 'arrowo');
+    $('locateBtn').setAttribute('aria-pressed', String(on));
+  }
+  function playerMoved(animate) {
+    updatePlayerVisuals();
+    if (follow) followCamera(animate);
+    reachDirty = true;
+  }
+  /** After selecting a hex: keep it visible above the sheet, following the player if that already does it. */
+  function revealSelection() {
+    const at = selected && state && toPx(cell(selected));
+    if (!at) return;
+    const W = appEl.clientWidth, band = visibleBand();
+    const inside = (p) => p.x >= 28 && p.x <= W - 28 && p.y >= band.top + 20 && p.y <= band.bottom - 20;
+    if (follow) {
+      const me = toPx(state.pos);
+      const after = { x: at.x + (W / 2 - me.x), y: at.y + (band.center - me.y) };
+      if (inside(after)) {
+        followCamera(true);
+        return;
+      }
+      setFollow(false);
+    }
+    if (!inside(at)) map.panBy(at.x - W / 2, at.y - band.center);
+  }
+
+  // ------------------------------------------------------------------ simulated walking
+  const joy = { x: 0, y: 0 };
+  const keys = new Set();
+  let walking = false;
+  /** Moves the simulated player; returns whether it moved. */
+  function step(dt) {
+    if (!state || mode !== 'sim') return false;
+    const speed = state.fast ? SPEED.fast : SPEED.walk;
+    let jx = joy.x, jy = joy.y;
+    if (keys.size) {
+      jx = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
+      jy = (keys.has('ArrowDown') || keys.has('s') ? 1 : 0) - (keys.has('ArrowUp') || keys.has('w') ? 1 : 0);
+      const n = Math.hypot(jx, jy) || 1;
+      jx /= n;
+      jy /= n;
+    }
+    let ve = 0, vn = 0;
+    if (Math.hypot(jx, jy) > 0.12) {
+      ve = jx * speed;
+      vn = -jy * speed;
+      walkTarget = null;
+    } else if (walkTarget) {
+      const d = distM(state.pos, walkTarget);
+      if (d < 0.5) walkTarget = null;
+      else {
+        const b = bearing(state.pos, walkTarget) * RAD, v = Math.min(speed, d / dt);
+        ve = Math.sin(b) * v;
+        vn = Math.cos(b) * v;
+      }
+    }
+    if (!ve && !vn) return false;
+    heading = Math.atan2(ve, vn) / RAD;
+    state.pos = { lat: state.pos.lat + (vn * dt) / MLAT, lng: state.pos.lng + (ve * dt) / (MLAT * Math.cos(state.pos.lat * RAD)) };
+    return true;
+  }
+
+  // ------------------------------------------------------------------ UI: resources and status
+  function refreshHud() {
+    if (!state) return;
+    const hq = hqLevel(), cap = capacity(), rules = hqRules(), bs = builders();
+    $('credits').textContent = fmtNum(state.credits);
+    $('creditsCap').textContent = hq ? `/${fmtNum(cap)}` : '';
+    $('creditsBar').style.width = `${cap ? Math.min(100, (state.credits / cap) * 100) : 0}%`;
+    $('hexes').textContent = myCells().length;
+    $('hexesMax').textContent = `/${rules ? rules.maxCells : 1}`;
+    $('hexesK').textContent = hq ? `Hexes · HQ ${hq}` : 'Hexes';
+    $('builders').textContent = hq ? bs.total - bs.busy : '–';
+    $('buildersMax').textContent = hq ? `/${bs.total}` : '';
+  }
+  function refreshStatus() {
+    let cls = '', text;
+    if (!mode) {
+      cls = 'idle';
+      text = 'Welcome';
+    } else if (mode === 'sim') {
+      cls = 'sim';
+      text = walking ? `Walking · ${state && state.fast ? SPEED.fast : SPEED.walk} m/s` : `Simulated walking · Reach ${CFG.reach} m`;
+    } else if (gps.err === 'denied') {
+      cls = 'bad';
+      text = 'Location blocked';
+    } else if (!gps.at || Date.now() - gps.at > CFG.maxFixAgeMs) {
+      cls = 'warn';
+      text = 'Waiting for GPS…';
+    } else if (gps.acc > CFG.maxAccuracy) {
+      cls = 'warn';
+      text = `GPS weak · ±${Math.round(gps.acc)} m`;
+    } else if (gps.speed > CFG.maxActionSpeed) {
+      cls = 'warn';
+      text = 'Moving fast · Actions paused';
+    } else {
+      text = `GPS ±${Math.round(gps.acc)} m · Reach ${CFG.reach} m`;
+    }
+    $('status').className = `capsule glass ${cls}`;
+    $('statusText').textContent = text;
+  }
+  function updateKeyChip() {
+    const chip = $('keyChip');
+    chip.hidden = !!keyInfo.key && !authFailed;
+    chip.classList.toggle('bad', authFailed);
+    $('keyChipText').textContent = authFailed ? 'Google Maps key rejected' : 'Map without API key';
+  }
+  function refreshUi() {
+    refreshStatus();
+    if (!state) return;
+    settleAll();
+    refreshHud();
+    if (selected) renderSheet();
+    syncPins();
+  }
+
+  // ------------------------------------------------------------------ UI: the hex sheet
+  function setTile(el, icon, tint, size) {
+    const cls = `tile ${size} tint-${tint}`;
+    if (el.className !== cls) el.className = cls;
+    if (el.dataset.glyph !== icon) {
+      el.dataset.glyph = icon;
+      el.innerHTML = svg(icon);
+    }
+  }
+  /** Updates a list of keyed elements in place, so a tap is never lost while the sheet refreshes. */
+  function reconcile(box, items, make, update) {
+    const old = new Map();
+    for (const el of box.children) old.set(el.dataset.key, el);
+    let prev = null;
+    for (const it of items) {
+      let el = old.get(it.key);
+      if (el) old.delete(it.key);
+      else {
+        el = make();
+        el.dataset.key = it.key;
+      }
+      update(el, it);
+      const want = prev ? prev.nextElementSibling : box.firstElementChild;
+      if (el !== want) box.insertBefore(el, want);
+      prev = el;
+    }
+    for (const el of old.values()) el.remove();
+    box.hidden = !items.length;
+  }
+  function makePrimary() {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = '<button class="btn" type="button"><span class="bi"></span><span class="bl"></span></button><div class="btn-why"></div>';
+    wrap.firstElementChild.addEventListener('click', () => onAction(wrap._item));
+    return wrap;
+  }
+  function updatePrimary(wrap, a) {
+    wrap._item = a;
+    const btn = wrap.firstElementChild, bi = btn.firstElementChild, why = wrap.lastElementChild;
+    btn.disabled = !a.enabled;
+    if (bi.dataset.glyph !== a.icon) {
+      bi.dataset.glyph = a.icon;
+      bi.innerHTML = svg(a.icon);
+    }
+    btn.lastElementChild.textContent = a.label;
+    const text = !a.enabled && !a.reachOnly ? a.why : '';
+    why.textContent = text || '';
+    why.hidden = !text;
+  }
+  function makeRow() {
+    const row = document.createElement('div');
+    row.className = 'row t';
+    row.innerHTML = '<div class="tile sm"></div><div class="row-main"><div class="row-title"></div><div class="row-sub"></div></div><button class="pill" type="button"></button>';
+    row.lastElementChild.addEventListener('click', () => onAction(row._item));
+    return row;
+  }
+  function updateRow(row, r) {
+    row._item = r;
+    setTile(row.firstElementChild, r.icon, r.tint, 'sm');
+    row.querySelector('.row-title').textContent = r.title;
+    const sub = row.querySelector('.row-sub');
+    sub.textContent = r.sub;
+    sub.classList.toggle('warn', !!r.why);
+    const pill = row.lastElementChild;
+    pill.textContent = r.button;
+    pill.hidden = !r.button;
+    pill.disabled = !r.enabled;
+  }
+  function renderSheet() {
+    if (!selected || !state) return;
+    const info = describe(selected);
+    $('sheetTitle').textContent = info.title;
+    $('sheetSub').textContent = info.sub;
+    setTile($('sheetTile'), info.tile.icon, info.tile.tint, 'lg');
+    const tags = info.tags.map((t) => `<span class="tag ${t.tint}">${svg(t.icon)}${t.text}</span>`).join('');
+    if ($('sheetTags').innerHTML !== tags) $('sheetTags').innerHTML = tags;
+    $('sheetTags').hidden = !info.tags.length;
+    const pr = info.progress;
+    $('sheetProg').hidden = !pr;
+    if (pr) {
+      $('progLabel').textContent = pr.label;
+      $('progValue').textContent = pr.value;
+      $('progBar').style.width = `${Math.max(0, Math.min(1, pr.frac)) * 100}%`;
+      $('progBarWrap').className = `bar ${pr.tint}`;
+    }
+    reconcile($('sheetPrimary'), info.primary, makePrimary, updatePrimary);
+    reconcile($('sheetRows'), info.rows, makeRow, updateRow);
+    $('sheetNote').textContent = info.note;
+    $('sheetNote').hidden = !info.note;
+  }
+  function onAction(a) {
+    if (!a || !a.enabled || !selected) return;
+    if (a.kind === 'walk') {
+      const c = cell(selected);
+      walkTarget = { lat: c.lat, lng: c.lng };
+      setFollow(true);
+      followCamera(true);
+      return;
+    }
+    if (a.kind === 'route') {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${a.lat.toFixed(6)},${a.lng.toFixed(6)}&travelmode=walking`;
+      const w = window.open(url, '_blank');
+      if (w) w.opener = null;
+      else location.href = url;
+      return;
+    }
+    if (a.kind === 'claim') run('claim', selected);
+    else if (a.kind === 'build') run('build', selected, a.type);
+    else if (a.kind === 'upgrade') run('upgrade', a.id);
+    else if (a.kind === 'collect') run('collect', a.id);
+  }
+  function layoutControls() {
+    const h = sheetEl.offsetHeight;
+    appEl.style.setProperty('--ctl-bottom', sheetOpen ? `${Math.round(sheetBottomPx() + h + 14)}px` : 'calc(var(--sb) + 40px)');
+    appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 12))}px`);
+  }
+  function select(id) {
+    selected = id || null;
+    if (!selected) {
+      if (layers.sel) layers.sel.setVisible(false);
+      if (sheetOpen) {
+        sheetOpen = false;
+        sheetEl.style.transform = '';
+        sheetEl.classList.add('off');
+        layoutControls();
+        if (follow) followCamera(true);
+      }
+      return;
+    }
+    const c = cell(selected);
+    layers.sel.setPaths([c.path]);
+    layers.sel.setVisible(true);
+    renderSheet();
+    sheetOpen = true;
+    sheetEl.classList.remove('off');
+    layoutControls();
+    revealSelection();
+  }
+  new ResizeObserver(() => {
+    layoutControls();
+    if (sheetOpen && follow) followCamera(true);
+  }).observe(sheetEl);
+  $('sheetClose').addEventListener('click', () => select(null));
+  (() => {
+    // Swipe the sheet down to close it.
+    const grab = $('sheetGrab');
+    let y0 = null, dy = 0, t0 = 0;
+    grab.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      y0 = e.clientY;
+      dy = 0;
+      t0 = performance.now();
+      grab.setPointerCapture(e.pointerId);
+      sheetEl.style.transition = 'none';
+    });
+    grab.addEventListener('pointermove', (e) => {
+      if (y0 === null) return;
+      dy = Math.max(0, e.clientY - y0);
+      sheetEl.style.transform = `translateY(${dy}px)`;
+    });
+    const end = () => {
+      if (y0 === null) return;
+      y0 = null;
+      sheetEl.style.transition = '';
+      if (dy > 80 || dy / Math.max(1, performance.now() - t0) > 0.6) select(null);
+      else sheetEl.style.transform = '';
+    };
+    grab.addEventListener('pointerup', end);
+    grab.addEventListener('pointercancel', end);
+  })();
+
+  // ------------------------------------------------------------------ UI: banner, modals, alerts
+  let toastTimer = 0;
+  function toast(msg, err) {
+    const el = $('toast');
+    $('toastText').textContent = msg;
+    $('toastIcon').innerHTML = svg(err ? 'warn' : 'check');
+    el.classList.toggle('err', !!err);
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), err ? 3600 : 2400);
+  }
+  function openModal(id) {
+    const m = $(id);
+    m.hidden = false;
+    m.getBoundingClientRect(); // start from the closed position so the page slides up
+    m.classList.add('open');
+  }
+  function closeModal(id) {
+    const m = $(id);
+    if (m.hidden || !m.classList.contains('open')) return;
+    m.classList.remove('open');
+    setTimeout(() => { if (!m.classList.contains('open')) m.hidden = true; }, 460);
+  }
+  for (const m of document.querySelectorAll('.modal')) {
+    m.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeModal(m.id); });
+  }
+  function showAlert(title, message, buttons) {
+    $('alertTitle').textContent = title;
+    $('alertMsg').textContent = message;
+    const box = $('alertActions');
+    box.innerHTML = '';
+    for (const b of buttons) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.textContent = b.label;
+      if (b.style) el.className = b.style;
+      el.addEventListener('click', () => {
+        hideAlert();
+        if (b.onTap) b.onTap();
+      });
+      box.appendChild(el);
+    }
+    const a = $('alert');
+    a.hidden = false;
+    a.getBoundingClientRect();
+    a.classList.add('open');
+  }
+  function hideAlert() {
+    const a = $('alert');
+    a.classList.remove('open');
+    setTimeout(() => { if (!a.classList.contains('open')) a.hidden = true; }, 220);
+  }
+  function showLocHelp(why) {
+    busy(null);
+    $('locHelpWhy').textContent = why;
+    openModal('locHelp');
+  }
+
+  function openSettings() {
+    $('simSwitch').checked = mode === 'sim';
+    $('speedRow').hidden = mode !== 'sim';
+    for (const b of $('speedSeg').children) b.classList.toggle('on', (b.dataset.speed === 'fast') === !!(state && state.fast));
+    $('locFoot').textContent = mode === 'sim'
+      ? 'Walk with the joystick or with Walk Here on a hex. Arrow keys and WASD work too.'
+      : `With real GPS you can act on hexes within ${CFG.reach} m of where you are. Turn on simulated walking to test without moving.`;
+    $('keyValue').textContent = authFailed ? 'Rejected' : keyInfo.source === 'device' ? 'On This Device' : keyInfo.source === 'site' ? 'Built In' : 'Not Set';
+    $('mapFoot').textContent = `Hexes use H3 resolution ${CFG.res}, about ${hexAcross()} m across here.`;
+    openModal('settings');
+  }
+  function openKeySheet() {
+    closeModal('settings');
+    $('keyInput').value = lsGet(KEY_STORE) || '';
+    $('keyInput').placeholder = keyInfo.source === 'site' ? 'Using the key built into this site' : 'AIza…';
+    $('mapIdInput').value = lsGet(MAPID_STORE) || '';
+    $('keyRemove').hidden = !lsGet(KEY_STORE);
+    $('originText').textContent = `${siteOrigin()}/*`;
+    $('keyFoot').textContent = authFailed ? 'Google rejected the current key for this website.'
+      : keyInfo.source === 'device' ? 'Saved on this device. The page reloads to apply changes.'
+      : keyInfo.source === 'site' ? 'This site has a built-in key. A key entered here replaces it on this device.'
+      : 'No key yet. The map works, but Google marks it as a development map.';
+    openModal('keySheet');
+  }
+  function skip(minutes) {
+    if (!state) return;
+    state.offset += minutes * 60000;
+    save();
+    closeModal('settings');
+    refreshUi();
+    toast(`Skipped ${minutes >= 60 ? `${minutes / 60} hour` : `${minutes} minutes`}`, false);
+  }
+
+  $('settingsBtn').addEventListener('click', openSettings);
+  $('keyChip').addEventListener('click', openKeySheet);
+  $('keyRow').addEventListener('click', openKeySheet);
+  $('skip10').addEventListener('click', () => skip(10));
+  $('skip60').addEventListener('click', () => skip(60));
+  $('simSwitch').addEventListener('change', (e) => {
+    closeModal('settings');
+    if (e.target.checked) enterSim();
+    else enterGps();
+  });
+  $('speedSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b || !state) return;
+    state.fast = b.dataset.speed === 'fast';
+    save();
+    for (const x of $('speedSeg').children) x.classList.toggle('on', x === b);
+  });
+  $('resetRow').addEventListener('click', () => {
+    showAlert('Start Over?', 'This deletes your progress in this game on this device.', [
+      { label: 'Cancel' },
+      {
+        label: 'Start Over', style: 'destructive', onTap: () => {
+          lsSet(keyFor(mode), null);
+          const origin = mode === 'gps' && state ? { ...state.pos } : { ...SULTANAHMET };
+          state = null;
+          closeModal('settings');
+          startGame(mode, origin);
+          toast('New game started', false);
+        },
+      },
+    ]);
+  });
+  $('keySave').addEventListener('click', () => {
+    const k = $('keyInput').value.trim(), id = $('mapIdInput').value.trim();
+    if (k && !/^[A-Za-z0-9_-]{20,}$/.test(k)) {
+      showAlert('Check the Key', 'A Google Maps API key is one word of letters, numbers, dashes and underscores, usually starting with “AIza”.', [{ label: 'OK', style: 'strong' }]);
+      return;
+    }
+    lsSet(KEY_STORE, k || null);
+    lsSet(MAPID_STORE, id || null);
+    save();
+    location.reload();
+  });
+  $('keyRemove').addEventListener('click', () => {
+    lsSet(KEY_STORE, null);
+    save();
+    location.reload();
+  });
+  $('status').addEventListener('click', () => {
+    if (!mode) return;
+    if (mode === 'gps' && gps.err === 'denied') {
+      showLocHelp('Location access is turned off for this page.');
+      return;
+    }
+    showAlert('Your Reach', `You can claim, build, upgrade and collect on hexes whose center is within ${CFG.reach} m of you, inside the blue circle. For hexes further away, walk there.`, [{ label: 'OK', style: 'strong' }]);
+  });
+  $('locateBtn').addEventListener('click', () => {
+    if (!state || !map) return;
+    if (follow && map.getZoom() !== MAP.zoom) map.setZoom(MAP.zoom);
+    setFollow(true);
+    followCamera(true);
+  });
+  $('welcomeGo').addEventListener('click', () => { closeModal('welcome'); enterGps(); });
+  $('welcomeSim').addEventListener('click', () => { closeModal('welcome'); enterSim(); });
+  $('locRetry').addEventListener('click', () => { closeModal('locHelp'); enterGps(); });
+  $('locSim').addEventListener('click', () => { closeModal('locHelp'); enterSim(); });
+
+  // ------------------------------------------------------------------ input: joystick and keys (simulated walking)
+  const stick = $('stick'), knob = $('knob');
+  let stickId = null;
+  function stickMove(e) {
+    const r = stick.getBoundingClientRect();
+    let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    const max = r.width / 2 - 14, d = Math.hypot(dx, dy);
+    if (d > max) {
+      dx = (dx / d) * max;
+      dy = (dy / d) * max;
+    }
+    knob.style.transform = `translate(${dx}px, ${dy}px)`;
+    joy.x = dx / max;
+    joy.y = dy / max;
+  }
+  stick.addEventListener('pointerdown', (e) => {
+    stickId = e.pointerId;
+    stick.setPointerCapture(e.pointerId);
+    setFollow(true);
+    stickMove(e);
+  });
+  stick.addEventListener('pointermove', (e) => { if (e.pointerId === stickId) stickMove(e); });
+  const stickEnd = (e) => {
+    if (e.pointerId !== stickId) return;
+    stickId = null;
+    joy.x = joy.y = 0;
+    knob.style.transform = '';
+  };
+  stick.addEventListener('pointerup', stickEnd);
+  stick.addEventListener('pointercancel', stickEnd);
+  window.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement) return;
+    if (e.key === 'Escape') {
+      select(null);
+      return;
+    }
+    if (mode !== 'sim') return;
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(k)) {
+      keys.add(k);
+      setFollow(true);
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('keyup', (e) => keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+  window.addEventListener('blur', () => keys.clear());
+
+  // ------------------------------------------------------------------ modes
+  function enterGps() {
+    save();
+    mode = 'gps';
+    lsSet(PREF, 'gps');
+    state = null;
+    walkTarget = null;
+    select(null);
+    $('stick').hidden = true;
+    refreshStatus();
+    startGps(); // the first GPS fix starts (or resumes) the game where you are
+  }
+  function enterSim() {
+    save();
+    stopGps();
+    lsSet(PREF, 'sim');
+    state = null;
+    startGame('sim', { ...SULTANAHMET });
+  }
+  function startGame(m, origin) {
+    mode = m;
+    walkTarget = null;
+    select(null);
+    resetLayers();
+    state = load(m) || newGame(m, origin);
+    if (m === 'gps') state.pos = { ...origin };
+    version++;
+    save();
+    busy(null);
+    measureGrid(state.pos);
+    $('stick').hidden = m !== 'sim';
+    setFollow(true);
+    map.setZoom(MAP.zoom);
+    map.setCenter(state.pos);
+    territoryChanged();
+    updatePlayerVisuals();
+    updateReach(true);
+    refreshUi();
+    followCamera(false);
+    if (!myCells().length) {
+      select(cellAt(state.pos.lat, state.pos.lng));
+      toast(m === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false);
+    }
+  }
+
+  // ------------------------------------------------------------------ loop
+  let reachDirty = false;
+  let last = performance.now(), lastFollow = 0;
+  function frame(t) {
+    const dt = Math.min(0.1, (t - last) / 1000);
+    last = t;
+    const moved = step(dt);
+    if (moved) {
+      saveDue = true;
+      reachDirty = true;
+      updatePlayerVisuals();
+      if (follow && t - lastFollow > 30) {
+        lastFollow = t;
+        followCamera(false);
+      }
+    }
+    if (moved !== walking) {
+      walking = moved;
+      puckEl.classList.toggle('moving', moved);
+      refreshStatus();
+    }
+    requestAnimationFrame(frame);
+  }
+  let tickN = 0;
+  function tick() {
+    tickN++;
+    if (reachDirty) {
+      reachDirty = false;
+      updateReach(false);
+    }
+    if (tickN % 2 === 0) {
+      refreshUi();
+      if (saveDue) save();
+    }
+  }
+
+  // ------------------------------------------------------------------ boot
+  async function boot() {
+    for (const m of ['gps', 'sim']) lsSet(`clash-of-cities.web.${m}.v2`, null); // saves from the ~150 m hex version
+    for (const el of document.querySelectorAll('[data-reach]')) el.textContent = CFG.reach;
+    setFollow(true);
+    busy('Loading Google Maps…');
+    const pref = lsGet(PREF);
+    try {
+      await initMap(SULTANAHMET, pref ? 16 : 14);
+    } catch (e) {
+      fatal("Can't Load Google Maps", 'Check your internet connection and try again.');
+      return;
+    }
+    busy(null);
+    updateKeyChip();
+    layoutControls();
+    if (pref === 'gps') enterGps();
+    else if (pref === 'sim') enterSim();
+    else {
+      refreshStatus();
+      openModal('welcome');
+    }
+    requestAnimationFrame(frame);
+    setInterval(tick, 250);
+    window.addEventListener('resize', () => {
+      layoutControls();
+      followCamera(false);
+    });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+  }
+
+  // Hooks used to capture screenshots of fixed scenarios.
+  window.__coc = {
+    get state() { return state; },
+    map: () => map,
+    select: (id) => select(id),
+    fakeFix(lat, lng, acc) {
+      gps.acc = acc || 8;
+      gps.at = Date.now();
+      gps.speed = 0;
+      gps.err = null;
+      if (!state) return;
+      state.pos = { lat, lng };
+      playerMoved(false);
+      updateReach(true);
+      refreshUi();
+    },
+    scenario(name, m) {
+      m = m || 'gps';
+      for (const id of ['welcome', 'locHelp', 'settings', 'keySheet']) {
+        $(id).classList.remove('open');
+        $(id).hidden = true;
+      }
+      stopGps();
+      lsSet(keyFor(m), null);
+      gps.acc = 8;
+      gps.at = Date.now();
+      gps.speed = 0;
+      gps.err = null;
+      startGame(m, SULTANAHMET);
+      $('toast').classList.remove('show');
+      const home = cellAt(SULTANAHMET.lat, SULTANAHMET.lng);
+      const ring = ringCells(home, 1);
+      if (name !== 'fresh') {
+        state.cells[home] = { o: 'me', t: now() };
+        addBuilding(home, 'hq', 0);
+      }
+      if (name === 'build') {
+        ring.slice(0, 3).forEach((id) => (state.cells[id] = { o: 'me', t: now() }));
+        const g = addBuilding(ring[0], 'generator', 0);
+        g.stored = 64;
+        g.at = now();
+        state.credits = 520;
+      }
+      if (['midgame', 'overview'].includes(name)) {
+        ring.slice(0, 5).forEach((id) => (state.cells[id] = { o: 'me', t: now() }));
+        const [g1, g2, v1] = ring, t0 = now();
+        const a = addBuilding(g1, 'generator', 0);
+        a.stored = 118;
+        a.at = t0;
+        const b = addBuilding(g2, 'generator', 0);
+        b.stored = 36;
+        b.at = t0;
+        addBuilding(v1, 'storage', 120).ends = t0 + 83000;
+        state.credits = 485;
+        const c1 = cell(g1);
+        state.pos = offsetLL(c1, 22, 200);
+      }
+      territoryChanged();
+      updatePlayerVisuals();
+      updateReach(true);
+      refreshUi();
+      select(null);
+      followCamera(false);
+      if (name === 'fresh') select(home);
+      if (name === 'founded') select(ringCells(home, 5).filter((id) => !state.cells[id])[7]);
+      if (name === 'midgame') select(ring[0]);
+      if (name === 'build') select(ring[1]);
+      if (name === 'rival') select(Object.values(state.b).find((b) => b.o === 'selim' && b.type === 'hq').cell);
+      if (name === 'overview') {
+        setFollow(false);
+        map.setZoom(15);
+        map.setCenter({ lat: 41.0118, lng: 28.9735 });
+      }
+    },
+  };
+
+  boot();
+})();
+</script>
+
+</body>
+</html>
