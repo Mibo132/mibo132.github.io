@@ -113,6 +113,22 @@
   }
   .knob { font-size: 22px; }
 
+  .shop-btn {
+    position: absolute; z-index: 4; right: 16px; bottom: var(--ctl-bottom); width: 62px; height: 62px; padding: 0; border: 0; border-radius: 50%;
+    display: grid; place-items: center; font-size: 30px; transition: bottom .42s var(--spring);
+  }
+  .shop-btn:active { transform: scale(.94); }
+  .badge {
+    position: absolute; top: -2px; right: -2px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; border: 2px solid #fff;
+    background: var(--red); color: #fff; font: 700 12px/18px var(--round); text-align: center;
+  }
+  .placebar {
+    position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 24px; background: var(--sheet);
+  }
+  .placebar h2 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 600; }
+  .placebar p { margin: 1px 0 0; font-size: 13px; line-height: 18px; color: var(--label2); }
+
   /* ---------------------------------------------------------------- bottom sheet (selected hex) */
   .sheet {
     position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); max-height: var(--sheet-max, 60%);
@@ -289,17 +305,12 @@
   .ov.hide-pins .pin { display: none; }
   .pin, .puck { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .pi { position: absolute; left: 0; top: 0; transform: scale(var(--pz)); transform-origin: 0 0; }
+  /* Buildings are bare emoji standing on their hex (no badge background). */
   .pb {
-    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 19px; background: #fff; box-shadow: 0 0 0 3px var(--pc, #8e8e93), 0 3px 8px rgba(0, 0, 0, .35);
+    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; display: grid; place-items: center;
+    font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45));
   }
-  .t-hq .pb { left: -20px; top: -20px; width: 40px; height: 40px; font-size: 23px; }
-  .pin.own { --pc: #34c759; } .pin.rival { --pc: #ff3b30; }
-  /* Under construction: the ring fills up in orange. */
-  .pin.busy .pb {
-    background: radial-gradient(circle closest-side, #fff 80%, transparent 82%), conic-gradient(#ff9500 calc(var(--p, 0) * 360deg), #c7c7cc 0);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .35);
-  }
+  .t-hq .pb { left: -20px; top: -20px; width: 40px; height: 40px; font-size: 34px; }
   .pin.far .pi { opacity: .6; }
   .lvl {
     position: absolute; left: 8px; top: 5px; min-width: 17px; height: 17px; padding: 0 4px; border: 1.5px solid #fff; border-radius: 9px;
@@ -362,6 +373,13 @@
   </div>
 
   <div class="stick glass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
+  <button class="shop-btn glass" id="shopBtn" type="button" aria-label="Shop" hidden><span class="emo">🛒</span><span class="badge" id="invBadge" hidden></span></button>
+
+  <section class="placebar glass" id="placeBar" hidden>
+    <div class="tile lg" id="placeTile"></div>
+    <div class="titles"><h2 id="placeTitle"></h2><p id="placeSub"></p></div>
+    <button class="pill" id="placeCancel" type="button">Cancel</button>
+  </section>
 
   <section class="sheet off" id="sheet" aria-live="polite">
     <div class="grab" id="sheetGrab">
@@ -405,6 +423,22 @@
     </div>
   </div>
 
+  <div class="modal" id="shop" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><span></span><h3>🛒 Shop</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
+      <div class="page-body">
+        <p class="lead" id="shopLead"></p>
+        <h4 class="sec-h">Buildings</h4>
+        <div class="group" id="shopRows"></div>
+        <p class="sec-f">You pay when you buy. The building goes to your inventory; place it on an empty hex you own, within reach. Construction starts when you place it.</p>
+        <h4 class="sec-h" id="invHead">Inventory</h4>
+        <div class="group" id="invRows"></div>
+        <p class="sec-f" id="invFoot"></p>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="settings" hidden>
     <div class="scrim" data-close></div>
     <div class="page">
@@ -420,6 +454,7 @@
         <div class="group">
           <button class="row t action" id="skip10" type="button"><div class="tile sm tint-indigo">⏱️</div><div class="row-main"><div class="row-title">Skip 10 Minutes</div></div></button>
           <button class="row t action" id="skip60" type="button"><div class="tile sm tint-indigo">⏳</div><div class="row-main"><div class="row-title">Skip 1 Hour</div></div></button>
+          <button class="row t action" id="skip600" type="button"><div class="tile sm tint-indigo">🕙</div><div class="row-main"><div class="row-title">Skip 10 Hours</div></div></button>
         </div>
         <p class="sec-f">Construction finishes and Generators fill up as if the time had passed.</p>
         <h4 class="sec-h">Map</h4>
@@ -519,7 +554,7 @@
   const E = {
     credits: '🪙', hexes: '🗺️', builders: '👷', hq: '🏰', generator: '⚡', storage: '🏦', building: '🏗️', up: '⬆️', top: '🏆',
     neutral: '🏳️', flag: '🚩', mine: '🟩', border: '🟧', rival: '⚔️', here: '📍', ok: '✅', walk: '🚶', sim: '🕹️', fast: '🏃',
-    dir: '🧭', coin: '🪙', timer: '⏱️', warn: '⚠️', stop: '🚫', good: '🟢', weak: '🟠', bad: '🔴', hello: '👋', skip: '⏩', restart: '🔄',
+    dir: '🧭', coin: '🪙', shop: '🛒', move: '🚚', box: '📦', timer: '⏱️', warn: '⚠️', stop: '🚫', good: '🟢', weak: '🟠', bad: '🔴', hello: '👋', skip: '⏩', restart: '🔄',
   };
   const ICONS = { // SF Symbols-style glyphs for the location button, close button and chevrons
     arrow: '<path d="M20.4 3.6 4.1 10.4c-.8.3-.7 1.5.1 1.7l6.5 1.4 1.4 6.5c.2.8 1.4.9 1.7.1z" fill="currentColor"/>',
@@ -552,8 +587,8 @@
 
   // Mirrors server/config/game.json. In the full game the server checks all of this.
   const CFG = {
-    res: 11,
-    reach: 100,
+    res: 12,
+    reach: 70,
     claimCooldownMs: 5000,
     startCredits: 750,
     maxAccuracy: 65,
@@ -660,7 +695,7 @@
   const hexAcross = () => Math.round((2 * spacing) / Math.sqrt(3));
 
   // ------------------------------------------------------------------ saving
-  const SAVE_V = 3; // v3: H3 resolution 11
+  const SAVE_V = 4; // v4: H3 resolution 12, shop inventory
   const keyFor = (m) => `clash-of-cities.web.${m}.v${SAVE_V}`;
   const PREF = 'clash-of-cities.web.mode';
   function load(m) {
@@ -688,9 +723,9 @@
   }
   const inIstanbul = (p) => p.lng > ISTANBUL[0] && p.lng < ISTANBUL[2] && p.lat > ISTANBUL[1] && p.lat < ISTANBUL[3];
   function newGame(m, origin) {
-    const s = { v: SAVE_V, mode: m, origin: { ...origin }, pos: { ...origin }, offset: 0, credits: CFG.startCredits, cells: {}, b: {}, lastClaim: 0, fast: true, seq: 1, rivals: {} };
+    const s = { v: SAVE_V, mode: m, origin: { ...origin }, pos: { ...origin }, offset: 0, credits: CFG.startCredits, cells: {}, b: {}, lastClaim: 0, fast: true, seq: 1, rivals: {}, inv: {} };
     const t = Date.now();
-    const keepClear = new Set(h3.gridDisk(cellAt(origin.lat, origin.lng), 4)); // the player's start area stays free
+    const keepClear = new Set(h3.gridDisk(cellAt(origin.lat, origin.lng), 10)); // the player's start area stays free
     for (const r of inIstanbul(origin) ? ISTANBUL_RIVALS : generatedRivals(origin)) {
       s.rivals[r.key] = { name: r.name };
       const ids = h3.gridDisk(cellAt(r.at.lat, r.at.lng), r.ring).filter((id) => !keepClear.has(id) && !s.cells[id]);
@@ -751,6 +786,21 @@
     return null;
   }
   const countType = (type) => myBuildings().filter((b) => b.type === type).length;
+  const invOf = (type) => (state.inv && state.inv[type]) || 0;
+  const invTotal = () => Object.values(state.inv || {}).reduce((a, n) => a + n, 0);
+  /** Why a building can't be bought right now (null = fine). Placed and inventory count toward the limit. */
+  function buyBlock(type) {
+    const bd = CFG.buildings[type];
+    if (!bd || !bd.buildable) return "That can't be bought.";
+    const hq = hqLevel();
+    if (!hq) return 'Found your Headquarters first.';
+    const l = bd.levels[0];
+    if (l.reqHq > hq) return `Requires Headquarters level ${l.reqHq}.`;
+    const max = hqRules().limits[type] || 0, n = countType(type) + invOf(type);
+    if (n >= max) return `Limit reached (${n} of ${max}). Upgrade your Headquarters.`;
+    if (state.credits < l.cost) return `Need ${fmtNum(l.cost)} credits.`;
+    return null;
+  }
   const touchesMine = (id) => h3.gridDisk(id, 1).some((n) => n !== id && state.cells[n] && state.cells[n].o === 'me');
   const rivalName = (key) => (state.rivals[key] && state.rivals[key].name) || 'Rival';
 
@@ -859,23 +909,36 @@
       }
       return { e: E.flag, t: `Hex claimed for ${fmtNum(cost)} credits` };
     },
-    build(id, type) {
+    buy(type) {
+      const why = buyBlock(type);
+      if (why) fail(why);
+      const bd = CFG.buildings[type];
+      state.credits -= bd.levels[0].cost;
+      state.inv[type] = invOf(type) + 1;
+      return { e: E.shop, t: `${bd.name} added to your inventory` };
+    },
+    place(id, type) {
       const bd = CFG.buildings[type];
       if (!bd || !bd.buildable) fail("That can't be built.");
+      if (invOf(type) < 1) fail(`No ${bd.name} in your inventory. Buy one in the shop.`);
       if (!state.cells[id] || state.cells[id].o !== 'me') fail('You can only build on your own territory.');
       if (buildingOn(id)) fail('This hex already has a building.');
-      const hq = hqLevel();
-      if (!hq) fail('Found your Headquarters first.');
       const l = bd.levels[0];
-      if (l.reqHq > hq) fail(`Requires Headquarters level ${l.reqHq}.`);
-      const max = hqRules().limits[type] || 0;
-      if (countType(type) >= max) fail(`You can have ${max} ${bd.name}${max === 1 ? '' : 's'} at this Headquarters level.`);
       if (l.secs > 0) { const bs = builders(); if (bs.busy >= bs.total) fail('All builders are busy.'); }
       requireReach(cell(id));
-      if (state.credits < l.cost) fail(`Not enough credits (need ${l.cost}).`);
-      state.credits -= l.cost;
+      state.inv[type] -= 1;
       addBuilding(id, type, l.secs);
-      return { e: E.building, t: `${bd.name} construction started` };
+      return { e: E.building, t: `${bd.name} placed. Construction started.` };
+    },
+    move(bid, id) {
+      const b = state.b[bid];
+      if (!b || b.o !== 'me') fail('Building not found.');
+      if (!state.cells[id] || state.cells[id].o !== 'me') fail('Move it to a hex you own.');
+      if (id === b.cell) fail('It is already here.');
+      if (buildingOn(id)) fail('That hex already has a building.');
+      requireReach(cell(id));
+      b.cell = id;
+      return { e: E.move, t: `${CFG.buildings[b.type].name} moved` };
     },
     upgrade(bid) {
       const b = state.b[bid];
@@ -919,16 +982,20 @@
   function run(kind, ...args) {
     settleAll();
     const before = version;
+    let ok = false;
     try {
       const r = actions[kind](...args);
       toast(r.t, false, r.e);
       save();
+      ok = true;
     } catch (e) {
       if (!(e instanceof GameError)) throw e;
       toast(e.message, true);
     }
     if (version !== before) territoryChanged();
+    else restyleGrid();
     refreshUi();
+    return ok;
   }
 
   // What the selected hex offers (port of the game client's CellActions rules).
@@ -980,17 +1047,15 @@
         out.sub = 'Empty. One building fits on each hex.';
         out.tile = { icon: E.mine, tint: 'green' };
         for (const [type, bd] of Object.entries(CFG.buildings)) {
-          if (!bd.buildable) continue;
-          const l = bd.levels[0], max = hqRules().limits[type] || 0, n = countType(type);
-          let why = null;
-          if (l.reqHq > hqLevel()) why = `Requires Headquarters level ${l.reqHq}`;
-          else if (n >= max) why = `Limit reached (${n} of ${max}). Upgrade your Headquarters.`;
-          else if (l.secs > 0 && bs.busy >= bs.total) why = 'All builders are busy';
-          else if (state.credits < l.cost) why = `Need ${fmtNum(l.cost)} credits`;
-          why = why || reachWhy;
-          out.rows.push({ key: 'build-' + type, kind: 'build', type, icon: EMOJI_FOR[type], tint: TINT_FOR[type], title: bd.name,
-            sub: why || `${fmtNum(l.cost)} credits · ${fmtDur(l.secs)} · ${effect(type, l)}`, why: !!why, button: 'Build', enabled: !why });
+          const n = invOf(type);
+          if (!bd.buildable || n < 1) continue;
+          const l = bd.levels[0];
+          const why = (l.secs > 0 && bs.busy >= bs.total ? 'All builders are busy' : null) || reachWhy;
+          out.rows.push({ key: 'place-' + type, kind: 'place', type, icon: EMOJI_FOR[type], tint: TINT_FOR[type], title: bd.name,
+            sub: why || `${n} in inventory · builds in ${fmtDur(l.secs)}`, why: !!why, button: 'Place', enabled: !why });
         }
+        if (!out.rows.length) out.note = 'Buy buildings in the shop, then place them on your empty hexes.';
+        out.primary.push({ key: 'shop', kind: 'shop', label: 'Open Shop', icon: E.shop, enabled: true });
       } else {
         const bd = CFG.buildings[b.type], l = def(b.type, b.lvl);
         out.title = bd.name;
@@ -1024,6 +1089,8 @@
         } else {
           out.rows.push({ key: 'max', kind: 'none', icon: E.top, tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
         }
+        out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: 'Move',
+          sub: 'To an empty hex you own, within reach', button: 'Move', enabled: true });
         if (b.type === 'hq') {
           const nx = CFG.hq[b.lvl];
           out.note = nx
@@ -1066,7 +1133,7 @@
   const KEY_STORE = 'clash-of-cities.gmaps.key';
   const MAPID_STORE = 'clash-of-cities.gmaps.mapId';
   const BUILD_KEY = ""; // filled in by build.py from GOOGLE_MAPS_API_KEY
-  const MAP = { zoom: 17, pinZoom: 17.5, gridMinZoom: 15.5, pinMinZoom: 14, maxGridRings: 18 };
+  const MAP = { zoom: 18, pinZoom: 18.5, gridMinZoom: 17, pinMinZoom: 16, maxGridRings: 24 };
   const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
 
   // A key can also arrive as ?key=… (it is saved on this device and removed from the address).
@@ -1142,6 +1209,7 @@
       n: { ...base, fillOpacity: 0, strokeColor: grid, strokeOpacity: 0.3, strokeWeight: 1, zIndex: 1 },
       oMe: { ...base, fillOpacity: 0, strokeColor: COL.own, strokeOpacity: 1, strokeWeight: 3, zIndex: 5 },
       oRival: { ...base, fillOpacity: 0, strokeColor: COL.rival, strokeOpacity: 1, strokeWeight: 2.5, zIndex: 5 },
+      lot: { ...base, fillColor: COL.own, fillOpacity: 0.6, strokeColor: '#ffffff', strokeOpacity: 1, strokeWeight: 2.5, zIndex: 6 },
     };
     map.data.setStyle((f) => STYLES[f.getProperty('s')] || STYLES.n);
     layers.sel = new gm.Polygon({ map, paths: [], visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 1, strokeWeight: 3.5, fillColor: COL.blue, fillOpacity: 0.12, zIndex: 20 });
@@ -1166,7 +1234,12 @@
     overlay.root.appendChild(puckEl);
     overlay.setMap(map);
 
-    map.addListener('click', (e) => { if (state && e.latLng) select(cellAt(e.latLng.lat(), e.latLng.lng())); });
+    map.addListener('click', (e) => {
+      if (!state || !e.latLng) return;
+      const id = cellAt(e.latLng.lat(), e.latLng.lng());
+      if (placing) placeAt(id);
+      else select(id);
+    });
     map.addListener('dragstart', () => setFollow(false));
     let recenterOnIdle = false;
     map.addListener('zoom_changed', () => { onZoom(); recenterOnIdle = follow; });
@@ -1208,7 +1281,7 @@
   }
   function styleKey(id) {
     const c = state.cells[id];
-    if (c) return c.o === 'me' ? 'own' : 'rival';
+    if (c) return c.o !== 'me' ? 'rival' : placing && reachSet.has(id) && !buildingOn(id) ? 'lot' : 'own';
     const r = reachSet.has(id);
     if (frontier.has(id)) return r ? 'claimR' : 'claim';
     return r ? 'nR' : 'n';
@@ -1326,11 +1399,17 @@
         const c = cell(b.cell);
         const el = document.createElement('div');
         el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="lvl"></div><div class="nm"></div></div>';
-        pin = { el, ll: new gm.LatLng(c.lat, c.lng), cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '' };
+        pin = { el, cellId: b.cell, ll: new gm.LatLng(c.lat, c.lng), cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '' };
         pins.set(b.id, pin);
         overlay.root.insertBefore(el, puckEl);
         const proj = overlay.getProjection();
         if (proj) place(el, proj.fromLatLngToDivPixel(pin.ll));
+      }
+      if (pin.cellId !== b.cell) {
+        const c = cell(b.cell), proj = overlay.getProjection();
+        pin.cellId = b.cell;
+        pin.ll = new gm.LatLng(c.lat, c.lng);
+        if (proj) place(pin.el, proj.fromLatLngToDivPixel(pin.ll));
       }
       const own = b.o === 'me', active = b.st === 'active', d = def(b.type, b.lvl);
       pin.el.className = `pin t-${b.type} ${own ? 'own' : 'rival'}${active ? '' : ' busy'}${own && !reachSet.has(b.cell) ? ' far' : ''}`;
@@ -1342,8 +1421,6 @@
       pin.lvl.textContent = b.lvl;
       let cap = '', capCls = 'cap';
       if (!active) {
-        const total = (b.st === 'constructing' ? d.secs : CFG.buildings[b.type].levels[b.lvl].secs) * 1000;
-        pin.pb.style.setProperty('--p', total ? Math.min(1, 1 - (b.ends - t) / total).toFixed(3) : '1');
         if (own) cap = `${E.timer} ${fmtClock(b.ends - t)}`;
       } else if (own && d.rate && b.stored >= 1) {
         const full = b.stored >= d.buffer;
@@ -1488,6 +1565,9 @@
     $('hexesK').textContent = hq ? `Hexes · HQ ${hq}` : 'Hexes';
     $('builders').textContent = hq ? bs.total - bs.busy : '–';
     $('buildersMax').textContent = hq ? `/${bs.total}` : '';
+    const n = invTotal();
+    $('invBadge').hidden = !n;
+    $('invBadge').textContent = n;
   }
   function refreshStatus() {
     let emoji, text;
@@ -1631,16 +1711,83 @@
       return;
     }
     if (a.kind === 'claim') run('claim', selected);
-    else if (a.kind === 'build') run('build', selected, a.type);
+    else if (a.kind === 'place') run('place', selected, a.type);
+    else if (a.kind === 'move') startPlacing({ kind: 'move', id: a.id });
+    else if (a.kind === 'shop') openShop();
     else if (a.kind === 'upgrade') run('upgrade', a.id);
     else if (a.kind === 'collect') run('collect', a.id);
   }
+  // Placing a building from the inventory, or moving one (Clash of Clans style): tap a highlighted hex.
+  let placing = null; // { kind: 'place', type } | { kind: 'move', id }
+  function startPlacing(p) {
+    closeModal('shop');
+    select(null);
+    placing = p;
+    const type = p.kind === 'place' ? p.type : state.b[p.id].type, bd = CFG.buildings[type];
+    setTile($('placeTile'), EMOJI_FOR[type], TINT_FOR[type], 'lg');
+    $('placeTitle').textContent = p.kind === 'place' ? `Place ${bd.name}` : `Move ${bd.name}`;
+    $('placeSub').textContent = 'Tap a bright green hex: empty, yours and within reach.';
+    $('placeBar').hidden = false;
+    layoutControls();
+    restyleGrid();
+  }
+  function stopPlacing() {
+    placing = null;
+    $('placeBar').hidden = true;
+    layoutControls();
+    restyleGrid();
+  }
+  function placeAt(id) {
+    const p = placing;
+    const ok = p.kind === 'place' ? run('place', id, p.type) : run('move', p.id, id);
+    if (!ok) return;
+    stopPlacing();
+    select(id);
+  }
+  $('placeCancel').addEventListener('click', stopPlacing);
+
+  function renderShop() {
+    const hq = hqLevel();
+    $('shopLead').textContent = hq ? `You have ${fmtNum(state.credits)} credits.` : 'Found your Headquarters first: tap the hex you stand on.';
+    const rows = [], inv = [];
+    for (const [type, bd] of Object.entries(CFG.buildings)) {
+      if (!bd.buildable) continue;
+      const l = bd.levels[0], why = buyBlock(type), max = hq ? hqRules().limits[type] || 0 : 0;
+      rows.push(`<div class="row t"><div class="tile sm tint-${TINT_FOR[type]}">${EMOJI_FOR[type]}</div><div class="row-main"><div class="row-title">${bd.name} <small style="color: var(--label2)">${countType(type) + invOf(type)} of ${max}</small></div>` +
+        `<div class="row-sub${why ? ' warn' : ''}">${why || `${effect(type, l)} · builds in ${fmtDur(l.secs)}`}</div></div>` +
+        `<button class="pill" type="button" data-buy="${type}"${why ? ' disabled' : ''}>${E.coin} ${fmtNum(l.cost)}</button></div>`);
+      if (invOf(type)) {
+        inv.push(`<div class="row t"><div class="tile sm tint-${TINT_FOR[type]}">${EMOJI_FOR[type]}</div><div class="row-main"><div class="row-title">${bd.name} × ${invOf(type)}</div>` +
+          `<div class="row-sub">Ready to place</div></div><button class="pill" type="button" data-place="${type}">Place</button></div>`);
+      }
+    }
+    $('shopRows').innerHTML = rows.join('');
+    $('invRows').innerHTML = inv.join('');
+    $('invRows').hidden = !inv.length;
+    $('invFoot').textContent = inv.length ? 'Place moves you to the map: tap an empty hex you own, within reach.' : `${E.box} Your inventory is empty.`;
+  }
+  function openShop() {
+    if (!state) return;
+    settleAll();
+    renderShop();
+    openModal('shop');
+  }
+  $('shopBtn').addEventListener('click', openShop);
+  $('shop').addEventListener('click', (e) => {
+    const buy = e.target.closest('[data-buy]'), put = e.target.closest('[data-place]');
+    if (buy && !buy.disabled) {
+      run('buy', buy.dataset.buy);
+      renderShop();
+    } else if (put) startPlacing({ kind: 'place', type: put.dataset.place });
+  });
+
   function layoutControls() {
-    const h = sheetEl.offsetHeight;
-    appEl.style.setProperty('--ctl-bottom', sheetOpen ? `${Math.round(sheetBottomPx() + h + 14)}px` : 'calc(var(--sb) + 40px)');
+    const h = sheetOpen ? sheetEl.offsetHeight : !$('placeBar').hidden ? $('placeBar').offsetHeight : 0;
+    appEl.style.setProperty('--ctl-bottom', h ? `${Math.round(sheetBottomPx() + h + 14)}px` : 'calc(var(--sb) + 40px)');
     appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 12))}px`);
   }
   function select(id) {
+    if (id && placing) stopPlacing();
     selected = id || null;
     if (!selected) {
       if (layers.sel) layers.sel.setVisible(false);
@@ -1783,7 +1930,8 @@
     save();
     closeModal('settings');
     refreshUi();
-    toast(`Skipped ${minutes >= 60 ? `${minutes / 60} hour` : `${minutes} minutes`}`, false, E.skip);
+    const h = minutes / 60;
+    toast(`Skipped ${minutes >= 60 ? `${h} hour${h === 1 ? '' : 's'}` : `${minutes} minutes`}`, false, E.skip);
   }
 
   $('settingsBtn').addEventListener('click', openSettings);
@@ -1791,6 +1939,7 @@
   $('keyRow').addEventListener('click', openKeySheet);
   $('skip10').addEventListener('click', () => skip(10));
   $('skip60').addEventListener('click', () => skip(60));
+  $('skip600').addEventListener('click', () => skip(600));
   $('simSwitch').addEventListener('change', (e) => {
     closeModal('settings');
     if (e.target.checked) enterSim();
@@ -1886,6 +2035,7 @@
   window.addEventListener('keydown', (e) => {
     if (e.target instanceof HTMLInputElement) return;
     if (e.key === 'Escape') {
+      if (placing) stopPlacing();
       select(null);
       return;
     }
@@ -1931,6 +2081,9 @@
     busy(null);
     measureGrid(state.pos);
     $('stick').hidden = m !== 'sim';
+    $('shopBtn').hidden = false;
+    state.inv = state.inv || {};
+    if (placing) stopPlacing();
     setFollow(true);
     map.setZoom(MAP.zoom);
     map.setCenter(state.pos);
@@ -2030,7 +2183,7 @@
     },
     scenario(name, m) {
       m = m || 'gps';
-      for (const id of ['welcome', 'locHelp', 'settings', 'keySheet']) {
+      for (const id of ['welcome', 'locHelp', 'settings', 'keySheet', 'shop']) {
         $(id).classList.remove('open');
         $(id).hidden = true;
       }
@@ -2053,7 +2206,8 @@
         const g = addBuilding(ring[0], 'generator', 0);
         g.stored = 64;
         g.at = now();
-        state.credits = 520;
+        state.credits = 370;
+        state.inv = { generator: 1, storage: 1 };
       }
       if (['midgame', 'overview'].includes(name)) {
         ring.slice(0, 5).forEach((id) => (state.cells[id] = { o: 'me', t: now() }));
@@ -2082,8 +2236,8 @@
       if (name === 'rival') select(Object.values(state.b).find((b) => b.o === 'selim' && b.type === 'hq').cell);
       if (name === 'overview') {
         setFollow(false);
-        map.setZoom(15);
-        map.setCenter({ lat: 41.0118, lng: 28.9735 });
+        map.setZoom(16.5);
+        map.setCenter({ lat: 41.0085, lng: 28.9745 });
       }
     },
   };
