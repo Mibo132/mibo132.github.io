@@ -23,7 +23,7 @@
     color-scheme: light dark;
     --blue: #007aff; --green: #34c759; --red: #ff3b30; --orange: #ff9500; --yellow: #ffcc00;
     --indigo: #5856d6; --teal: #30b0c7; --gray: #8e8e93;
-    --blue-t: rgba(0, 122, 255, .14); --green-t: rgba(52, 199, 89, .16); --red-t: rgba(255, 59, 48, .14); --orange-t: rgba(255, 149, 0, .17);
+    --blue-t: rgba(0, 122, 255, .14); --green-t: rgba(52, 199, 89, .16); --red-t: rgba(255, 59, 48, .14); --orange-t: rgba(255, 149, 0, .17); --indigo-t: rgba(88, 86, 214, .15);
     --label: #000; --label2: rgba(60, 60, 67, .6); --label3: rgba(60, 60, 67, .3); --sep: rgba(60, 60, 67, .29);
     --page: #f2f2f7; --row: #fff; --row-hi: #e5e5ea;
     --fill: rgba(120, 120, 128, .2); --fill3: rgba(118, 118, 128, .12);
@@ -41,7 +41,7 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --blue: #0a84ff; --green: #30d158; --red: #ff453a; --orange: #ff9f0a; --yellow: #ffd60a; --indigo: #5e5ce6; --teal: #40cbe0;
-      --blue-t: rgba(10, 132, 255, .22); --green-t: rgba(48, 209, 88, .2); --red-t: rgba(255, 69, 58, .2); --orange-t: rgba(255, 159, 10, .2);
+      --blue-t: rgba(10, 132, 255, .22); --green-t: rgba(48, 209, 88, .2); --red-t: rgba(255, 69, 58, .2); --orange-t: rgba(255, 159, 10, .2); --indigo-t: rgba(94, 92, 230, .26);
       --label: #fff; --label2: rgba(235, 235, 245, .6); --label3: rgba(235, 235, 245, .3); --sep: rgba(84, 84, 88, .65);
       --page: #1c1c1e; --row: #2c2c2e; --row-hi: #3a3a3c;
       --fill: rgba(120, 120, 128, .36); --fill3: rgba(118, 118, 128, .24);
@@ -61,6 +61,8 @@
   button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   input { -webkit-user-select: text; user-select: text; }
   svg { display: block; }
+  /* Emoji icons: Apple's on iPhone. */
+  .emo, .tile, .pb, .knob, .w-ic, .hero-ic, .bi { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-weight: 400; line-height: 1; }
   [hidden] { display: none !important; }
 
   #app { position: fixed; inset: 0; overflow: hidden; }
@@ -81,9 +83,7 @@
   .stat-k { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .stat-v { display: flex; align-items: center; gap: 5px; margin-top: 1px; font: 600 19px/24px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .stat-v small { font: 500 13px var(--round); color: var(--label2); }
-  .stat-v .ic { width: 18px; height: 18px; flex: none; }
-  .stat-v .ic svg { width: 100%; height: 100%; }
-  .ic.coin { color: var(--yellow); } .ic.hexic { color: var(--green); } .ic.ham { color: var(--orange); }
+  .stat-v .emo { flex: none; font-size: 17px; }
   .meter { height: 4px; margin-top: 4px; border-radius: 2px; background: var(--fill); overflow: hidden; }
   .meter i { display: block; width: 0; height: 100%; border-radius: 2px; background: var(--yellow); transition: width .4s; }
   .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; pointer-events: none; }
@@ -92,19 +92,15 @@
     pointer-events: auto; display: inline-flex; align-items: center; gap: 7px; max-width: 100%; height: 32px; padding: 0 13px 0 11px;
     border: 0; border-radius: 16px; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden;
   }
-  .capsule > span:not(.dot) { overflow: hidden; text-overflow: ellipsis; }
-  .capsule .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
-  .capsule.warn .dot { background: var(--orange); } .capsule.bad .dot { background: var(--red); } .capsule.sim .dot { background: var(--blue); }
-  .capsule.idle .dot { background: var(--gray); }
-  .capsule .ic { flex: none; width: 16px; height: 16px; } .capsule .ic svg { width: 100%; height: 100%; }
-  .keychip .ic:first-child { color: var(--orange); } .keychip.bad .ic:first-child { color: var(--red); }
-  .keychip .ic:last-child { width: 11px; height: 11px; color: var(--label3); }
+  .capsule > span:not(.emo) { overflow: hidden; text-overflow: ellipsis; }
+  .capsule .emo { flex: none; font-size: 14px; }
+  .capsule .ic { flex: none; width: 11px; height: 11px; color: var(--label3); } .capsule .ic svg { width: 100%; height: 100%; }
   .fabs { pointer-events: auto; flex: none; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; }
   .fab { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; background: none; color: var(--blue); }
   .fab + .fab { border-top: .5px solid var(--sep); }
   .fab svg { width: 22px; height: 22px; }
   .fab:active { background: var(--fill3); }
-  .fab.gear { color: var(--label2); }
+  .fab .emo { font-size: 21px; }
 
   /* ---------------------------------------------------------------- simulated-walking joystick */
   .stick {
@@ -115,7 +111,7 @@
     position: absolute; left: 50%; top: 50%; width: 42px; height: 42px; margin: -21px 0 0 -21px; border-radius: 50%;
     display: grid; place-items: center; background: #fff; color: #007aff; box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
   }
-  .knob svg { width: 22px; height: 22px; }
+  .knob { font-size: 22px; }
 
   /* ---------------------------------------------------------------- bottom sheet (selected hex) */
   .sheet {
@@ -136,7 +132,7 @@
   .xbtn svg { width: 14px; height: 14px; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   .tag { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 8px; border-radius: 13px; font-size: 13px; font-weight: 600; background: var(--fill3); color: var(--label2); }
-  .tag svg { width: 14px; height: 14px; }
+  .tag .emo { font-size: 13px; }
   .tag.green { background: var(--green-t); color: var(--green); }
   .tag.orange { background: var(--orange-t); color: var(--orange); }
   .tag.red { background: var(--red-t); color: var(--red); }
@@ -156,7 +152,7 @@
     display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin-top: 12px; padding: 0 20px;
     border: 0; border-radius: 25px; background: var(--blue); color: #fff; font-size: 17px; font-weight: 600; text-decoration: none;
   }
-  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn .bi { flex: none; font-size: 19px; }
   .btn:active { opacity: .7; }
   .btn:disabled { background: var(--fill3); color: var(--label3); opacity: 1; }
   .btn.tinted { background: var(--blue-t); color: var(--blue); }
@@ -185,14 +181,11 @@
   .row-chev svg { width: 100%; height: 100%; }
   .row.danger .row-title { color: var(--red); }
   .row.action .row-title { color: var(--blue); }
-  .tile { flex: none; display: grid; place-items: center; color: #fff; background: var(--gray); }
-  .tile.sm { width: 30px; height: 30px; border-radius: 8px; }
-  .tile.sm svg { width: 18px; height: 18px; }
-  .tile.lg { width: 48px; height: 48px; border-radius: 13px; }
-  .tile.lg svg { width: 28px; height: 28px; }
-  .tint-blue { background: var(--blue); } .tint-green { background: var(--green); } .tint-red { background: var(--red); }
-  .tint-orange { background: var(--orange); } .tint-indigo { background: var(--indigo); } .tint-teal { background: var(--teal); }
-  .tint-gray { background: var(--gray); } .tint-yellow { background: var(--yellow); }
+  .tile { flex: none; display: grid; place-items: center; background: var(--fill3); }
+  .tile.sm { width: 30px; height: 30px; border-radius: 8px; font-size: 17px; }
+  .tile.lg { width: 48px; height: 48px; border-radius: 13px; font-size: 27px; }
+  .tint-blue { background: var(--blue-t); } .tint-green { background: var(--green-t); } .tint-red { background: var(--red-t); }
+  .tint-orange { background: var(--orange-t); } .tint-indigo { background: var(--indigo-t); } .tint-gray { background: var(--fill3); }
 
   .switch { position: relative; flex: none; width: 51px; height: 31px; }
   .switch input { width: 100%; height: 100%; margin: 0; border-radius: 16px; background: var(--fill); -webkit-appearance: none; appearance: none; transition: background .25s; cursor: pointer; }
@@ -215,8 +208,7 @@
     background: var(--sheet); transform: translate(-50%, calc(-100% - 40px)); transition: transform .5s var(--spring); pointer-events: none;
   }
   .banner.show { transform: translate(-50%, 0); }
-  .banner svg { width: 24px; height: 24px; flex: none; color: var(--green); }
-  .banner.err svg { color: var(--orange); }
+  .banner .emo { flex: none; font-size: 21px; }
   .busy { position: absolute; z-index: 9; left: 50%; top: 50%; display: flex; width: max-content; max-width: calc(100% - 40px); align-items: center; gap: 10px; padding: 12px 18px; border-radius: 22px; font-size: 15px; font-weight: 600; transform: translate(-50%, -50%); pointer-events: none; }
   .spinner { position: relative; flex: none; width: 20px; height: 20px; }
   .spinner i { position: absolute; left: 9px; top: 0; width: 2.4px; height: 6px; border-radius: 1.2px; background: var(--label2); transform-origin: 1.2px 10px; animation: spin-fade .8s linear infinite; }
@@ -258,16 +250,14 @@
   .w-title { margin: 0; text-align: center; font-size: 34px; line-height: 41px; font-weight: 700; }
   .w-list { display: flex; flex-direction: column; gap: 24px; margin: 34px 4px 30px; }
   .w-item { display: flex; align-items: flex-start; gap: 16px; }
-  .w-ic { flex: none; width: 42px; height: 42px; }
-  .w-ic svg { width: 100%; height: 100%; }
+  .w-ic { flex: none; width: 42px; font-size: 34px; text-align: center; }
   .w-item b { display: block; font-size: 17px; line-height: 22px; font-weight: 600; }
   .w-item p { margin: 2px 0 0; font-size: 15px; line-height: 20px; color: var(--label2); }
   .w-foot { margin-top: auto; }
   .w-privacy { display: flex; gap: 8px; margin: 0 4px 6px; font-size: 12px; line-height: 16px; color: var(--label2); }
-  .w-privacy .ic { flex: none; width: 18px; height: 18px; color: var(--blue); }
-  .w-privacy .ic svg { width: 100%; height: 100%; }
+  .w-privacy .emo { flex: none; font-size: 15px; }
   .hero-ic { display: grid; place-items: center; width: 64px; height: 64px; margin: 20px auto 12px; border-radius: 50%; background: var(--blue-t); color: var(--blue); }
-  .hero-ic svg { width: 32px; height: 32px; }
+  .hero-ic { font-size: 32px; }
   .h-title { margin: 0; text-align: center; font-size: 28px; line-height: 34px; font-weight: 700; }
 
   /* ---------------------------------------------------------------- alert */
@@ -300,14 +290,16 @@
   .pin, .puck { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .pi { position: absolute; left: 0; top: 0; transform: scale(var(--pz)); transform-origin: 0 0; }
   .pb {
-    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border: 2.5px solid #fff; border-radius: 50%;
-    display: grid; place-items: center; color: #fff; background: var(--pc, #8e8e93); box-shadow: 0 2px 6px rgba(0, 0, 0, .32);
+    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 19px; background: #fff; box-shadow: 0 0 0 3px var(--pc, #8e8e93), 0 3px 8px rgba(0, 0, 0, .35);
   }
-  .pb svg { width: 17px; height: 17px; }
-  .t-hq .pb { left: -20px; top: -20px; width: 40px; height: 40px; }
-  .t-hq .pb svg { width: 21px; height: 21px; }
-  .pin.own.t-hq { --pc: #007aff; } .pin.own.t-generator { --pc: #ff9500; } .pin.own.t-storage { --pc: #5856d6; } .pin.rival { --pc: #ff3b30; }
-  .pin.busy .pb { background: conic-gradient(#ff9500 calc(var(--p, 0) * 360deg), #8e8e93 0); }
+  .t-hq .pb { left: -20px; top: -20px; width: 40px; height: 40px; font-size: 23px; }
+  .pin.own { --pc: #34c759; } .pin.rival { --pc: #ff3b30; }
+  /* Under construction: the ring fills up in orange. */
+  .pin.busy .pb {
+    background: radial-gradient(circle closest-side, #fff 80%, transparent 82%), conic-gradient(#ff9500 calc(var(--p, 0) * 360deg), #c7c7cc 0);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .35);
+  }
   .pin.far .pi { opacity: .6; }
   .lvl {
     position: absolute; left: 8px; top: 5px; min-width: 17px; height: 17px; padding: 0 4px; border: 1.5px solid #fff; border-radius: 9px;
@@ -321,10 +313,7 @@
   }
   .cap:empty { display: none; }
   .t-hq .cap { bottom: 23px; }
-  .cap::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #ffcc00; box-shadow: inset 0 0 0 1.5px #e6a700; }
-  .cap.timer::before { background: none; box-shadow: inset 0 0 0 1.8px #ff9500; }
   .cap.full { background: #ff9500; color: #fff; }
-  .cap.full::before { background: #fff; box-shadow: none; }
   .nm { position: absolute; left: 0; bottom: 23px; transform: translateX(-50%); font: 600 12px var(--font); color: #d70015; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
   .nm:empty { display: none; }
   .puck .halo { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 122, 255, .24); animation: puck 2.4s ease-out infinite; }
@@ -348,31 +337,31 @@
     <header class="hud glass" id="hud">
       <div class="stat">
         <div class="stat-k">Credits</div>
-        <div class="stat-v"><span class="ic coin" data-icon="coin"></span><span id="credits">–</span><small id="creditsCap"></small></div>
+        <div class="stat-v"><span class="emo">🪙</span><span id="credits">–</span><small id="creditsCap"></small></div>
         <div class="meter"><i id="creditsBar"></i></div>
       </div>
       <div class="stat">
         <div class="stat-k" id="hexesK">Hexes</div>
-        <div class="stat-v"><span class="ic hexic" data-icon="hex"></span><span id="hexes">–</span><small id="hexesMax"></small></div>
+        <div class="stat-v"><span class="emo">🗺️</span><span id="hexes">–</span><small id="hexesMax"></small></div>
       </div>
       <div class="stat">
         <div class="stat-k">Builders</div>
-        <div class="stat-v"><span class="ic ham" data-icon="hammer"></span><span id="builders">–</span><small id="buildersMax"></small></div>
+        <div class="stat-v"><span class="emo">👷</span><span id="builders">–</span><small id="buildersMax"></small></div>
       </div>
     </header>
     <div class="top-row">
       <div class="chips">
-        <button class="capsule glass idle" id="status" type="button"><span class="dot"></span><span id="statusText">Loading…</span></button>
-        <button class="capsule glass keychip" id="keyChip" type="button" hidden><span class="ic" data-icon="warn"></span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
+        <button class="capsule glass" id="status" type="button"><span class="emo" id="statusEmo">⏳</span><span id="statusText">Loading…</span></button>
+        <button class="capsule glass keychip" id="keyChip" type="button" hidden><span class="emo" id="keyChipEmo">⚠️</span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
       </div>
       <div class="fabs glass">
-        <button class="fab gear" id="settingsBtn" type="button" aria-label="Settings"><span data-icon="gear"></span></button>
+        <button class="fab" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
         <button class="fab" id="locateBtn" type="button" aria-label="Follow my location" aria-pressed="true"></button>
       </div>
     </div>
   </div>
 
-  <div class="stick glass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob" data-icon="walk"></div></div>
+  <div class="stick glass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
 
   <section class="sheet off" id="sheet" aria-live="polite">
     <div class="grab" id="sheetGrab">
@@ -393,7 +382,7 @@
     <p class="note" id="sheetNote"></p>
   </section>
 
-  <div class="banner glass" id="toast" role="status"><span id="toastIcon"></span><span id="toastText"></span></div>
+  <div class="banner glass" id="toast" role="status"><span class="emo" id="toastIcon"></span><span id="toastText"></span></div>
   <div class="busy glass" id="busy" hidden><span class="spinner"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="busyText">Loading…</span></div>
 
   <div class="modal" id="welcome" hidden>
@@ -403,12 +392,12 @@
         <div class="appicon" id="appIcon"></div>
         <h1 class="w-title">Welcome to Clash&nbsp;of&nbsp;Cities</h1>
         <div class="w-list">
-          <div class="w-item"><div class="w-ic" style="color: var(--green)" data-icon="hex"></div><div><b>Claim Real Places</b><p>Found your Headquarters where you stand, then grow your territory one hex at a time.</p></div></div>
-          <div class="w-item"><div class="w-ic" style="color: var(--orange)" data-icon="hammer"></div><div><b>Build Your Base</b><p>Generators make credits and Vaults store them, even while you're away.</p></div></div>
-          <div class="w-item"><div class="w-ic" style="color: var(--blue)" data-icon="walk"></div><div><b>Walk to Play</b><p>You can act on hexes within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
+          <div class="w-item"><div class="w-ic">🗺️</div><div><b>Claim Real Places</b><p>Found your Headquarters where you stand, then grow your territory one hex at a time.</p></div></div>
+          <div class="w-item"><div class="w-ic">🏗️</div><div><b>Build Your Base</b><p>Generators make credits and Vaults store them, even while you're away.</p></div></div>
+          <div class="w-item"><div class="w-ic">🚶</div><div><b>Walk to Play</b><p>You can act on hexes within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
         </div>
         <div class="w-foot">
-          <p class="w-privacy"><span class="ic" data-icon="arrow"></span><span>Your location is only used while the game is open. Your progress is saved on this device. Watch where you walk and stay off roads, rail tracks and private property.</span></p>
+          <p class="w-privacy"><span class="emo">📍</span><span>Your location is only used while the game is open. Your progress is saved on this device. Watch where you walk and stay off roads, rail tracks and private property.</span></p>
           <button class="btn" id="welcomeGo" type="button">Continue</button>
           <button class="btn plain" id="welcomeSim" type="button">Play with Simulated Walking</button>
         </div>
@@ -423,19 +412,19 @@
       <div class="page-body">
         <h4 class="sec-h">Location</h4>
         <div class="group">
-          <div class="row t"><div class="tile sm tint-blue" data-icon="walk"></div><div class="row-main"><div class="row-title">Simulated Walking</div></div><label class="switch"><input type="checkbox" id="simSwitch" aria-label="Simulated walking"><span></span></label></div>
-          <div class="row t" id="speedRow"><div class="tile sm tint-gray" data-icon="fwd"></div><div class="row-main"><div class="row-title">Speed</div></div><div class="seg" id="speedSeg"><button type="button" data-speed="walk">1.4 m/s</button><button type="button" data-speed="fast">20 m/s</button></div></div>
+          <div class="row t"><div class="tile sm tint-blue">🚶</div><div class="row-main"><div class="row-title">Simulated Walking</div></div><label class="switch"><input type="checkbox" id="simSwitch" aria-label="Simulated walking"><span></span></label></div>
+          <div class="row t" id="speedRow"><div class="tile sm tint-gray">⏩</div><div class="row-main"><div class="row-title">Speed</div></div><div class="seg" id="speedSeg"><button type="button" data-speed="walk">1.4 m/s</button><button type="button" data-speed="fast">20 m/s</button></div></div>
         </div>
         <p class="sec-f" id="locFoot"></p>
         <h4 class="sec-h">Testing</h4>
         <div class="group">
-          <button class="row t action" id="skip10" type="button"><div class="tile sm tint-indigo" data-icon="clock"></div><div class="row-main"><div class="row-title">Skip 10 Minutes</div></div></button>
-          <button class="row t action" id="skip60" type="button"><div class="tile sm tint-indigo" data-icon="clock"></div><div class="row-main"><div class="row-title">Skip 1 Hour</div></div></button>
+          <button class="row t action" id="skip10" type="button"><div class="tile sm tint-indigo">⏱️</div><div class="row-main"><div class="row-title">Skip 10 Minutes</div></div></button>
+          <button class="row t action" id="skip60" type="button"><div class="tile sm tint-indigo">⏳</div><div class="row-main"><div class="row-title">Skip 1 Hour</div></div></button>
         </div>
         <p class="sec-f">Construction finishes and Generators fill up as if the time had passed.</p>
         <h4 class="sec-h">Map</h4>
         <div class="group">
-          <button class="row t" id="keyRow" type="button"><div class="tile sm tint-green" data-icon="map"></div><div class="row-main"><div class="row-title">Google Maps Key</div></div><span class="row-value" id="keyValue"></span><span class="row-chev" data-icon="chev"></span></button>
+          <button class="row t" id="keyRow" type="button"><div class="tile sm tint-green">🗺️</div><div class="row-main"><div class="row-title">Google Maps Key</div></div><span class="row-value" id="keyValue"></span><span class="row-chev" data-icon="chev"></span></button>
         </div>
         <p class="sec-f" id="mapFoot"></p>
         <div class="group" style="margin-top: 32px">
@@ -476,7 +465,7 @@
     <div class="scrim"></div>
     <div class="page">
       <div class="page-body">
-        <div class="hero-ic" data-icon="arrow"></div>
+        <div class="hero-ic">📍</div>
         <h2 class="h-title">Allow Location Access</h2>
         <p class="lead center" id="locHelpWhy"></p>
         <div class="group steps" style="margin-top: 20px">
@@ -500,7 +489,7 @@
 
   <div class="fatal" id="fatal" hidden>
     <div>
-      <div class="hero-ic" data-icon="warn"></div>
+      <div class="hero-ic">⚠️</div>
       <h2 id="fatalTitle"></h2>
       <p id="fatalMsg"></p>
       <button class="btn" id="fatalRetry" type="button">Try Again</button>
@@ -526,38 +515,17 @@
     } catch (e) { /* storage unavailable (private mode): keep playing */ }
   };
 
-  // ------------------------------------------------------------------ icons (drawn in the style of iOS symbols)
-  const GEAR = (() => {
-    const pts = [];
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2, tip = Math.PI / 8 * 0.5, root = Math.PI / 8 * 0.78;
-      pts.push([a - root, 7.9], [a - tip, 10.4], [a + tip, 10.4], [a + root, 7.9]);
-    }
-    const d = pts.map(([a, r], i) => `${i ? 'L' : 'M'}${(12 + r * Math.sin(a)).toFixed(2)} ${(12 - r * Math.cos(a)).toFixed(2)}`).join('');
-    return `<path d="${d}ZM12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2z" fill="currentColor" fill-rule="evenodd"/>`;
-  })();
-  const ICONS = {
-    hex: '<path d="M12 2.6 20.1 7.3v9.4L12 21.4l-8.1-4.7V7.3z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
-    flag: '<path d="M6.2 21V3.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M7 4h11c.8 0 1.2.9.7 1.5L16.3 8.6l2.4 3.1c.5.6.1 1.5-.7 1.5H7z" fill="currentColor"/>',
-    bolt: '<path d="M13.4 2.3 4.6 13c-.5.6 0 1.4.7 1.4h5.2l-1.3 7.2c-.2.8.8 1.2 1.3.6l8.9-10.9c.5-.6 0-1.4-.7-1.4h-5.1l1.4-6.9c.1-.8-.9-1.2-1.4-.7z" fill="currentColor"/>',
-    lock: '<path d="M8.2 10.4V7.9a3.8 3.8 0 0 1 7.6 0v2.5" fill="none" stroke="currentColor" stroke-width="2.3"/><rect x="5" y="10" width="14" height="11.2" rx="2.6" fill="currentColor"/>',
-    hammer: '<path d="m13.6 9.3-9.1 9.1a1.9 1.9 0 0 0 2.7 2.7l9.1-9.1z" fill="currentColor"/><path d="M11.3 4.6c2.5-1.8 5.9-1.6 8.1.6l.6.6c.4.4.4 1 0 1.4l-1.2 1.2.5.5c.4.4.4 1 0 1.4l-1.7 1.7c-.4.4-1 .4-1.4 0l-4.7-4.7c-.4-.4-.4-1 0-1.4l.7-.7-.9-.4c-.3-.2-.3-.6 0-.8z" fill="currentColor"/>',
-    coin: '<circle cx="12" cy="12" r="9.6" fill="currentColor"/><circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="1.8"/>',
+  // ------------------------------------------------------------------ icons: emoji (Apple's on iPhone), plus iOS control glyphs
+  const E = {
+    credits: '🪙', hexes: '🗺️', builders: '👷', hq: '🏰', generator: '⚡', storage: '🏦', building: '🏗️', up: '⬆️', top: '🏆',
+    neutral: '🏳️', flag: '🚩', mine: '🟩', border: '🟧', rival: '⚔️', here: '📍', ok: '✅', walk: '🚶', sim: '🕹️', fast: '🏃',
+    dir: '🧭', coin: '🪙', timer: '⏱️', warn: '⚠️', stop: '🚫', good: '🟢', weak: '🟠', bad: '🔴', hello: '👋', skip: '⏩', restart: '🔄',
+  };
+  const ICONS = { // SF Symbols-style glyphs for the location button, close button and chevrons
     arrow: '<path d="M20.4 3.6 4.1 10.4c-.8.3-.7 1.5.1 1.7l6.5 1.4 1.4 6.5c.2.8 1.4.9 1.7.1z" fill="currentColor"/>',
     arrowo: '<path d="M20.4 3.6 4.1 10.4c-.8.3-.7 1.5.1 1.7l6.5 1.4 1.4 6.5c.2.8 1.4.9 1.7.1z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>',
-    gear: GEAR,
     x: '<path d="m6.5 6.5 11 11m0-11-11 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
     chev: '<path d="m8.5 4.5 7.5 7.5-7.5 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
-    check: '<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="m7.4 12.4 3.1 3.1 6.1-6.5" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>',
-    warn: '<path d="M10.3 3.7 2.3 17.9a2 2 0 0 0 1.7 3h16a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0z" fill="currentColor"/><path d="M12 8.8v5" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/><circle cx="12" cy="17.1" r="1.35" fill="#fff"/>',
-    pin: '<path d="M12 22s7.2-6.3 7.2-12.2a7.2 7.2 0 0 0-14.4 0C4.8 15.7 12 22 12 22z" fill="currentColor"/><circle cx="12" cy="9.8" r="2.7" fill="#fff"/>',
-    walk: '<circle cx="13.6" cy="3.9" r="2.1" fill="currentColor"/><path d="M11.9 8.2 9.3 14.1l3.3 2.6.9 5.1M12 8.3l-3.6 1.9-1 3.6M12 8.3l2.7 3.3 3.6 1.1M9.3 14.1 6.8 21.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
-    dir: '<path d="M10.6 2.6a2 2 0 0 1 2.8 0l8 8a2 2 0 0 1 0 2.8l-8 8a2 2 0 0 1-2.8 0l-8-8a2 2 0 0 1 0-2.8z" fill="currentColor"/><path d="M9 15.2v-2.6c0-.9.7-1.6 1.6-1.6h4.8m-2-2.4 2.4 2.4-2.4 2.4" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>',
-    up: '<path d="M12 19.5V5.5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
-    clock: '<circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 7.3v5l3.2 1.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
-    map: '<path d="M9 4.2 3.8 6.1v13.7L9 17.9l6 2 5.2-1.9V4.3L15 6.2z" fill="currentColor"/><path d="M9 4.2v13.7M15 6.2v13.7" stroke="#000" stroke-opacity=".25" stroke-width="1.4"/>',
-    collect: '<path d="M12 3.8v10.4m-4.4-4.4 4.4 4.4 4.4-4.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14.6v2.9A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5v-2.9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
-    fwd: '<path d="M3.5 6.6v10.8c0 .8.9 1.2 1.5.7l6.6-5.4v4.7c0 .8.9 1.2 1.5.7l6.8-5.4c.5-.4.5-1.2 0-1.6l-6.8-5.4c-.6-.5-1.5-.1-1.5.7v4.7L5 5.9c-.6-.5-1.5-.1-1.5.7z" fill="currentColor"/>',
   };
   const svg = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
   for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = svg(el.dataset.icon);
@@ -624,7 +592,7 @@
       },
     },
   };
-  const ICON_FOR = { hq: 'flag', generator: 'bolt', storage: 'lock' };
+  const EMOJI_FOR = { hq: E.hq, generator: E.generator, storage: E.storage };
   const TINT_FOR = { hq: 'blue', generator: 'orange', storage: 'indigo' };
 
   const SULTANAHMET = { lat: 41.0055, lng: 28.9768 };
@@ -887,9 +855,9 @@
       version++;
       if (first) {
         addBuilding(id, 'hq', 0);
-        return 'Headquarters founded';
+        return { e: E.hq, t: 'Headquarters founded' };
       }
-      return `Hex claimed for ${fmtNum(cost)} credits`;
+      return { e: E.flag, t: `Hex claimed for ${fmtNum(cost)} credits` };
     },
     build(id, type) {
       const bd = CFG.buildings[type];
@@ -907,7 +875,7 @@
       if (state.credits < l.cost) fail(`Not enough credits (need ${l.cost}).`);
       state.credits -= l.cost;
       addBuilding(id, type, l.secs);
-      return `${bd.name} construction started`;
+      return { e: E.building, t: `${bd.name} construction started` };
     },
     upgrade(bid) {
       const b = state.b[bid];
@@ -929,7 +897,7 @@
       }
       b.st = 'upgrading';
       b.ends = now() + next.secs * 1000;
-      return `Upgrade to level ${b.lvl + 1} started${auto ? ` (collected ${auto} first)` : ''}`;
+      return { e: E.up, t: `Upgrade to level ${b.lvl + 1} started${auto ? ` (collected ${auto} first)` : ''}` };
     },
     collect(bid) {
       const b = state.b[bid];
@@ -945,14 +913,15 @@
       const take = Math.min(avail, free);
       b.stored -= take;
       state.credits += take;
-      return `Collected ${fmtNum(take)} credits`;
+      return { e: E.coin, t: `Collected ${fmtNum(take)} credits` };
     },
   };
   function run(kind, ...args) {
     settleAll();
     const before = version;
     try {
-      toast(actions[kind](...args), false);
+      const r = actions[kind](...args);
+      toast(r.t, false, r.e);
       save();
     } catch (e) {
       if (!(e instanceof GameError)) throw e;
@@ -973,43 +942,43 @@
     const blocked = locationBlock();
     const reachWhy = blocked || (inReach ? null : `Walk closer: ${fmtDist(d)} away`);
     const owner = state.cells[id] && state.cells[id].o;
-    const out = { title: '', sub: '', tile: { icon: 'hex', tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' };
+    const out = { title: '', sub: '', tile: { icon: E.neutral, tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' };
     const act = (kind, label, icon, why, extra) => ({ key: kind, kind, label, icon, why, enabled: !why, reachOnly: !!why && why === reachWhy && !blocked, ...extra });
-    out.tags.push(cellAt(state.pos.lat, state.pos.lng) === id ? { tint: 'green', icon: 'pin', text: 'You are here' }
-      : inReach ? { tint: 'green', icon: 'check', text: `${fmtDist(d)} away · In reach` }
-      : { tint: 'orange', icon: 'walk', text: `${fmtDist(d)} ${compass(bearing(state.pos, c))} · Out of reach` });
+    out.tags.push(cellAt(state.pos.lat, state.pos.lng) === id ? { tint: 'green', icon: E.here, text: 'You are here' }
+      : inReach ? { tint: 'green', icon: E.ok, text: `${fmtDist(d)} away · In reach` }
+      : { tint: 'orange', icon: E.walk, text: `${fmtDist(d)} ${compass(bearing(state.pos, c))} · Out of reach` });
     const mine = myCells(), bs = builders();
     if (!owner) {
       out.title = 'Neutral Hex';
       if (!mine.length) {
         out.sub = 'Found your Headquarters here. Your first hex is free.';
-        out.tile = { icon: 'flag', tint: 'blue' };
-        out.primary.push(act('claim', 'Found Headquarters', 'flag', reachWhy));
+        out.tile = { icon: E.flag, tint: 'blue' };
+        out.primary.push(act('claim', 'Found Headquarters', E.flag, reachWhy));
       } else {
         const cost = expansionCost(mine.length), max = hqRules().maxCells, borders = touchesMine(id);
         out.sub = `Your territory: ${mine.length} of ${max} hexes`;
-        out.tile = { icon: 'hex', tint: borders ? 'orange' : 'gray' };
+        out.tile = { icon: E.neutral, tint: borders ? 'orange' : 'gray' };
         let why = null;
         if (!borders) why = 'Must border your territory';
         else if (mine.length >= max) why = 'Upgrade your Headquarters to claim more hexes';
         else if (state.credits < cost) why = `Need ${fmtNum(cost)} credits`;
-        if (borders) out.tags.push({ tint: 'orange', icon: 'hex', text: 'Borders your territory' });
-        out.primary.push(act('claim', `Claim for ${fmtNum(cost)} Credits`, 'flag', why || reachWhy));
+        if (borders) out.tags.push({ tint: 'orange', icon: E.border, text: 'Borders your territory' });
+        out.primary.push(act('claim', `Claim for ${fmtNum(cost)} Credits`, E.flag, why || reachWhy));
       }
     } else if (owner !== 'me') {
       const b = buildingOn(id);
       out.title = rivalName(owner);
       out.sub = b ? `${CFG.buildings[b.type].name} · Level ${b.lvl}` : 'Rival territory';
-      out.tile = { icon: b ? ICON_FOR[b.type] : 'hex', tint: 'red' };
-      out.tags.push({ tint: 'red', icon: 'flag', text: 'Rival territory' });
+      out.tile = { icon: b ? EMOJI_FOR[b.type] : E.rival, tint: 'red' };
+      out.tags.push({ tint: 'red', icon: E.rival, text: 'Rival territory' });
       out.note = 'Scouting and raids arrive in a later update.';
     } else {
       const b = buildingOn(id);
-      out.tags.push({ tint: 'green', icon: 'hex', text: 'Your territory' });
+      out.tags.push({ tint: 'green', icon: E.mine, text: 'Your territory' });
       if (!b) {
         out.title = 'Your Hex';
         out.sub = 'Empty. One building fits on each hex.';
-        out.tile = { icon: 'hex', tint: 'green' };
+        out.tile = { icon: E.mine, tint: 'green' };
         for (const [type, bd] of Object.entries(CFG.buildings)) {
           if (!bd.buildable) continue;
           const l = bd.levels[0], max = hqRules().limits[type] || 0, n = countType(type);
@@ -1019,13 +988,13 @@
           else if (l.secs > 0 && bs.busy >= bs.total) why = 'All builders are busy';
           else if (state.credits < l.cost) why = `Need ${fmtNum(l.cost)} credits`;
           why = why || reachWhy;
-          out.rows.push({ key: 'build-' + type, kind: 'build', type, icon: ICON_FOR[type], tint: TINT_FOR[type], title: bd.name,
+          out.rows.push({ key: 'build-' + type, kind: 'build', type, icon: EMOJI_FOR[type], tint: TINT_FOR[type], title: bd.name,
             sub: why || `${fmtNum(l.cost)} credits · ${fmtDur(l.secs)} · ${effect(type, l)}`, why: !!why, button: 'Build', enabled: !why });
         }
       } else {
         const bd = CFG.buildings[b.type], l = def(b.type, b.lvl);
         out.title = bd.name;
-        out.tile = { icon: ICON_FOR[b.type], tint: TINT_FOR[b.type] };
+        out.tile = { icon: EMOJI_FOR[b.type], tint: TINT_FOR[b.type] };
         out.sub = `Level ${b.lvl} · ${l.rate ? `${l.rate} credits per hour` : `Holds ${fmtNum(l.storage)} credits`}`;
         if (b.st !== 'active') {
           const total = (b.st === 'constructing' ? l.secs : bd.levels[b.lvl].secs) * 1000;
@@ -1040,7 +1009,7 @@
           if (b.st !== 'active') why = 'Available when construction finishes';
           else if (stored < 1) why = 'Nothing to collect yet';
           else if (state.credits >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
-          out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', 'collect', why || reachWhy, { id: b.id }));
+          out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', E.coin, why || reachWhy, { id: b.id }));
         }
         const next = bd.levels[b.lvl];
         if (next) {
@@ -1050,10 +1019,10 @@
           else if (next.secs > 0 && bs.busy >= bs.total) why = 'All builders are busy';
           else if (state.credits < next.cost) why = `Need ${fmtNum(next.cost)} credits`;
           why = why || reachWhy;
-          out.rows.push({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: 'up', tint: 'blue', title: `Level ${b.lvl + 1}`,
+          out.rows.push({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: E.up, tint: 'blue', title: `Level ${b.lvl + 1}`,
             sub: why || `${fmtNum(next.cost)} credits · ${fmtDur(next.secs)} · ${effect(b.type, next)}`, why: !!why, button: 'Upgrade', enabled: !why });
         } else {
-          out.rows.push({ key: 'max', kind: 'none', icon: 'up', tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
+          out.rows.push({ key: 'max', kind: 'none', icon: E.top, tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
         }
         if (b.type === 'hq') {
           const nx = CFG.hq[b.lvl];
@@ -1065,8 +1034,8 @@
     }
     if (!inReach) {
       out.primary.push(mode === 'gps'
-        ? { key: 'route', kind: 'route', label: 'Directions', icon: 'dir', enabled: true, lat: c.lat, lng: c.lng }
-        : { key: 'walk', kind: 'walk', label: 'Walk Here', icon: 'walk', enabled: true });
+        ? { key: 'route', kind: 'route', label: 'Directions', icon: E.dir, enabled: true, lat: c.lat, lng: c.lng }
+        : { key: 'walk', kind: 'walk', label: 'Walk Here', icon: E.walk, enabled: true });
     }
     return out;
   }
@@ -1365,20 +1334,20 @@
       }
       const own = b.o === 'me', active = b.st === 'active', d = def(b.type, b.lvl);
       pin.el.className = `pin t-${b.type} ${own ? 'own' : 'rival'}${active ? '' : ' busy'}${own && !reachSet.has(b.cell) ? ' far' : ''}`;
-      const glyph = active ? ICON_FOR[b.type] : 'hammer';
+      const glyph = active ? EMOJI_FOR[b.type] : E.building;
       if (pin.glyph !== glyph) {
         pin.glyph = glyph;
-        pin.pb.innerHTML = svg(glyph);
+        pin.pb.textContent = glyph;
       }
       pin.lvl.textContent = b.lvl;
       let cap = '', capCls = 'cap';
       if (!active) {
         const total = (b.st === 'constructing' ? d.secs : CFG.buildings[b.type].levels[b.lvl].secs) * 1000;
         pin.pb.style.setProperty('--p', total ? Math.min(1, 1 - (b.ends - t) / total).toFixed(3) : '1');
-        if (own) { cap = fmtClock(b.ends - t); capCls = 'cap timer'; }
+        if (own) cap = `${E.timer} ${fmtClock(b.ends - t)}`;
       } else if (own && d.rate && b.stored >= 1) {
         const full = b.stored >= d.buffer;
-        cap = full ? 'Full' : `+${fmtNum(b.stored)}`;
+        cap = `${E.coin} ${full ? 'Full' : `+${fmtNum(b.stored)}`}`;
         if (full) capCls = 'cap full';
       }
       if (pin.cap.textContent !== cap) pin.cap.textContent = cap;
@@ -1521,35 +1490,36 @@
     $('buildersMax').textContent = hq ? `/${bs.total}` : '';
   }
   function refreshStatus() {
-    let cls = '', text;
+    let emoji, text;
     if (!mode) {
-      cls = 'idle';
+      emoji = E.hello;
       text = 'Welcome';
     } else if (mode === 'sim') {
-      cls = 'sim';
+      emoji = walking ? E.walk : E.sim;
       text = walking ? `Walking · ${state && state.fast ? SPEED.fast : SPEED.walk} m/s` : `Simulated walking · Reach ${CFG.reach} m`;
     } else if (gps.err === 'denied') {
-      cls = 'bad';
+      emoji = E.bad;
       text = 'Location blocked';
     } else if (!gps.at || Date.now() - gps.at > CFG.maxFixAgeMs) {
-      cls = 'warn';
+      emoji = E.weak;
       text = 'Waiting for GPS…';
     } else if (gps.acc > CFG.maxAccuracy) {
-      cls = 'warn';
+      emoji = E.weak;
       text = `GPS weak · ±${Math.round(gps.acc)} m`;
     } else if (gps.speed > CFG.maxActionSpeed) {
-      cls = 'warn';
+      emoji = E.fast;
       text = 'Moving fast · Actions paused';
     } else {
+      emoji = E.good;
       text = `GPS ±${Math.round(gps.acc)} m · Reach ${CFG.reach} m`;
     }
-    $('status').className = `capsule glass ${cls}`;
+    $('statusEmo').textContent = emoji;
     $('statusText').textContent = text;
   }
   function updateKeyChip() {
     const chip = $('keyChip');
     chip.hidden = !!keyInfo.key && !authFailed;
-    chip.classList.toggle('bad', authFailed);
+    $('keyChipEmo').textContent = authFailed ? E.stop : E.warn;
     $('keyChipText').textContent = authFailed ? 'Google Maps key rejected' : 'Map without API key';
   }
   function refreshUi() {
@@ -1565,10 +1535,7 @@
   function setTile(el, icon, tint, size) {
     const cls = `tile ${size} tint-${tint}`;
     if (el.className !== cls) el.className = cls;
-    if (el.dataset.glyph !== icon) {
-      el.dataset.glyph = icon;
-      el.innerHTML = svg(icon);
-    }
+    if (el.textContent !== icon) el.textContent = icon;
   }
   /** Updates a list of keyed elements in place, so a tap is never lost while the sheet refreshes. */
   function reconcile(box, items, make, update) {
@@ -1600,10 +1567,7 @@
     wrap._item = a;
     const btn = wrap.firstElementChild, bi = btn.firstElementChild, why = wrap.lastElementChild;
     btn.disabled = !a.enabled;
-    if (bi.dataset.glyph !== a.icon) {
-      bi.dataset.glyph = a.icon;
-      bi.innerHTML = svg(a.icon);
-    }
+    if (bi.textContent !== a.icon) bi.textContent = a.icon;
     btn.lastElementChild.textContent = a.label;
     const text = !a.enabled && !a.reachOnly ? a.why : '';
     why.textContent = text || '';
@@ -1634,7 +1598,7 @@
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
     setTile($('sheetTile'), info.tile.icon, info.tile.tint, 'lg');
-    const tags = info.tags.map((t) => `<span class="tag ${t.tint}">${svg(t.icon)}${t.text}</span>`).join('');
+    const tags = info.tags.map((t) => `<span class="tag ${t.tint}"><span class="emo">${t.icon}</span>${t.text}</span>`).join('');
     if ($('sheetTags').innerHTML !== tags) $('sheetTags').innerHTML = tags;
     $('sheetTags').hidden = !info.tags.length;
     const pr = info.progress;
@@ -1733,10 +1697,10 @@
 
   // ------------------------------------------------------------------ UI: banner, modals, alerts
   let toastTimer = 0;
-  function toast(msg, err) {
+  function toast(msg, err, emoji) {
     const el = $('toast');
     $('toastText').textContent = msg;
-    $('toastIcon').innerHTML = svg(err ? 'warn' : 'check');
+    $('toastIcon').textContent = emoji || (err ? E.warn : E.ok);
     el.classList.toggle('err', !!err);
     el.classList.add('show');
     clearTimeout(toastTimer);
@@ -1819,7 +1783,7 @@
     save();
     closeModal('settings');
     refreshUi();
-    toast(`Skipped ${minutes >= 60 ? `${minutes / 60} hour` : `${minutes} minutes`}`, false);
+    toast(`Skipped ${minutes >= 60 ? `${minutes / 60} hour` : `${minutes} minutes`}`, false, E.skip);
   }
 
   $('settingsBtn').addEventListener('click', openSettings);
@@ -1849,7 +1813,7 @@
           state = null;
           closeModal('settings');
           startGame(mode, origin);
-          toast('New game started', false);
+          toast('New game started', false, E.restart);
         },
       },
     ]);
@@ -1977,7 +1941,7 @@
     followCamera(false);
     if (!myCells().length) {
       select(cellAt(state.pos.lat, state.pos.lng));
-      toast(m === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false);
+      toast(m === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false, m === 'gps' ? E.here : E.sim);
     }
   }
 
