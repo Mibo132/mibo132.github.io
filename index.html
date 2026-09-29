@@ -237,8 +237,12 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, .55), 0 0 18px rgba(0, 0, 0, .35); opacity: 0; transform: scale(.94); transition: opacity .6s, transform .8s var(--spring);
   }
   .city.show { opacity: 1; transform: none; }
-  .city small { display: block; font: 600 17px var(--font); }
-  .city b { display: block; font: 800 34px/40px var(--round); }
+  .city small { display: block; font: 700 22px var(--round); }
+  .city b { display: block; font: 900 52px/58px var(--round); letter-spacing: -1px; }
+  .city-rule { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px auto 8px; max-width: 260px; }
+  .city-rule i { flex: 1; height: 2px; border-radius: 1px; background: rgba(255, 255, 255, .85); box-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
+  .city-rule span { font: 26px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .city p { margin: 0 auto; max-width: 320px; font: 700 17px/22px var(--round); }
 
   /* ---------------------------------------------------------------- hold to collect everything in reach */
   .hold { position: absolute; z-index: 8; left: 0; top: 0; width: 76px; height: 76px; margin: -38px 0 0 -38px; pointer-events: none; opacity: 0; transition: opacity .15s; }
@@ -686,7 +690,7 @@
     </div>
     <div class="tips" id="tips"></div>
   </div>
-  <div class="city" id="city"><small>Welcome to</small><b id="cityName"></b></div>
+  <div class="city" id="city"><small>Welcome to</small><b id="cityName"></b><div class="city-rule"><i></i><span id="cityFace"></span><i></i></div><p id="cityText"></p></div>
   <div class="hold" id="hold"><svg viewBox="0 0 76 76"><circle class="bg" cx="38" cy="38" r="32"/><circle class="fg" cx="38" cy="38" r="32"/></svg></div>
 
   <!-- Tool bar on the right edge. -->
@@ -2238,7 +2242,7 @@
       if (!me || !pos || Date.now() - heldAt < 1200) return;
       const id = cellAt(lat, lng);
       if (placing) return placeAt(id);
-      if (tapCollect(id)) return;
+      if (tapCollect(id)) { if (selected !== id) select(id); return; } // collect and show it
       const bot = botAt(lat, lng);
       if (bot) return selectTarget({ kind: 'bot', id: bot });
       const hit = playerAt(lat, lng);
@@ -2530,7 +2534,8 @@
   let sheetOpen = false;
   function visibleBand() {
     const H = appEl.clientHeight, top = topBarBottom();
-    const bottom = sheetOpen ? H - openSheetH() : started && !homeDetent ? H - homeStops().stops[0] : H;
+    // Fixed: sheets opening, growing or closing never move the map.
+    const bottom = started ? H - homeStops().stops[0] : H;
     return { top, bottom, center: (top + bottom) / 2 };
   }
   function centerFor(p) {
@@ -2552,19 +2557,6 @@
     updatePlayerVisuals();
     if (follow) followCamera(animate);
     reachDirty = true;
-  }
-  function revealSelection() {
-    const at = selected && pos && map.toPx(cell(selected));
-    if (!at) return;
-    const W = appEl.clientWidth, band = visibleBand();
-    const inside = (p) => p.x >= 28 && p.x <= W - 28 && p.y >= band.top + 20 && p.y <= band.bottom - 20;
-    if (follow) {
-      const mp = map.toPx(pos);
-      const after = { x: at.x + (W / 2 - mp.x), y: at.y + (band.center - mp.y) };
-      if (inside(after)) { followCamera(true); return; }
-      setFollow(false);
-    }
-    if (!inside(at)) map.panBy(at.x - W / 2, at.y - band.center);
   }
 
   // ------------------------------------------------------------------ simulated walking
@@ -2917,8 +2909,10 @@
       const name = a.suburb || a.city_district || a.town || a.city || a.village || a.municipality || a.county;
       if (!name) return;
       $('cityName').textContent = name;
+      $('cityFace').textContent = avatarOf(me && me.player);
+      $('cityText').textContent = `Claim hexes to rule the city. To move, walk in real-world ${name}.`;
       $('city').classList.add('show');
-      setTimeout(() => $('city').classList.remove('show'), 3200);
+      setTimeout(() => $('city').classList.remove('show'), 4200);
     } catch (e) { /* no name, no title */ }
   }
 
@@ -2998,6 +2992,7 @@
       if (selected && isPlainPlant(selected)) return renderPlantSheet();
       return select(selected); // built on, sold or gone: pick the right sheet again
     }
+    if (selected && isPlainPlant(selected)) return select(selected); // just became yours: the compact sheet
     const info = !selected && target ? describeTarget(target) : describe(selected);
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
@@ -3056,8 +3051,37 @@
   // ------------------------------------------------------------------ UI: your plant (compact; swipe up for boosters, its look and selling)
   const psEl = $('psheet');
   let sheetKind = 'hex', psDetent = 0, psTab = 'slots', psBodyKey = '', psGrowKey = '', psGeo = '', psDragEnd = 0;
-  /** Your plant with nothing built on it gets the plant sheet; everything else the hex sheet. */
-  const isPlainPlant = (id) => !!id && myPlants.has(id) && !myByCell.has(id);
+  /** Your hexes (a plant, maybe with a building on it) get the compact sheet; everything else the hex sheet. */
+  const isPlainPlant = (id) => !!id && (myPlants.has(id) || myByCell.has(id));
+  let psRows = [];
+  /** A building on your hex: the same compact sheet, with Upgrade as the big button and the rest when swiped up. */
+  function renderBuildingSheet(id, b) {
+    const p = myPlants.get(id), info = describe(id), bd = bdef(b.type), next = bd.levels[b.level], left = endsIn(b);
+    const d = distM(pos, cell(id)), reachWhy = locationBlock() || (d <= REACH ? null : `Walk closer: ${fmtDist(d)} away`);
+    setText($('psEmo'), b.state === 'active' || left <= 0 ? emojiFor(b.type) : E.building);
+    setText($('psName'), bd.name);
+    setText($('psLevel'), b.level);
+    const stored = p ? Math.floor(plantStoredNow(p)) : 0;
+    setText($('psSub'), p ? `on ${p.emoji} Lv ${p.level} · 🪙 ${fmtNum(stored)}/${fmtNum(p.capacity)} (+${fmtNum(p.ratePerHour)}/h)` : `Level ${b.level}`);
+    const up = info.rows.find((r) => r.kind === 'upgrade');
+    let grow;
+    if (b.state !== 'active' && left > 0) grow = `<button class="btn gold" type="button" disabled>${E.timer} ${fmtLeft(left)} left</button>`;
+    else if (!next) grow = '<button class="btn gold" type="button" disabled>Top Level</button>';
+    else grow = `<button class="btn gold" type="button" data-bup="${b.id}"${up && up.enabled ? '' : ' disabled'}>Upgrade 🪙 ${fmtNum(costOf(next))}</button>`;
+    if (grow !== psGrowKey) { psGrowKey = grow; $('psGrow').innerHTML = grow; }
+    const upWhy = up && !up.enabled && up.sub !== reachWhy ? up.sub : null;
+    setText($('psHint'), reachWhy ? `${E.walk} ${reachWhy}` : upWhy || (stored >= 1 ? 'Tap it on the map to collect' : psDetent ? '' : 'Swipe up for details'));
+    // Swiped up: everything else about this hex (the plant under it, moving, …).
+    psRows = info.rows.filter((r) => r.kind !== 'upgrade');
+    let html = info.tags.length ? `<div class="tags" style="margin-top:0">${info.tags.map((t) => `<span class="tag ${t.tint}"><span class="emo">${t.icon}</span>${esc(t.text)}</span>`).join('')}</div>` : '';
+    const pr = info.progress;
+    if (pr) html += `<div class="prog"><div class="prog-row"><span>${esc(pr.label)}</span><span>${esc(pr.value)}</span></div><div class="bar ${pr.tint}"><i style="width:${Math.max(0, Math.min(1, pr.frac)) * 100}%"></i></div></div>`;
+    if (up) html += `<p class="sec-f" style="margin-top:12px">${esc(up.title)}: ${esc(up.sub)}</p>`;
+    html += `<div class="group" style="margin-top:14px">${psRows.map((r, i) => `<div class="row t"><div class="tile sm tint-${r.tint}">${r.icon}</div><div class="row-main"><div class="row-title">${esc(r.title)}</div>` +
+      `<div class="row-sub${r.why ? ' warn' : ''}">${esc(r.sub)}</div></div>${r.button ? `<button class="pill" type="button" data-row="${i}"${r.enabled ? '' : ' disabled'}>${esc(r.button)}</button>` : ''}</div>`).join('')}</div>`;
+    if (info.note) html += `<p class="note">${esc(info.note)}</p>`;
+    if (html !== psBodyKey) { psBodyKey = html; $('psBody').innerHTML = html; }
+  }
   function psStops() {
     const H = appEl.clientHeight, full = Math.round(H - Math.max(0, topEl.getBoundingClientRect().top - 8) - 10);
     return { full, stops: [$('psTop').offsetHeight + sbProbe.offsetHeight, full] };
@@ -3086,7 +3110,9 @@
   }
   function renderPlantSheet() {
     const id = selected, p = myPlants.get(id);
-    if (!p || !pos) return;
+    if (!pos || !id) return;
+    if (myByCell.has(id)) return renderBuildingSheet(id, myByCell.get(id));
+    if (!p) return;
     const st = stageOf(p.level), stored = Math.floor(plantStoredNow(p)), d = distM(pos, cell(id));
     const reachWhy = locationBlock() || (d <= REACH ? null : `Walk closer: ${fmtDist(d)} away`);
     setText($('psEmo'), p.emoji);
@@ -3101,7 +3127,7 @@
         (n > 1 ? `<button class="btn gold more" type="button" data-grow="${n}"${reachWhy || credits() < c10 ? ' disabled' : ''}>+${n} · 🪙 ${fmtShort(c10)}</button>` : '');
     }
     if (grow !== psGrowKey) { psGrowKey = grow; $('psGrow').innerHTML = grow; }
-    setText($('psHint'), reachWhy ? `${E.walk} ${reachWhy}` : stored >= 1 ? 'Tap the plant on the map to collect' : psDetent ? '' : `Swipe up for ${p.emoji} boosters and more`);
+    setText($('psHint'), reachWhy ? `${E.walk} ${reachWhy}` : stored >= 1 ? 'Tap the plant on the map to collect' : psDetent ? '' : invTotal() ? `Swipe up to build here, or for ${p.emoji} boosters` : `Swipe up for ${p.emoji} boosters and more`);
     // The expanded part.
     const inPlant = p.items.map((i) => itemsById.get(i)).filter(Boolean);
     const forPlants = bagItems().filter((x) => itemType(x).for === 'plant');
@@ -3125,6 +3151,10 @@
         : `<div class="ps-empty"><div class="big">🎒</div><b>No plant boosters</b><p>Defeat animals on the map to find some.</p></div>`;
       if (forPlants.length && free < 1) html += '<p class="sec-f">All slots are full. Take a booster out first.</p>';
     }
+    // Build on it: buildings from your inventory, or the shop.
+    psRows = describe(id).rows.filter((r) => r.kind === 'place' || r.kind === 'shop');
+    html += `<h4 class="sec-h">Build Here</h4><div class="group">${psRows.map((r, i) => `<div class="row t"><div class="tile sm tint-${r.tint}">${r.icon}</div><div class="row-main"><div class="row-title">${esc(r.title)}</div>` +
+      `<div class="row-sub${r.why ? ' warn' : ''}">${esc(r.sub)}</div></div><button class="pill" type="button" data-row="${i}"${r.enabled ? '' : ' disabled'}>${esc(r.button)}</button></div>`).join('')}</div>`;
     const next = cfg.plants.stages.find((x) => x.from > p.level);
     html += `<h4 class="sec-h">This Plant</h4><div class="group">` +
       statRow(E.coin, 'yellow', 'Makes', `${fmtNum(p.ratePerHour)} per hour`) +
@@ -3152,8 +3182,15 @@
     if (e.target.closest('button') || Date.now() - psDragEnd < 300) return;
     setPsDetent(psDetent ? 0 : 1);
   });
-  $('psGrow').addEventListener('click', (e) => { const b = e.target.closest('[data-grow]'); if (b && !b.disabled && selected) doGrow(selected, Number(b.dataset.grow)); });
+  $('psGrow').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-grow]');
+    if (b && !b.disabled && selected) return doGrow(selected, Number(b.dataset.grow));
+    const u = e.target.closest('[data-bup]');
+    if (u && !u.disabled) doUpgrade(u.dataset.bup);
+  });
   $('psBody').addEventListener('click', (e) => {
+    const r = e.target.closest('[data-row]');
+    if (r && !r.disabled) return onAction(psRows[Number(r.dataset.row)]);
     const id = selected, p = myPlants.get(id);
     if (!p) return;
     const t = e.target.closest('[data-ps]');
@@ -3407,7 +3444,6 @@
         psEl.classList.add('off');
         sheetKind = 'hex';
         layoutControls();
-        if (follow) followCamera(true);
       }
       return;
     }
@@ -3421,12 +3457,8 @@
       sheetEl.classList.remove('off');
     }
     layoutControls();
-    revealSelection();
   }
-  new ResizeObserver(() => {
-    layoutControls();
-    if (sheetOpen && follow) followCamera(true);
-  }).observe(sheetEl);
+  new ResizeObserver(() => layoutControls()).observe(sheetEl);
   $('sheetClose').addEventListener('click', () => select(null));
   (() => {
     // Swipe the sheet down to close it.
@@ -4129,6 +4161,7 @@
     loadMe: () => loadMe(),
     setHome: (open, tab) => { if (tab) { homeTab = tab; for (const x of $('homeSeg').children) x.classList.toggle('on', x.dataset.tab === tab); } setHome(open); },
     get target() { return target; },
+    setPs: (d) => setPsDetent(d),
     cellAt: (lat, lng) => cellAt(lat, lng),
     teleport(lat, lng) { pos = { lat, lng }; playerMoved(false); updateReach(true); syncLocation(true); refreshUi(); },
   };
