@@ -78,19 +78,19 @@
 
   /* ---------------------------------------------------------------- top: resources, status, map buttons */
   .top { position: absolute; z-index: 5; top: calc(var(--st) + 8px); left: 10px; right: 10px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-  /* Map controls sit on a dark map, so they use dark glass whatever the system theme. */
+  /* Map controls: the system material (like Apple Maps buttons), light or dark with the system. */
   .mglass {
-    background: rgba(28, 28, 30, .62); color: #fff;
-    -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, .35), inset 0 0 0 .5px rgba(255, 255, 255, .12);
+    background: var(--glass); color: var(--label);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow), inset 0 0 0 .5px var(--glass-edge);
   }
   .stats {
-    pointer-events: auto; flex: none; display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 4px;
-    color: #fff; font: 700 15px var(--round); font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); white-space: nowrap;
+    pointer-events: auto; flex: none; display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 12px; border-radius: 16px;
+    font: 600 14px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap;
   }
   .stats .st { display: inline-flex; align-items: center; gap: 3px; }
-  .stats .emo { font-size: 15px; text-shadow: none; }
-  .stats small { font: 600 12px var(--round); opacity: .75; }
+  .stats .emo { font-size: 14px; }
+  .stats small { font: 500 12px var(--round); color: var(--label2); }
   .rail {
     position: absolute; z-index: 5; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column;
     border-radius: 18px; overflow: visible;
@@ -98,37 +98,73 @@
   .rail, .talk { transition: opacity .25s, transform .3s var(--spring); }
   .rail.away { opacity: 0; pointer-events: none; transform: translate(70px, -50%); }
   .talk.away { opacity: 0; pointer-events: none; transform: translateX(80px); }
+  .home.away { transform: translateY(calc(100% + 40px)); transition: transform .4s var(--spring), max-height .45s var(--spring); }
   .rbtn { position: relative; display: grid; place-items: center; width: 50px; height: 52px; padding: 0; border: 0; background: none; }
-  .rbtn + .rbtn { border-top: .5px solid rgba(255, 255, 255, .14); }
+  .rbtn + .rbtn { border-top: .5px solid var(--sep); }
   .rbtn .emo { font-size: 25px; }
   .rbtn:active { transform: scale(.92); }
   .rbtn[aria-pressed="false"] .emo { opacity: .55; }
   .rbtn .badge { top: 4px; right: 2px; }
   .talk {
-    position: absolute; z-index: 5; right: 10px; top: calc(50% + 130px); width: 58px; height: 46px; padding: 0; border: 0; border-radius: 23px 23px 6px 23px;
-    background: #fff; color: #1c1c1e; font: 900 18px/1 var(--round); letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0, 0, 0, .35);
+    position: absolute; z-index: 5; right: 10px; top: calc(50% + 130px); width: 50px; height: 50px; padding: 0; border: 0; border-radius: 25px;
+    display: grid; place-items: center; font-size: 24px;
   }
   .talk:active { transform: scale(.94); }
   .talk-pop {
-    position: absolute; z-index: 7; right: 76px; top: calc(50% - 40px); width: min(280px, calc(100vw - 96px)); padding: 8px;
-    display: flex; flex-wrap: wrap; gap: 6px; border-radius: 20px; background: #fff; box-shadow: 0 8px 30px rgba(0, 0, 0, .4);
+    position: absolute; z-index: 7; right: 70px; top: calc(50% - 40px); width: min(280px, calc(100vw - 90px)); padding: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px; border-radius: 18px; background: var(--sheet);
+    -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); box-shadow: var(--shadow);
   }
-  .talk-pop button { padding: 8px 12px; border: 0; border-radius: 16px; background: #f2f2f7; color: #1c1c1e; font: 600 15px var(--font); }
-  .talk-pop button:active { background: #e5e5ea; }
-  .lvlbar {
-    position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
-    padding: 14px 18px calc(var(--sb) + 14px); border: 0; border-radius: 26px 26px 0 0; background: #fff; color: #1c1c1e; text-align: left;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, .35);
+  .talk-pop button { padding: 8px 12px; border: 0; border-radius: 16px; background: var(--row); color: var(--label); font: 500 15px var(--font); }
+  .talk-pop button:active { background: var(--row-hi); }
+  /* Home sheet: collapsed it is your player bar; tap or drag it up and the same sheet shows your
+     profile, bag and combat stats. Same material and grabber as every other sheet. */
+  .home {
+    position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); display: flex; flex-direction: column;
+    max-height: 96px; border-radius: 26px; background: var(--sheet); color: var(--label); overflow: hidden;
+    -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+    box-shadow: var(--shadow), inset 0 0 0 .5px var(--glass-edge); transition: max-height .45s var(--spring);
   }
-  .lvlbar::before { content: ''; position: absolute; top: 6px; left: 50%; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px; background: #d1d1d6; }
-  .lv-av { flex: none; width: 52px; height: 52px; display: grid; place-items: center; font: 44px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
-  .lv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  .lv-name { display: flex; align-items: center; gap: 6px; min-width: 0; font: 800 22px/1.1 var(--round); }
-  .lv-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lv-badge { flex: none; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 12px; background: #0a84ff; color: #fff; font: 800 14px/24px var(--round); font-style: normal; text-align: center; }
-  .lv-sub { font: 600 15px var(--round); color: #3a3a3c; }
-  .lv-bar { position: absolute; left: 18px; right: 18px; bottom: calc(var(--sb) + 6px); height: 3px; border-radius: 2px; background: #e5e5ea; overflow: hidden; }
-  .lv-bar i { display: block; height: 100%; width: 0; background: #ffcc00; transition: width .4s; }
+  .home.open { max-height: var(--home-max, 78vh); }
+  .home-head { position: relative; flex: none; display: flex; align-items: center; gap: 12px; width: 100%; padding: 16px 16px 12px; border: 0; background: none; color: inherit; text-align: left; }
+  .home-head::before { content: ''; position: absolute; top: 5px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--fill); }
+  .lv-av { flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 24px; background: var(--fill3); font: 34px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .lv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .lv-name { display: flex; align-items: center; gap: 6px; min-width: 0; font: 600 20px/1.15 var(--font); }
+  .lv-name b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lv-badge { flex: none; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 11px; background: var(--blue); color: #fff; font: 700 13px/22px var(--round); font-style: normal; text-align: center; }
+  .lv-sub { display: flex; align-items: center; gap: 10px; font: 500 13px var(--round); color: var(--label2); }
+  .lv-sub span { display: inline-flex; align-items: center; gap: 4px; }
+  .meterbar { flex: 1; max-width: 90px; height: 5px; border-radius: 3px; background: var(--fill); overflow: hidden; }
+  .meterbar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--yellow); transition: width .4s; }
+  .meterbar.hp i { background: var(--green); }
+  .meterbar.hp.low i { background: var(--red); }
+  .home-chev { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 15px; background: var(--fill3); color: var(--label2); transition: transform .3s; }
+  .home-chev svg { width: 13px; height: 13px; transform: rotate(-90deg); }
+  .home.open .home-chev { transform: rotate(180deg); }
+  .home-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px calc(var(--sb) + 16px); -webkit-overflow-scrolling: touch; }
+  .seg.wide { display: flex; width: 100%; margin: 2px 0 14px; }
+  .seg.wide button { flex: 1; min-width: 0; }
+  /* health bars on the map */
+  .hpbar { position: absolute; left: -14px; top: 12px; width: 28px; height: 4px; border-radius: 2px; background: rgba(0, 0, 0, .45); overflow: hidden; box-shadow: 0 0 0 1px rgba(255, 255, 255, .6); }
+  .hpbar i { display: block; height: 100%; background: #34c759; }
+  .hpbar.low i { background: #ff3b30; }
+  .hpbar[hidden] { display: none; }
+  .tt.wilted i { filter: grayscale(1) brightness(.8); opacity: .75; }
+  .tt.under i { left: 2px; top: 2px; width: 14px; height: 14px; font-size: 12px; }
+  .tt .full { position: absolute; left: 4px; top: -16px; font-size: 11px; transform: scale(var(--pz)); }
+  .bot { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .bot .be { position: absolute; left: -17px; top: -30px; width: 34px; height: 34px; display: grid; place-items: center; font: 30px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; transform: scale(var(--pz)); transform-origin: 50% 100%; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45)); }
+  .bot .hpbar { top: 6px; }
+  .op .hpbar { top: 18px; }
+  .aim { position: absolute; left: -24px; top: -46px; width: 48px; height: 48px; border: 2.5px solid #ff3b30; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255, 255, 255, .8); pointer-events: none; animation: aim 1.2s ease-in-out infinite; }
+  @keyframes aim { 50% { transform: scale(1.12); } }
+  .dmg { position: absolute; left: 0; top: -58px; transform: translateX(-50%); font: 800 16px var(--round); color: #ff3b30; text-shadow: 0 0 3px #fff, 0 0 3px #fff; pointer-events: none; animation: dmg 1s ease-out forwards; white-space: nowrap; }
+  .dmg.miss { color: #8e8e93; }
+  @keyframes dmg { to { transform: translate(-50%, -26px); opacity: 0; } }
+  .btn.fire { background: var(--red); }
+  .row .toggle { flex: none; }
+  .rar-common { color: var(--label2); } .rar-rare { color: var(--blue); } .rar-epic { color: var(--indigo); }
   .stat { min-width: 0; padding: 0 12px; }
   .stat + .stat { border-left: .5px solid var(--sep); }
   .stat-k { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -205,6 +241,7 @@
   .bar { height: 6px; margin-top: 8px; border-radius: 3px; background: var(--fill); overflow: hidden; }
   .bar i { display: block; width: 0; height: 100%; border-radius: 3px; background: var(--orange); transition: width .45s; }
   .bar.yellow i { background: var(--yellow); }
+  .bar.green i { background: var(--green); } .bar.red i { background: var(--red); }
   .note { margin: 12px 4px 0; font-size: 13px; line-height: 18px; color: var(--label2); }
   .sheet .group { margin-top: 14px; }
   .sheet .group .row { min-height: 62px; }
@@ -374,6 +411,8 @@
   .alert-actions { display: flex; border-top: .5px solid var(--sep); }
   .alert-actions button { flex: 1; height: 44px; padding: 0 8px; border: 0; background: none; color: var(--blue); font-size: 17px; }
   .alert-actions button + button { border-left: .5px solid var(--sep); }
+  .alert-actions.stack { flex-direction: column; }
+  .alert-actions.stack button + button { border-left: 0; border-top: .5px solid var(--sep); }
   .alert-actions button:active { background: var(--fill3); }
   .alert-actions .strong { font-weight: 600; }
   .alert-actions .destructive { color: var(--red); }
@@ -480,17 +519,27 @@
     <button class="rbtn" id="leadersBtn" type="button" aria-label="Leaderboard"><span class="emo">🏆</span></button>
     <button class="rbtn" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
   </nav>
-  <button class="talk" id="talkBtn" type="button" aria-label="Say something" hidden><span>•••</span></button>
+  <button class="talk mglass" id="talkBtn" type="button" aria-label="Say something" hidden><span class="emo">💬</span></button>
   <div class="talk-pop" id="talkPop" hidden></div>
 
   <div class="stick mglass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
 
-  <!-- Bottom card: you, your level and how far to the next one. Tap for your profile. -->
-  <button class="lvlbar" id="lvlBar" type="button" hidden>
-    <span class="lv-av" id="lvAvatar"></span>
-    <span class="lv-main"><span class="lv-name"><b id="lvName"></b><i class="lv-badge" id="lvBadge">1</i></span><span class="lv-sub" id="lvSub"></span></span>
-    <span class="lv-bar"><i id="lvFill"></i></span>
-  </button>
+  <!-- Home sheet: your player bar, which opens into your profile, bag and combat stats. -->
+  <section class="home" id="home" hidden>
+    <button class="home-head" id="homeHead" type="button" aria-expanded="false">
+      <span class="lv-av" id="lvAvatar"></span>
+      <span class="lv-main">
+        <span class="lv-name"><b id="lvName"></b><i class="lv-badge" id="lvBadge">1</i></span>
+        <span class="lv-sub"><span id="lvSub"></span><span class="meterbar" aria-hidden="true"><i id="lvFill"></i></span></span>
+        <span class="lv-sub"><span id="hpText">❤️ –</span><span class="meterbar hp" id="hpBar" aria-hidden="true"><i id="hpFill"></i></span></span>
+      </span>
+      <span class="home-chev" data-icon="chev"></span>
+    </button>
+    <div class="home-body" id="homeBody">
+      <div class="seg wide" id="homeSeg"><button type="button" data-tab="bag" class="on">Bag</button><button type="button" data-tab="stats">Stats</button><button type="button" data-tab="profile">Profile</button></div>
+      <div id="homeTab"></div>
+    </div>
+  </section>
 
   <section class="placebar glass" id="placeBar" hidden>
     <div class="tile lg" id="placeTile"></div>
@@ -535,9 +584,6 @@
         <h4 class="sec-h">Faces and Animals</h4>
         <div class="group"><div class="av-grid" id="setupFaces"></div></div>
         <p class="sec-f">Your avatar stands on the map where other players nearby can see it.</p>
-        <h4 class="sec-h">Territory</h4>
-        <div class="group"><div class="av-grid" id="setupLand"></div></div>
-        <p class="sec-f">Your hexes on the map are covered with this emoji.</p>
         <p class="field-err" id="setupErr"></p>
         <button class="btn" id="setupGo" type="button">Create Profile</button>
       </div>
@@ -552,7 +598,7 @@
         <h1 class="w-title">Welcome to Clash&nbsp;of&nbsp;Cities</h1>
         <div class="w-list">
           <div class="w-item"><div class="w-ic">🗺️</div><div><b>Claim Real Places</b><p>Found your Headquarters where you stand, then grow your territory one hex at a time.</p></div></div>
-          <div class="w-item"><div class="w-ic">🏗️</div><div><b>Build Your Base</b><p>Buy buildings in the shop and place them on your hexes. Generators keep working while you're away.</p></div></div>
+          <div class="w-item"><div class="w-ic">🏗️</div><div><b>Build Your Base</b><p>Every hex you claim grows a plant that makes credits, even while you're away. Level plants up and build on them.</p></div></div>
           <div class="w-item"><div class="w-ic">🚶</div><div><b>Walk to Play</b><p>You can act on hexes within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
           <div class="w-item"><div class="w-ic">📱</div><div><b>One World</b><p>The web version and the iPhone app share the same world, with other players around you.</p></div></div>
         </div>
@@ -884,7 +930,7 @@
   let cfg = null; // GET /v1/config
   let me = null; // GET /v1/me (own state)
   let meAt = 0; // local time me was received
-  const world = { cells: new Map(), owners: {}, players: [], center: null, at: 0 };
+  const world = { cells: new Map(), owners: {}, players: [], bots: [], center: null, at: 0 };
   let version = 0; // bumps when territory or buildings change
   let RES = 12, REACH = 70;
   let mode = null; // 'gps' | 'sim'
@@ -915,11 +961,26 @@
   }
   const avatarOf = (p) => (p && p.avatar) || E.person;
 
-  let myCellSet = new Set(), myByCell = new Map();
+  let myCellSet = new Set(), myByCell = new Map(), myPlants = new Map(), itemsById = new Map();
   function indexMe() {
     myCellSet = new Set(me.territory.cells);
     myByCell = new Map(me.buildings.map((b) => [b.cell, b]));
+    myPlants = new Map((me.plants || []).map((p) => [p.cell, p]));
+    itemsById = new Map((me.items || []).map((i) => [i.id, i]));
   }
+  /** The plant on a hex: yours (full details) or a rival's (level, health). */
+  const plantOn = (id) => myPlants.get(id) || (world.cells.get(id) && world.cells.get(id).plant) || null;
+  const stageOf = (level) => { let st = cfg.plants.stages[0]; for (const s of cfg.plants.stages) if (level >= s.from) st = s; return st; };
+  /** Live credits in one of your plants (the server's value plus what it grew since). */
+  function plantStoredNow(p) {
+    if (!p || p.wilted) return p ? p.stored : 0;
+    const el = Math.max(0, serverNow() - Date.parse(p.storedAt));
+    return Math.min(p.capacity, p.stored + (p.ratePerHour * el) / 3.6e6);
+  }
+  const itemType = (it) => cfg.items.types[it.type] || { name: it.type, emoji: '❔', for: 'player', stat: '' };
+  const rarityName = (r) => (cfg.items.rarities[r] && cfg.items.rarities[r].name) || r;
+  const bonusText = (it) => { const t = itemType(it); return t.stat === 'accuracy' ? `+${Math.round(it.bonus * 100)} pts accuracy` : `+${Math.round(it.bonus * 100)} % ${({ maxHp: 'health', damage: 'damage', fireRate: 'fire rate', range: 'range', defense: 'defense', speed: 'growth', capacity: 'capacity', health: 'health' })[t.stat] || t.stat}`; };
+  const bagItems = () => (me.items || []).filter((i) => i.place !== 'plant');
   function setMe(state) {
     const before = me ? `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}` : '';
     me = state;
@@ -1109,6 +1170,7 @@
       world.cells = new Map(w.cells.filter((c) => c.ownerId).map((c) => [c.id, c]));
       world.owners = w.owners || {};
       world.players = w.players || [];
+      world.bots = w.bots || [];
       world.center = { ...center };
       world.at = Date.now();
       version++;
@@ -1159,7 +1221,75 @@
   const doPlace = (id, type) => command(() => post('/v1/buildings', { cell: id, type, location: fix() }), () => toast(`${bdef(type).name} placed. Construction started.`, false, E.building));
   const doMove = (bid, id) => command(() => post(`/v1/buildings/${bid}/move`, { cell: id, location: fix() }), (r) => toast(`${bdef(r.result.building.type).name} moved`, false, E.move));
   const doUpgrade = (bid) => command(() => post(`/v1/buildings/${bid}/upgrade`, { location: fix() }), (r) => toast(`Upgrade to level ${r.result.building.level + 1} started`, false, E.up));
-  const doCollect = (bid) => command(() => post(`/v1/buildings/${bid}/collect`, { location: fix() }), (r) => toast(`Collected ${fmtNum(r.result.collected.credits || 0)} credits`, false, E.coin));
+  const doCollect = (cells) => command(() => post('/v1/plants/collect', { ...(cells ? { cells } : {}), location: fix() }),
+    (r) => toast(`Collected ${fmtNum(r.result.collected.credits || 0)} credits${r.result.plants > 1 ? ` from ${r.result.plants} plants` : ''}`, false, E.coin));
+  const doGrow = (id, levels) => command(() => post(`/v1/plants/${id}/upgrade`, { levels, location: fix() }),
+    (r) => toast(`${stageOf(r.result.level).emoji} Level ${r.result.level}${stageOf(r.result.level).from === r.result.level && r.result.level > 1 ? ` · It's a ${stageOf(r.result.level).name} now!` : ''}`, false, E.up));
+  const doItem = (path, body, msg) => command(() => (body === null ? api('DELETE', path, undefined, { idem: newKey() }) : post(path, body)), () => msg && toast(msg, false, E.box));
+  const doBag = () => command(() => post('/v1/shop/bag', {}), (r) => toast(`Your bag holds ${r.result.slots} items now`, false, '🎒'));
+
+  // ------------------------------------------------------------------ combat
+  let target = null; // { kind: 'player' | 'bot' | 'plant' | 'building', id }
+  let shooting = false;
+  const reloadLeft = () => (me && me.combat.nextShotAt ? Math.max(0, Date.parse(me.combat.nextShotAt) - serverNow()) : 0);
+  function hitChanceAt(d) {
+    const c = me.combat, t = Math.max(0, Math.min(1, d / c.rangeMeters));
+    return Math.max(0.05, Math.min(0.99, c.accuracyNear - (c.accuracyNear - c.accuracyFar) * t));
+  }
+  /** Where a target is, and its health, from the latest world data. */
+  function targetInfo(t) {
+    if (!t) return null;
+    if (t.kind === 'bot') {
+      const b = (world.bots || []).find((x) => x.id === t.id);
+      return b && { at: { lat: b.center[0], lng: b.center[1] }, hp: b.hp, maxHp: b.maxHp, name: b.name, icon: b.emoji, bot: b };
+    }
+    if (t.kind === 'player') {
+      const p = world.players.find((x) => x.id === t.id);
+      return p && { at: { lat: p.center[0], lng: p.center[1] }, hp: p.hp, maxHp: p.maxHp, name: p.username, icon: avatarOf(p), player: p };
+    }
+    const c = cell(t.cell), wc = world.cells.get(t.cell);
+    if (t.kind === 'building') return wc && wc.building && { at: c, hp: wc.building.hp, maxHp: wc.building.maxHp, name: bdef(wc.building.type).name, icon: emojiFor(wc.building.type) };
+    return wc && wc.plant && { at: c, hp: wc.plant.hp, maxHp: wc.plant.maxHp, name: wc.plant.stage, icon: wc.plant.emoji };
+  }
+  function floatText(t, text, miss) {
+    const info = targetInfo(t);
+    if (!info || !map) return;
+    const el = document.createElement('div');
+    el.className = 'op';
+    el.innerHTML = `<div class="dmg${miss ? ' miss' : ''}">${esc(text)}</div>`;
+    const h = map.addMarker(el, info.at, 12);
+    setTimeout(() => h.remove(), 1000);
+  }
+  async function doShoot(t) {
+    if (shooting || !t) return;
+    shooting = true;
+    try {
+      const r = await post('/v1/combat/shoot', { target: { kind: t.kind, id: t.id }, location: fix() });
+      if (r.state) setMe(r.state);
+      const res = r.result;
+      floatText(t, res.hit ? `−${Math.round(res.damage)}` : 'Miss', !res.hit);
+      // Update the target locally so its health bar moves at once.
+      if (t.kind === 'bot') { const b = world.bots.find((x) => x.id === t.id); if (b) b.hp = res.target.hp; if (res.target.defeated) world.bots = world.bots.filter((x) => x.id !== t.id); }
+      if (t.kind === 'player') { const p = world.players.find((x) => x.id === t.id); if (p) { p.hp = res.target.hp; p.knockedOut = !!res.target.knockedOut; } }
+      if (t.kind === 'plant' || t.kind === 'building') { const wc = world.cells.get(t.cell); const o = wc && (t.kind === 'plant' ? wc.plant : wc.building); if (o) { o.hp = res.target.hp; if (res.target.wilted) o.wilted = true; if (res.target.broken) o.broken = true; } }
+      if (res.drop) toast(`${itemType(res.drop).emoji} ${rarityName(res.drop.rarity)} ${itemType(res.drop).name} found! It's in your bag.`, false, '🎁');
+      else if (res.bagFull) toast('Defeated, but your bag is full. Make room for the next drop.', true);
+      else if (res.target.knockedOut) toast(`${targetInfo(t) ? targetInfo(t).name : 'Player'} is knocked out${res.loot && res.loot.credits ? ` · +${fmtNum(res.loot.credits)} credits` : ''}`, false, '💥');
+      else if (res.target.wilted) toast(`The plant wilted${res.loot && res.loot.credits ? ` · +${fmtNum(res.loot.credits)} credits` : ''}`, false, '🥀');
+      else if (res.target.broken) toast('Building broken. It stops working until it recovers.', false, '💥');
+      if (res.target.defeated || res.target.knockedOut) { target = null; if (!selected) select(null); loadWorld(pos); }
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      if (e.code === 'FIRE_COOLDOWN') { /* tapped during reload */ }
+      else if (e.code === 'TARGET_BUSY') floatText(t, 'Again!', true); // both fired at once: just shoot again
+      else toast(e.message, true);
+      if (e.code === 'TARGET_GONE' || e.code === 'TARGET_DOWN') { target = null; loadWorld(pos); if (!selected) select(null); }
+    } finally {
+      shooting = false;
+      syncBots(); syncPlayers(); syncTiles();
+      refreshUi();
+    }
+  }
   let devTools = true;
   async function doSkip(minutes) {
     closeModal('settings');
@@ -1198,6 +1328,79 @@
     f.push(`${E.timer} ${fmtDur(l.buildSeconds)}`);
     return f.map((x) => `<span>${esc(x)}</span>`).join('');
   }
+  /** Your plant on a hex: credits, level-up, health and booster slots. */
+  function plantSection(out, id, p, reachWhy, act) {
+    const st = stageOf(p.level), stored = Math.floor(plantStoredNow(p));
+    out.title = `${st.name} · Level ${p.level}`;
+    out.sub = p.wilted ? 'Wilted: it heals over time, then grows again' : `${fmtNum(p.ratePerHour)} credits per hour · holds ${fmtNum(p.capacity)}`;
+    out.tile = { icon: p.emoji, tint: 'green' };
+    out.progress = { label: 'Credits', value: `${fmtNum(stored)} of ${fmtNum(p.capacity)}`, frac: stored / p.capacity, tint: 'yellow' };
+    let why = null;
+    if (stored < 1) why = 'Nothing to collect yet';
+    else if (credits() >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
+    out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', E.coin, why || reachWhy, { cells: [id] }));
+    if (p.hp < p.maxHp) out.tags.push({ tint: p.wilted ? 'red' : 'orange', icon: p.wilted ? '🥀' : '❤️', text: `Health ${fmtNum(p.hp)} of ${fmtNum(p.maxHp)}` });
+    if (p.upgradeCost !== null) {
+      let cost10 = 0;
+      for (let l = p.level; l < Math.min(cfg.plants.maxLevel, p.level + 10); l++) {
+        const c = cfg.plants.upgradeCost;
+        cost10 += Math.round((c.base + c.linear * l + c.quadratic * l * l) / 5) * 5;
+      }
+      const nextStage = cfg.plants.stages.find((x) => x.from > p.level);
+      const w1 = (credits() < p.upgradeCost ? `Need ${fmtNum(p.upgradeCost)} credits` : null) || reachWhy;
+      out.rows.push({ key: 'grow1', kind: 'grow', id, levels: 1, icon: E.up, tint: 'green', title: `Level ${p.level + 1}`,
+        sub: w1 || `${fmtNum(p.upgradeCost)} credits${nextStage ? ` · ${nextStage.emoji} ${nextStage.name} at level ${nextStage.from}` : ''}`, why: !!w1, button: 'Grow', enabled: !w1 });
+      if (p.level + 1 < cfg.plants.maxLevel) {
+        const n = Math.min(10, cfg.plants.maxLevel - p.level), w10 = (credits() < cost10 ? `Need ${fmtNum(cost10)} credits` : null) || reachWhy;
+        out.rows.push({ key: 'grow10', kind: 'grow', id, levels: 10, icon: '⏫', tint: 'green', title: `${n} Levels at Once`,
+          sub: w10 || `${fmtNum(cost10)} credits · to level ${p.level + n}`, why: !!w10, button: 'Grow', enabled: !w10 });
+      }
+    }
+    // Booster slots: one more every 10 levels.
+    for (let i = 0; i < p.slots; i++) {
+      const it = p.items[i] && itemsById.get(p.items[i]);
+      if (it) {
+        const t = itemType(it);
+        out.rows.push({ key: 'slot' + i, kind: 'unplant', item: it.id, icon: t.emoji, tint: 'indigo', title: `${t.name} · ${rarityName(it.rarity)}`,
+          sub: reachWhy || bonusText(it), why: !!reachWhy, button: 'Remove', enabled: !reachWhy });
+      } else {
+        const have = bagItems().filter((x) => itemType(x).for === 'plant');
+        const w = (!have.length ? 'No plant boosters in your bag. Defeat animals to find some.' : null) || reachWhy;
+        out.rows.push({ key: 'slot' + i, kind: 'boost', id, icon: '➕', tint: 'gray', title: `Booster Slot ${i + 1}`,
+          sub: w || `${have.length} plant booster${have.length === 1 ? '' : 's'} in your bag`, why: !!w, button: 'Add', enabled: !w });
+      }
+    }
+    if (p.slots < 1 + Math.floor(cfg.plants.maxLevel / cfg.plants.slots.perLevels)) {
+      out.note = `One more booster slot at level ${(Math.floor(p.level / cfg.plants.slots.perLevels) + 1) * cfg.plants.slots.perLevels}.`;
+    }
+  }
+
+  /** A player or an animal you tapped on the map. */
+  function describeTarget(t) {
+    const info = targetInfo(t);
+    const out = { title: '', sub: '', tile: { icon: '❔', tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' };
+    if (!info) { out.title = t.kind === 'bot' ? 'It ran off' : 'Gone'; out.sub = 'Not here any more.'; return out; }
+    const d = distM(pos, info.at), inRange = d <= me.combat.rangeMeters;
+    out.title = info.name;
+    out.tile = { icon: info.icon, tint: t.kind === 'bot' ? 'orange' : 'blue' };
+    if (t.kind === 'bot') out.sub = `Wild animal · drops a booster when defeated`;
+    else out.sub = info.player && info.player.level ? `Level ${info.player.level} commander` : 'Commander';
+    if (info.maxHp) out.progress = { label: 'Health', value: `${fmtNum(info.hp)} of ${fmtNum(info.maxHp)}`, frac: info.hp / info.maxHp, tint: info.hp / info.maxHp < 0.35 ? 'red' : 'green' };
+    out.tags.push(inRange ? { tint: 'green', icon: '🎯', text: `${fmtDist(d)} · ${Math.round(hitChanceAt(d) * 100)} % to hit` } : { tint: 'orange', icon: E.walk, text: `${fmtDist(d)} · out of range (${me.combat.rangeMeters} m)` });
+    const p = info.player;
+    let why = locationBlock() || (!inRange ? 'Get closer to shoot' : null);
+    if (!why && p && !p.near) why = 'Too far away to aim';
+    if (!why && p && p.knockedOut) why = 'Knocked out';
+    if (!why && me.combat.knockedOut) why = 'You are knocked out';
+    if (!why && !me.player.showOnMap) why = 'Show yourself on the map to fight (Settings)';
+    out.primary.push({ key: 'fire', kind: 'fire', target: t, label: 'Fire', icon: '🎯', why, enabled: !why, cls: 'fire' });
+    if (p) out.rows.push({ key: 'profile', kind: 'profile', owner: p.id, icon: avatarOf(p), tint: 'blue', title: 'View Profile', sub: p.username, button: 'View', enabled: true });
+    out.note = t.kind === 'bot'
+      ? 'The further away, the harder to hit. Boosters like 🎯 Scope and 🔥 Rapid Fire help.'
+      : `Knock them out and they lose ${Math.round(cfg.combat.knockoutLootShare * 100)} % of their credits to you (max ${fmtNum(cfg.combat.knockoutLootMax)}).`;
+    return out;
+  }
+
   function describe(id) {
     const c = cell(id), d = distM(pos, c), inReach = d <= REACH;
     const blocked = locationBlock();
@@ -1224,54 +1427,55 @@
         else if (n >= max) why = 'Upgrade your Headquarters to claim more hexes';
         else if (credits() < cost) why = `Need ${fmtNum(cost)} credits`;
         if (borders) out.tags.push({ tint: 'orange', icon: E.border, text: 'Borders your territory' });
-        out.primary.push(act('claim', `Claim for ${fmtNum(cost)} Credits`, E.flag, why || reachWhy));
+        out.primary.push(act('claim', `Claim & Plant for ${fmtNum(cost)} Credits`, '🌱', why || reachWhy));
       }
     } else if (owner !== 'me') {
-      const b = buildingOn(id);
-      out.title = rivalName(owner);
-      out.sub = b ? `${bdef(b.type).name} · Level ${b.level}` : 'Rival territory';
-      out.tile = { icon: b ? emojiFor(b.type) : (world.owners[owner] && world.owners[owner].avatar) || E.rival, tint: 'red' };
+      const b = buildingOn(id), wc = world.cells.get(id), pl = wc && wc.plant;
+      const bInfo = wc && wc.building;
+      // Aim at the building unless it's protected (HQ) or already broken; otherwise at the plant.
+      const aimB = bInfo && !bInfo.protected && !bInfo.broken;
+      const t = aimB ? { kind: 'building', id: bInfo.id, cell: id } : pl ? { kind: 'plant', id, cell: id } : null;
+      const info = t && targetInfo(t);
+      out.title = b ? bdef(b.type).name : pl ? `${pl.stage} · Level ${pl.level}` : 'Rival Hex';
+      out.sub = `${rivalName(owner)}'s ${b ? `level ${b.level} building` : 'plant'}`;
+      out.tile = { icon: b ? emojiFor(b.type) : pl ? pl.emoji : E.rival, tint: 'red' };
       out.tags.push({ tint: 'red', icon: E.rival, text: 'Rival territory' });
+      if (info) {
+        out.progress = { label: pl && pl.wilted && !aimB ? 'Wilted' : 'Health', value: `${fmtNum(info.hp)} of ${fmtNum(info.maxHp)}`, frac: info.hp / info.maxHp, tint: info.hp / info.maxHp < 0.35 ? 'red' : 'green' };
+        const dist = distM(pos, info.at), inRange = dist <= me.combat.rangeMeters, down = t.kind === 'plant' ? pl.wilted : bInfo && bInfo.broken;
+        let why = blocked || (down ? (t.kind === 'plant' ? 'Already wilted' : 'Already broken') : !inRange ? `Out of range: ${fmtDist(dist)} (range ${me.combat.rangeMeters} m)` : null);
+        if (!why && me.combat.knockedOut) why = 'You are knocked out';
+        if (!why && !me.player.showOnMap) why = 'Show yourself on the map to fight (Settings)';
+        out.primary.push({ key: 'fire', kind: 'fire', target: t, label: `Fire · ${Math.round(hitChanceAt(dist) * 100)} % to hit`, icon: '🎯', why, enabled: !why, cls: 'fire' });
+        if (bInfo && bInfo.protected) out.note = 'Headquarters can’t be damaged. You can shoot the plant under it.';
+      }
       const ow = world.owners[owner];
       out.rows.push({ key: 'profile', kind: 'profile', owner, icon: (ow && ow.avatar) || E.user, tint: 'blue', title: 'View Profile',
         sub: ow && ow.hqLevel ? `Headquarters level ${ow.hqLevel}` : 'Commander', button: 'View', enabled: true });
-      out.note = 'Scouting and raids arrive in a later update.';
+      if (!out.note) out.note = t && t.kind === 'plant' ? 'A wilted plant stops making credits until it heals. You take half of what it stored.' : 'A broken building stops working until it recovers.';
     } else {
-      const b = myByCell.get(id);
+      const b = myByCell.get(id), p = myPlants.get(id);
       out.tags.push({ tint: 'green', icon: E.mine, text: 'Your territory' });
+      if (p) plantSection(out, id, p, reachWhy, act);
       if (!b) {
-        out.title = 'Your Hex';
-        out.sub = 'Empty. One building fits on each hex.';
-        out.tile = { icon: E.mine, tint: 'green' };
         for (const [type, bd] of Object.entries(cfg.buildings)) {
           const n = invOf(type);
           if (!bd.buildable || n < 1) continue;
           const l = bd.levels[0];
           const why = (l.buildSeconds > 0 && bs.busy >= bs.total ? 'All builders are busy' : null) || reachWhy;
-          out.rows.push({ key: 'place-' + type, kind: 'place', type, icon: emojiFor(type), tint: TINT_FOR[type] || 'gray', title: bd.name,
-            sub: why || `${n} in inventory · builds in ${fmtDur(l.buildSeconds)}`, why: !!why, button: 'Place', enabled: !why });
+          out.rows.push({ key: 'place-' + type, kind: 'place', type, icon: emojiFor(type), tint: TINT_FOR[type] || 'gray', title: `Build ${bd.name} here`,
+            sub: why || `${n} ready · builds in ${fmtDur(l.buildSeconds)} · the plant keeps growing`, why: !!why, button: 'Build', enabled: !why });
         }
-        if (!out.rows.length) out.note = 'Buy buildings in the shop, then place them on your empty hexes.';
-        out.primary.push({ key: 'shop', kind: 'shop', label: 'Open Shop', icon: E.shop, enabled: true });
+        out.rows.push({ key: 'shop', kind: 'shop', icon: E.shop, tint: 'blue', title: 'Buildings', sub: 'Buy a Vault, Builder’s Hut, Watchtower or Park', button: 'Shop', enabled: true });
       } else {
-        const bd = bdef(b.type), l = lvl(b.type, b.level), left = endsIn(b), busyNow = b.state !== 'active' && left > 0;
+        const bd = bdef(b.type), l = lvl(b.type, b.level), left = endsIn(b);
         out.title = bd.name;
         out.tile = { icon: emojiFor(b.type), tint: TINT_FOR[b.type] || 'gray' };
-        out.sub = `Level ${b.level} · ${b.type === 'hq' ? `Holds ${fmtNum(storageOf(l))} credits` : cap1(effect(b.type, l) || bd.description)}`;
+        out.sub = `Level ${b.level} · on a level ${p ? p.level : 1} ${p ? p.stage : 'plant'}`;
         if (b.state !== 'active') {
           const total = Date.parse(b.constructionEndsAt) - Date.parse(b.constructionStartedAt);
           out.progress = { label: b.state === 'constructing' ? 'Under construction' : `Upgrading to level ${b.level + 1}`,
             value: left > 0 ? `${fmtLeft(left)} left` : 'Finishing…', frac: total ? 1 - Math.max(0, left) / total : 1, tint: 'orange' };
-        } else if (b.production) {
-          out.progress = { label: 'Stored', value: `${fmtNum(storedNow(b))} of ${fmtNum(b.production.capacity)}`, frac: storedNow(b) / b.production.capacity, tint: 'yellow' };
-        }
-        if (rateOf(l)) {
-          const stored = Math.floor(storedNow(b));
-          let why = null;
-          if (b.state !== 'active') why = 'Available when construction finishes';
-          else if (stored < 1) why = 'Nothing to collect yet';
-          else if (credits() >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
-          out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', E.coin, why || reachWhy, { id: b.id }));
         }
         const next = bd.levels[b.level];
         if (next) {
@@ -1281,13 +1485,11 @@
           else if (next.buildSeconds > 0 && bs.busy >= bs.total) why = 'All builders are busy';
           else if (credits() < costOf(next)) why = `Need ${fmtNum(costOf(next))} credits`;
           why = why || reachWhy;
-          out.rows.push({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: E.up, tint: 'blue', title: `Level ${b.level + 1}`,
+          out.rows.unshift({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: emojiFor(b.type), tint: 'blue', title: `${bd.name} Level ${b.level + 1}`,
             sub: why || `${fmtNum(costOf(next))} credits · ${fmtDur(next.buildSeconds)} · ${effect(b.type, next)}`, why: !!why, button: 'Upgrade', enabled: !why });
-        } else {
-          out.rows.push({ key: 'max', kind: 'none', icon: E.top, tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
         }
-        out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: 'Move',
-          sub: 'To an empty hex you own, within reach', button: 'Move', enabled: true });
+        out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: `Move ${bd.name}`,
+          sub: 'To another hex you own, within reach', button: 'Move', enabled: true });
         if (b.type === 'hq') {
           const nx = cfg.hq.levels[b.level];
           out.note = nx
@@ -1295,7 +1497,6 @@
               Object.entries(nx.buildingLimits).filter(([, n]) => n > 0).map(([t, n]) => `${n} ${emojiFor(t)}`).join(' · ') + '.'
             : 'Your Headquarters is at the highest level in this test build.';
         }
-        if (busyNow) void 0;
       }
     }
     if (!inReach) {
@@ -1311,8 +1512,8 @@
   // Camera and layers, tuned for ~9 m hexes (H3 res 13): the default view shows the 70 m reach circle.
   const MAP = { mpp: 0.4, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 2.4, maxGridRings: 40, worldRings: 45 };
   const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
-  // The map is always dark and calm, so emoji territory and avatars stand out (whatever the system theme).
-  const dark = true;
+  // The map follows the system appearance, like Apple Maps.
+  const dark = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   // Territory is shown with emoji, so hexes are nearly invisible: no grid, no fills, faint borders,
   // and a light outline only where you can claim next (within reach) and around the selection.
   function hexStyles() {
@@ -1660,8 +1861,10 @@
       if (!me || !pos) return;
       const id = cellAt(lat, lng);
       if (placing) return placeAt(id);
+      const bot = botAt(lat, lng);
+      if (bot) return selectTarget({ kind: 'bot', id: bot });
       const hit = playerAt(lat, lng);
-      if (hit) return openProfile(hit);
+      if (hit) return selectTarget({ kind: 'player', id: hit });
       select(id);
     });
     map.on('userMove', () => setFollow(false));
@@ -1734,6 +1937,7 @@
     syncPins();
     syncTiles();
     syncPlayers();
+    syncBots();
   }
   function updateReach(force) {
     if (!me || !map || !pos) return;
@@ -1802,30 +2006,66 @@
     for (const [key, pin] of pins) if (!seen.has(key)) { pin.handle.remove(); pins.delete(key); }
     void now;
   }
-  // Territory: every owned hex without a building shows its owner's territory emoji.
-  const tiles = new Map(); // cell -> { handle, el, glyph }
-  const territoryEmojiOf = (owner) => (owner === 'me' ? me.player.territoryEmoji : world.owners[owner] && world.owners[owner].territoryEmoji) || '🌱';
+  // Plants: every owned hex shows its plant; under a building it peeks out small. Health bars when hurt.
+  const tiles = new Map(); // cell -> { handle, el, key }
+  const hpHtml = (hp, max) => `<div class="hpbar${hp / max < 0.35 ? ' low' : ''}"${hp >= max ? ' hidden' : ''}><i style="width:${Math.max(0, Math.min(100, (hp / max) * 100))}%"></i></div>`;
   function syncTiles() {
     if (!map || !me) return;
     const want = new Map();
-    for (const id of myCellSet) if (!myByCell.has(id)) want.set(id, territoryEmojiOf('me'));
-    for (const [id, c] of world.cells) {
-      const o = ownerOf(id);
-      if (o && o !== 'me' && !c.building) want.set(id, territoryEmojiOf(o));
-    }
+    for (const [id, p] of myPlants) want.set(id, { p, own: true, under: myByCell.has(id) });
+    for (const [id, c] of world.cells) if (c.plant && ownerOf(id) && ownerOf(id) !== 'me') want.set(id, { p: c.plant, own: false, under: !!c.building });
     for (const [id, t] of tiles) if (!want.has(id)) { t.handle.remove(); tiles.delete(id); }
-    for (const [id, glyph] of want) {
+    for (const [id, w] of want) {
       let t = tiles.get(id);
       if (!t) {
         const el = document.createElement('div');
-        el.className = 'tt';
-        el.innerHTML = '<i></i>';
         const c = cell(id);
-        t = { el, handle: map.addMarker(el, { lat: c.lat, lng: c.lng }, 2), glyph: '' };
+        t = { el, handle: map.addMarker(el, { lat: c.lat, lng: c.lng }, 2), key: '' };
         tiles.set(id, t);
       }
-      if (t.glyph !== glyph) { t.glyph = glyph; t.el.firstChild.textContent = glyph; }
+      const p = w.p, full = w.own && plantStoredNow(p) >= p.capacity;
+      const key = `${p.emoji || stageOf(p.level).emoji}|${p.hp}|${p.maxHp}|${p.wilted}|${w.under}|${full}`;
+      if (t.key === key) continue;
+      t.key = key;
+      t.el.className = `tt${p.wilted ? ' wilted' : ''}${w.under ? ' under' : ''}`;
+      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${full && !w.under ? '<span class="full">🪙</span>' : ''}${w.under ? '' : hpHtml(p.hp, p.maxHp)}`;
     }
+  }
+
+  // Animal bots: shoot them for booster items.
+  const botPins = new Map();
+  function syncBots() {
+    if (!map) return;
+    const seen = new Set();
+    for (const b of world.bots || []) {
+      seen.add(b.id);
+      let pin = botPins.get(b.id);
+      if (!pin) {
+        const el = document.createElement('div');
+        el.className = 'bot';
+        pin = { el, handle: map.addMarker(el, { lat: b.center[0], lng: b.center[1] }, 4), key: '' };
+        botPins.set(b.id, pin);
+      }
+      const aimed = target && target.kind === 'bot' && target.id === b.id;
+      const key = `${b.hp}|${aimed}`;
+      if (pin.key !== key) {
+        pin.key = key;
+        pin.el.innerHTML = `${aimed ? '<div class="aim"></div>' : ''}<div class="be">${b.emoji}</div>${hpHtml(b.hp, b.maxHp)}`;
+      }
+    }
+    for (const [id, pin] of botPins) if (!seen.has(id)) { pin.handle.remove(); botPins.delete(id); }
+  }
+  /** The bot whose marker is under a tap, if any. */
+  function botAt(lat, lng) {
+    if (!botPins.size) return null;
+    const t = map.toPx({ lat, lng });
+    let best = null, bestD = 26;
+    for (const b of world.bots || []) {
+      const q = map.toPx({ lat: b.center[0], lng: b.center[1] });
+      const d = Math.hypot(q.x - t.x, q.y + 14 - t.y);
+      if (d < bestD) { bestD = d; best = b.id; }
+    }
+    return best;
   }
 
   // Online players nearby (from the world view): a 🧍 with their name. Several in one cell fan out around its center.
@@ -1857,8 +2097,8 @@
       if (!pin) {
         const el = document.createElement('div');
         el.className = 'op';
-        el.innerHTML = '<div class="pi"><div class="bubble"></div><div class="pe"></div><div class="on"></div></div>';
-        pin = { el, handle: map.addMarker(el, at, 6), at, face: '', said: '' };
+        el.innerHTML = '<div class="pi"><div class="aimbox"></div><div class="bubble"></div><div class="pe"></div><div class="on"></div><div class="hpbox"></div></div>';
+        pin = { el, handle: map.addMarker(el, at, 6), at, face: '', said: '', hpKey: '' };
         playerPins.set(p.id, pin);
       } else if (pin.at.lat !== at.lat || pin.at.lng !== at.lng) {
         pin.handle.move(at);
@@ -1869,6 +2109,14 @@
       if (pin.face !== face) { pin.face = face; pin.el.querySelector('.pe').textContent = face; }
       const said = p.emote || '';
       if (pin.said !== said) { pin.said = said; pin.el.querySelector('.bubble').textContent = said; }
+      const aimed = target && target.kind === 'player' && target.id === p.id;
+      const hpKey = `${p.hp}|${p.maxHp}|${p.near}|${aimed}|${p.knockedOut}`;
+      if (pin.hpKey !== hpKey) {
+        pin.hpKey = hpKey;
+        pin.el.querySelector('.hpbox').innerHTML = p.near && p.maxHp ? hpHtml(p.hp, p.maxHp) : '';
+        pin.el.querySelector('.aimbox').innerHTML = aimed ? '<div class="aim" style="top:-50px"></div>' : '';
+        pin.el.querySelector('.pe').style.opacity = p.knockedOut ? '.45' : '';
+      }
     }
     for (const [id, pin] of playerPins) if (!seen.has(id)) { pin.handle.remove(); playerPins.delete(id); }
   }
@@ -2000,13 +2248,124 @@
   }
   /** Bottom card: avatar, name, level and the score still needed for the next level. */
   function refreshLevelBar() {
-    const p = me.player, lv = me.level || 1, next = me.nextLevelScore, base = me.levelScore || 0;
+    const p = me.player, lv = me.level || 1, next = me.nextLevelScore, base = me.levelScore || 0, c = me.combat;
     $('lvAvatar').textContent = avatarOf(p);
     $('lvName').textContent = p.username;
     $('lvBadge').textContent = lv;
-    $('lvSub').textContent = next == null ? `${E.star} Highest level` : `${E.star} ${fmtNum(Math.max(0, next - me.score))} to level-up`;
+    $('lvSub').textContent = next == null ? `${E.star} Highest level` : `${E.star} ${fmtNum(Math.max(0, next - me.score))} to level ${lv + 1}`;
     $('lvFill').style.width = next == null ? '100%' : `${Math.max(0, Math.min(100, ((me.score - base) / (next - base)) * 100))}%`;
+    if (c) {
+      const hp = c.knockedOut ? 0 : c.hp;
+      $('hpText').textContent = c.knockedOut ? `💫 Knocked out · ${fmtLeft(Date.parse(c.koUntil) - serverNow())}` : `❤️ ${fmtNum(hp)} / ${fmtNum(c.maxHp)}`;
+      $('hpFill').style.width = `${(hp / c.maxHp) * 100}%`;
+      $('hpBar').classList.toggle('low', hp / c.maxHp < 0.35);
+    }
+    if ($('home').classList.contains('open')) renderHomeTab(false);
   }
+
+  // ------------------------------------------------------------------ UI: home sheet (you: bag, stats, profile)
+  let homeTab = 'bag', homeKey = '';
+  function setHome(open) {
+    const h = $('home');
+    h.classList.toggle('open', open);
+    $('homeHead').setAttribute('aria-expanded', String(open));
+    if (open) { select(null); renderHomeTab(true); }
+    layoutControls();
+  }
+  $('homeHead').addEventListener('click', () => setHome(!$('home').classList.contains('open')));
+  $('homeSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]');
+    if (!b) return;
+    homeTab = b.dataset.tab;
+    for (const x of $('homeSeg').children) x.classList.toggle('on', x === b);
+    renderHomeTab(true);
+  });
+  (() => {
+    // Drag the home sheet's head up to open it, down to close it.
+    const head = $('homeHead');
+    let y0 = null;
+    head.addEventListener('pointerdown', (e) => { y0 = e.clientY; });
+    head.addEventListener('pointerup', (e) => {
+      if (y0 === null) return;
+      const dy = e.clientY - y0;
+      y0 = null;
+      if (Math.abs(dy) > 30) { e.preventDefault(); setHome(dy < 0); head.dataset.dragged = '1'; setTimeout(() => delete head.dataset.dragged, 50); }
+    });
+    head.addEventListener('click', (e) => { if (head.dataset.dragged) e.stopImmediatePropagation(); }, true);
+  })();
+  const statRow = (icon, tint, title, value) =>
+    `<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div></div><span class="row-value">${esc(value)}</span></div>`;
+  function renderHomeTab(force) {
+    if (!me) return;
+    const box = $('homeTab');
+    if (homeTab === 'profile') {
+      if (force || !box.dataset.profile) {
+        box.dataset.profile = '1';
+        box.innerHTML = '<p class="loading">Loading…</p>';
+        api('GET', `/v1/players/${me.player.id}`).then((p) => { if (homeTab === 'profile') box.innerHTML = profileHtml(p, true); }).catch(() => {});
+      }
+      return;
+    }
+    delete box.dataset.profile;
+    let html = '';
+    if (homeTab === 'bag') {
+      const bag = me.bag, items = bagItems(), act = items.filter((i) => i.place === 'active');
+      const planted = (me.items || []).filter((i) => i.place === 'plant');
+      const row = (it) => {
+        const t = itemType(it), on = it.place === 'active';
+        const ctl = t.for === 'player'
+          ? `<label class="switch toggle"><input type="checkbox" data-toggle="${it.id}"${on ? ' checked' : ''}${!on && act.length >= bag.maxActive ? ' disabled' : ''} aria-label="Use ${esc(t.name)}"><span></span></label>`
+          : `<span class="row-value">Plant</span>`;
+        return `<div class="row t"><div class="tile sm tint-${t.for === 'player' ? 'red' : 'green'}">${t.emoji}</div><div class="row-main"><div class="row-title">${esc(t.name)} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${esc(bonusText(it))}</div></div>` +
+          `${ctl}<button class="pill" type="button" data-discard="${it.id}" aria-label="Throw away">🗑️</button></div>`;
+      };
+      html += `<h4 class="sec-h">Bag · ${bag.used} of ${bag.slots}</h4>`;
+      html += items.length ? `<div class="group">${items.map(row).join('')}</div>` : `<div class="group"><div class="row"><div class="row-main row-sub">Empty. Defeat animals on the map (🐀 🦝 🐗 🐺 🐻 🐉) to find boosters.</div></div></div>`;
+      html += `<p class="sec-f">Turn on up to ${bag.maxActive} player boosters at a time (${act.length} on). Plant boosters go into a plant: tap one of your plants.${bag.upgradeCost ? ` A bigger bag is in the shop.` : ''}</p>`;
+      if (planted.length) {
+        html += `<h4 class="sec-h">In Your Plants</h4><div class="group">` + planted.map((it) => {
+          const t = itemType(it), p = myPlants.get(it.plantCell);
+          return statRow(t.emoji, 'green', `${t.name} · ${rarityName(it.rarity)}`, p ? `${p.emoji} Lv ${p.level}` : '');
+        }).join('') + '</div>';
+      }
+    } else {
+      const c = me.combat, st = me.stats || {};
+      html += `<h4 class="sec-h">Combat</h4><div class="group">` +
+        statRow('❤️', 'red', 'Health', `${fmtNum(c.hp)} / ${fmtNum(c.maxHp)}`) +
+        statRow('💥', 'orange', 'Damage', `${c.damage}`) +
+        statRow('🔥', 'orange', 'Fire Rate', `every ${c.cooldownSeconds} s`) +
+        statRow('🔭', 'blue', 'Range', `${c.rangeMeters} m`) +
+        statRow('🎯', 'blue', 'Accuracy', `${Math.round(c.accuracyNear * 100)} % near · ${Math.round(c.accuracyFar * 100)} % far`) +
+        statRow('🛡️', 'gray', 'Defense', `${Math.round(c.defense * 100)} %`) +
+        statRow('🌱', 'green', 'Build Reach', `${c.reachMeters} m`) + '</div>';
+      html += `<h4 class="sec-h">Record</h4><div class="group">` +
+        statRow('🎯', 'gray', 'Hits', `${fmtNum(st.hits || 0)} of ${fmtNum(st.shots || 0)}`) +
+        statRow('💥', 'gray', 'Knock-outs', fmtNum(st.knockouts || 0)) +
+        statRow('🐾', 'gray', 'Animals Defeated', fmtNum(st.botsDefeated || 0)) +
+        statRow('🎁', 'gray', 'Boosters Found', fmtNum(st.itemsFound || 0)) +
+        statRow('🌿', 'gray', 'Plant Levels Grown', fmtNum(st.plantLevels || 0)) + '</div>';
+      html += `<p class="sec-f">Shots are more likely to hit up close. Enemies further than ${c.rangeMeters} m are out of range.</p>`;
+    }
+    const key = homeTab + html;
+    if (!force && key === homeKey) return;
+    homeKey = key;
+    box.innerHTML = html;
+  }
+  $('homeTab').addEventListener('change', (e) => {
+    const t = e.target.closest('[data-toggle]');
+    if (t) doItem(`/v1/items/${t.dataset.toggle}/${t.checked ? 'activate' : 'deactivate'}`, {}, null).then(() => renderHomeTab(true));
+  });
+  $('homeTab').addEventListener('click', (e) => {
+    if (e.target.closest('[data-edit-profile]')) { setHome(false); return editProfile(false); }
+    const d = e.target.closest('[data-discard]');
+    if (!d) return;
+    const it = itemsById.get(d.dataset.discard);
+    showAlert(`Throw away ${it ? itemType(it).name : 'this booster'}?`, 'It’s gone for good.', [
+      { label: 'Cancel' },
+      { label: 'Throw Away', style: 'destructive', onTap: () => doItem(`/v1/items/${d.dataset.discard}`, null, 'Thrown away').then(() => renderHomeTab(true)) },
+    ]);
+  });
+
   function refreshStatus() {
     let emoji, text;
     if (serverState === 'waking') { emoji = E.wake; text = 'Waking up the game server…'; }
@@ -2034,7 +2393,8 @@
     refreshStatus();
     if (!me) return;
     refreshHud();
-    if (selected) renderSheet();
+    if (selected || target) renderSheet();
+    syncTiles();
     syncPins();
   }
 
@@ -2069,9 +2429,11 @@
   function updatePrimary(wrap, a) {
     wrap._item = a;
     const btn = wrap.firstElementChild, bi = btn.firstElementChild, why = wrap.lastElementChild;
-    btn.disabled = !a.enabled;
+    const reloading = a.kind === 'fire' && a.enabled && reloadLeft() > 0;
+    btn.disabled = !a.enabled || reloading;
+    btn.className = `btn${a.cls ? ' ' + a.cls : ''}`;
     if (bi.textContent !== a.icon) bi.textContent = a.icon;
-    btn.lastElementChild.textContent = a.label;
+    btn.lastElementChild.textContent = reloading ? 'Reloading…' : a.label;
     const text = !a.enabled && !a.reachOnly ? a.why : '';
     why.textContent = text || '';
     why.hidden = !text;
@@ -2096,8 +2458,8 @@
     pill.disabled = !r.enabled;
   }
   function renderSheet() {
-    if (!selected || !me || !pos) return;
-    const info = describe(selected);
+    if ((!selected && !target) || !me || !pos) return;
+    const info = !selected && target ? describeTarget(target) : describe(selected);
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
     setTile($('sheetTile'), info.tile.icon, info.tile.tint, 'lg');
@@ -2118,7 +2480,10 @@
     $('sheetNote').hidden = !info.note;
   }
   function onAction(a) {
-    if (!a || !a.enabled || !selected) return;
+    if (!a || !a.enabled) return;
+    if (a.kind === 'fire') { target = a.target; return doShoot(a.target); }
+    if (a.kind === 'profile') return openProfile(a.owner);
+    if (!selected) return;
     const id = selected;
     if (a.kind === 'walk') {
       const c = cell(id);
@@ -2140,7 +2505,10 @@
     if (a.kind === 'claim') doClaim(id);
     else if (a.kind === 'place') doPlace(id, a.type);
     else if (a.kind === 'upgrade') doUpgrade(a.id);
-    else if (a.kind === 'collect') doCollect(a.id);
+    else if (a.kind === 'collect') doCollect(a.cells);
+    else if (a.kind === 'grow') doGrow(a.id, a.levels);
+    else if (a.kind === 'unplant') doItem(`/v1/items/${a.item}/unplant`, { location: fix() }, 'Booster back in your bag');
+    else if (a.kind === 'boost') pickBooster(a.id);
     else if (a.kind === 'move') startPlacing({ kind: 'move', id: a.id });
     else if (a.kind === 'shop') openShop();
     else if (a.kind === 'profile') openProfile(a.owner);
@@ -2204,7 +2572,11 @@
     $('invHead').hidden = !inv.length;
     $('invFoot').textContent = inv.length ? 'Place moves you to the map: tap an empty hex you own, within reach.' : '';
     $('invFoot').hidden = !inv.length;
-    $('shopNext').innerHTML = nextHqUnlocks(hq);
+    const bag = me.bag;
+    $('shopNext').innerHTML = `<h4 class="sec-h">Bag</h4><div class="group"><div class="row t card"><div class="tile lg tint-indigo">🎒</div><div class="row-main">` +
+      `<div class="row-title">Bigger Bag <small>${bag.slots} slots</small></div><div class="row-sub">Room for ${cfg.items.bag.slotsPerUpgrade} more boosters. Boosters are found by defeating animals.</div></div>` +
+      (bag.upgradeCost ? `<button class="pill" type="button" data-bag${credits() < bag.upgradeCost ? ' disabled' : ''}>${E.coin} ${fmtNum(bag.upgradeCost)}</button>` : '<span class="row-value">Max</span>') +
+      `</div></div>` + nextHqUnlocks(hq);
   }
   /** "Headquarters level N unlocks …": more hexes and builders, new buildings, higher limits and levels. */
   function nextHqUnlocks(hq) {
@@ -2234,6 +2606,7 @@
   }
   $('shopBtn').addEventListener('click', openShop);
   $('shop').addEventListener('click', async (e) => {
+    if (e.target.closest('[data-bag]') && !e.target.closest('[data-bag]').disabled) { await doBag(); return renderShop(); }
     const buy = e.target.closest('[data-buy]'), put = e.target.closest('[data-place]');
     if (buy && !buy.disabled) {
       await doBuy(buy.dataset.buy);
@@ -2244,19 +2617,35 @@
   let started = false; // the level bar and tools show once the game has started
   function layoutControls() {
     const h = sheetOpen ? sheetEl.offsetHeight : !$('placeBar').hidden ? $('placeBar').offsetHeight : 0;
-    const bar = $('lvlBar');
-    bar.hidden = !started || !!h;
+    const bar = $('home');
+    bar.hidden = !started;
+    bar.classList.toggle('away', !!h);
+    appEl.style.setProperty('--home-max', `${Math.max(240, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 16))}px`);
+    const homeOpen = bar.classList.contains('open');
     // The tool bar and the talk button make room for an open sheet or the placing bar.
-    $('rail').classList.toggle('away', !!h);
-    $('talkBtn').classList.toggle('away', !!h);
-    if (h) $('talkPop').hidden = true;
-    const barH = bar.hidden ? 0 : bar.offsetHeight;
+    $('rail').classList.toggle('away', !!h || homeOpen);
+    $('talkBtn').classList.toggle('away', !!h || homeOpen);
+    if (h || homeOpen) $('talkPop').hidden = true;
+    const barH = bar.hidden || h ? 0 : 96 + sheetBottomPx();
     appEl.style.setProperty('--ctl-bottom', h ? `${Math.round(sheetBottomPx() + h + 14)}px` : barH ? `${barH + 14}px` : 'calc(var(--sb) + 40px)');
     appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 12))}px`);
+  }
+  /** Opens the sheet for a player or an animal (aim at it). */
+  function selectTarget(t) {
+    if (placing) stopPlacing();
+    selected = null;
+    target = t;
+    if (map) map.setSelection(null);
+    renderSheet();
+    sheetOpen = true;
+    sheetEl.classList.remove('off');
+    layoutControls();
+    syncBots(); syncPlayers();
   }
   function select(id) {
     if (id && placing) stopPlacing();
     selected = id || null;
+    if (id || !selected) { const had = target; target = null; if (had) { syncBots(); syncPlayers(); } }
     if (!selected) {
       if (map) map.setSelection(null);
       if (sheetOpen) {
@@ -2339,6 +2728,7 @@
     $('alertMsg').textContent = message;
     const box = $('alertActions');
     box.innerHTML = '';
+    box.classList.toggle('stack', buttons.length > 2);
     for (const b of buttons) {
       const el = document.createElement('button');
       el.type = 'button';
@@ -2362,6 +2752,15 @@
     $('locHelpWhy').textContent = why;
     openModal('locHelp');
   }
+  /** Choose a plant booster from the bag for a plant slot (a native-style action sheet). */
+  function pickBooster(cellId) {
+    const have = bagItems().filter((x) => itemType(x).for === 'plant');
+    showAlert('Add a Booster', 'It stays in this plant until you take it out.', [
+      ...have.slice(0, 6).map((it) => ({ label: `${itemType(it).emoji} ${itemType(it).name} · ${rarityName(it.rarity)}`, onTap: () => doItem(`/v1/items/${it.id}/plant`, { cell: cellId, location: fix() }, `${itemType(it).name} is working in the plant`) })),
+      { label: 'Cancel', style: 'strong' },
+    ]);
+  }
+
   // ------------------------------------------------------------------ UI: quick messages (speech bubbles)
   let myEmote = null; // { text, until }
   function openTalk() {
@@ -2394,6 +2793,13 @@
   // ------------------------------------------------------------------ UI: profiles and the leaderboard
   let profileSeq = 0;
   async function openProfile(id, fromLeaders) {
+    // Your own profile opens in the home sheet, the same surface as your player bar.
+    if (me && id === me.player.id) {
+      closeModal('leaders');
+      homeTab = 'profile';
+      for (const x of $('homeSeg').children) x.classList.toggle('on', x.dataset.tab === 'profile');
+      return setHome(true);
+    }
     const seq = ++profileSeq;
     select(null);
     closeModal('leaders');
@@ -2408,7 +2814,7 @@
       if (seq === profileSeq) $('profileBody').innerHTML = `<p class="loading">${E.warn} ${esc(e.message || "Couldn't load the profile")}</p>`;
     }
   }
-  function profileHtml(p) {
+  function profileHtml(p, embedded) {
     const mine = me && p.id === me.player.id;
     const since = new Date(p.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     const status = mine ? (me.player.showOnMap ? 'Visible on the map' : 'Hidden from the map') : p.online ? 'Online now' : 'Offline';
@@ -2417,10 +2823,13 @@
       `<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div></div><span class="row-value">${esc(value)}</span></div>`;
     const buildings = p.buildings.map((b) => row(emojiFor(b.type), TINT_FOR[b.type] || 'gray', `${bdef(b.type) ? bdef(b.type).name : b.type}${b.count > 1 ? ` × ${b.count}` : ''}`, `Level ${b.maxLevel}`));
     const medal = p.rank && p.rank <= 3 ? ` ${E.medal[p.rank - 1]}` : '';
-    return `<div class="prof"><div class="tile xl tint-blue">${esc(avatarOf(p))}</div><h2>${esc(p.username)}${medal}</h2>` +
-      `<p><span class="dot${on ? ' on' : ''}"></span>${status}</p><p>Commander since ${esc(since)}</p></div>` +
+    const head = embedded
+      ? `<p class="sec-f" style="margin:0 0 12px"><span class="dot${on ? ' on' : ''}"></span>${status} · Commander since ${esc(since)}${medal}</p>`
+      : `<div class="prof"><div class="tile xl tint-blue">${esc(avatarOf(p))}</div><h2>${esc(p.username)}${medal}</h2>` +
+        `<p><span class="dot${on ? ' on' : ''}"></span>${status}</p><p>Commander since ${esc(since)}</p></div>`;
+    return head +
       `<div class="kpis"><div><b>${p.level || 1}</b><span>Level</span></div><div><b>${fmtNum(p.score)}</b><span>Score</span></div><div><b>${p.rank ? `#${p.rank}` : '–'}</b><span>Rank</span></div></div>` +
-      `<h4 class="sec-h">Empire</h4><div class="group">${row(p.territoryEmoji || E.neutral, 'green', 'Territory', `${p.territory} hex${p.territory === 1 ? '' : 'es'}`)}${buildings.join('')}</div>` +
+      `<h4 class="sec-h">Empire</h4><div class="group">${row('🌱', 'green', 'Plants', `${p.territory} hex${p.territory === 1 ? '' : 'es'}`)}${buildings.join('')}</div>` +
       `<h4 class="sec-h">Stats</h4><div class="group">` +
       row(E.walk, 'blue', 'Distance Walked', fmtDist(s.distanceMeters)) +
       row(E.flag, 'green', 'Hexes Claimed', fmtNum(s.hexesClaimed)) +
@@ -2429,8 +2838,11 @@
       row(E.up, 'blue', 'Upgrades', fmtNum(s.upgradesStarted)) +
       row(E.move, 'gray', 'Buildings Moved', fmtNum(s.buildingsMoved)) +
       row(E.coin, 'yellow', 'Credits Collected', fmtNum(s.creditsCollected)) +
-      row(E.spent, 'gray', 'Credits Spent', fmtNum(s.creditsSpent)) + `</div>` +
-      `<p class="sec-f">Score: ${cfg.score.perCell} per hex, ${cfg.score.perBuildingLevel} per building level, plus decorations like the ${emojiFor('park')} Park.</p>`;
+      row(E.spent, 'gray', 'Credits Spent', fmtNum(s.creditsSpent)) +
+      row('💥', 'red', 'Knock-outs', fmtNum(s.knockouts || 0)) +
+      row('🐾', 'orange', 'Animals Defeated', fmtNum(s.botsDefeated || 0)) + `</div>` +
+      `<p class="sec-f">Score: ${cfg.score.perCell} per hex, ${cfg.score.perPlantLevel} per plant level, ${cfg.score.perBuildingLevel} per building level, decorations and fights.</p>` +
+      (embedded ? `<button class="btn plain" type="button" data-edit-profile>Edit Name and Avatar</button>` : '');
   }
   async function openLeaders() {
     select(null);
@@ -2453,7 +2865,7 @@
     }
   }
   $('leadersBtn').addEventListener('click', openLeaders);
-  $('lvlBar').addEventListener('click', () => { if (me) openProfile(me.player.id); });
+  // Your own profile lives in the home sheet (same surface as your player bar).
   $('profileBack').addEventListener('click', openLeaders);
   $('leadersBody').addEventListener('click', (e) => {
     const r = e.target.closest('[data-player]');
@@ -2461,13 +2873,12 @@
   });
 
   // ------------------------------------------------------------------ UI: create / edit profile (name + avatar)
-  const setup = { tone: '', avatar: '', land: '', done: null };
+  const setup = { tone: '', avatar: '', done: null };
   function renderSetup() {
     const cell = (e) => `<button type="button" data-av="${e}" class="${e === setup.avatar ? 'on' : ''}" aria-label="${e}">${e}</button>`;
     $('setupTones').innerHTML = TONES.map((t, i) => `<button type="button" data-tone="${i}" class="${t === setup.tone ? 'on' : ''}" aria-label="Skin tone ${i}">${withTone('✋', t)}</button>`).join('');
     $('setupPeople').innerHTML = AV_PEOPLE.map((e) => cell(withTone(e, setup.tone))).join('');
     $('setupFaces').innerHTML = AV_FACES.map(cell).join('');
-    $('setupLand').innerHTML = cfg.social.territoryEmojis.map((e) => `<button type="button" data-land="${e}" class="${e === setup.land ? 'on' : ''}" aria-label="${e}">${e}</button>`).join('');
     $('setupPreview').textContent = setup.avatar || E.user;
     $('setupPreviewName').textContent = $('setupName').value.trim() || $('setupName').placeholder;
   }
@@ -2476,7 +2887,6 @@
     const p = me.player;
     setup.avatar = p.avatar || withTone(AV_PEOPLE[0], '');
     setup.tone = TONES.find((t) => t && setup.avatar.includes(t)) || '';
-    setup.land = p.territoryEmoji || cfg.social.territoryEmojis[0];
     $('setupName').value = first ? '' : p.username;
     $('setupName').placeholder = p.username;
     $('setupNameErr').textContent = $('setupErr').textContent = '';
@@ -2497,12 +2907,6 @@
     if (base) setup.avatar = withTone(base, setup.tone);
     renderSetup();
   });
-  $('setupLand').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-land]');
-    if (!b) return;
-    setup.land = b.dataset.land;
-    renderSetup();
-  });
   for (const id of ['setupPeople', 'setupFaces']) {
     $(id).addEventListener('click', (e) => {
       const b = e.target.closest('[data-av]');
@@ -2518,7 +2922,7 @@
     if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) { $('setupNameErr').textContent = 'Use 3 to 20 letters, digits or _ (no spaces).'; return; }
     $('setupGo').disabled = true;
     try {
-      const body = { avatar: setup.avatar, territoryEmoji: setup.land };
+      const body = { avatar: setup.avatar };
       if (name !== me.player.username) body.username = name;
       setMe(await api('PATCH', '/v1/me', body));
       closeModal('setup');
@@ -2696,6 +3100,7 @@
     measureGrid(pos);
     $('shopBtn').hidden = false;
     $('talkBtn').hidden = !(cfg.social && cfg.social.emotes.length);
+    $('home').hidden = false;
     started = true;
     layoutControls();
     setFollow(true);
@@ -2804,6 +3209,11 @@
     withTone: (e, t) => withTone(e, t),
     select: (id) => select(id),
     reloadWorld: () => { world.at = 0; return loadWorld(pos); },
+    selectTarget: (t) => selectTarget(t),
+    api: (m, p, b) => api(m, p, b, { idem: newKey() }),
+    loadMe: () => loadMe(),
+    setHome: (open, tab) => { if (tab) { homeTab = tab; for (const x of $('homeSeg').children) x.classList.toggle('on', x.dataset.tab === tab); } setHome(open); },
+    get target() { return target; },
     cellAt: (lat, lng) => cellAt(lat, lng),
     teleport(lat, lng) { pos = { lat, lng }; playerMoved(false); updateReach(true); syncLocation(true); refreshUi(); },
   };
