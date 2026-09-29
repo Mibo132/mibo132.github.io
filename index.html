@@ -106,7 +106,7 @@
   .rbtn[aria-pressed="false"] .emo { opacity: .55; }
   .rbtn .badge { top: 4px; right: 2px; }
   .talk {
-    position: absolute; z-index: 5; right: 10px; top: calc(50% + 130px); width: 50px; height: 50px; padding: 0; border: 0; border-radius: 25px;
+    position: absolute; z-index: 5; right: 10px; top: calc(50% + 156px); width: 50px; height: 50px; padding: 0; border: 0; border-radius: 25px;
     display: grid; place-items: center; font-size: 24px;
   }
   .talk:active { transform: scale(.94); }
@@ -380,7 +380,7 @@
   .ms-timer { margin: 30px 8px 0; text-align: center; }
   .ms-timer b { display: block; font: 700 24px/30px var(--round); font-variant-numeric: tabular-nums; }
   .ms-timer p { margin: 8px 0 0; font-size: 14px; line-height: 19px; color: var(--label2); }
-  .locate { top: calc(50% + 190px); color: var(--blue); }
+  .locate { top: calc(50% + 216px); color: var(--blue); }
   .locate svg { width: 22px; height: 22px; }
   .locate.following { opacity: 0; pointer-events: none; transform: scale(.8); }
 
@@ -750,10 +750,70 @@
   @media (prefers-reduced-motion: reduce) {
     .sheet, .page, .banner, .alert, .stick { transition-duration: .01s !important; }
   }
+
+  /* ---------------------------------------------------------------- accessibility: reduce motion, color-blind-safe colors, screen readers */
+  .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .rm *, .rm *::before, .rm *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; scroll-behavior: auto !important; }
+  .rm .hold.on .fg { animation-duration: var(--hold-ms, 3000ms) !important; } /* the hold ring is a timer, not decoration */
+  .rm .spinner i { animation-duration: .8s !important; animation-iteration-count: infinite !important; }
+  .rm .gain, .rm .dmg, .rm .cm i { animation: none !important; }
+  .cb .hpbar i, .cb .meterbar.hp i { background: #0072b2; }
+  .cb .hpbar.low i, .cb .meterbar.hp.low i { background: #e69f00; }
+
+  /* ---------------------------------------------------------------- day and night: the map follows the sun, plants glow softly at night */
+  .mapdark #map { background: #242424; }
+  .night .tt i { text-shadow: 0 0 7px rgba(255, 214, 102, .85), 0 0 2px rgba(255, 214, 102, .55), 0 1px 2px rgba(0, 0, 0, .4); }
+  .night .tt.wilted i { text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
+  /* weather: one canvas over the map, under every control */
+  #wx { position: absolute; left: 0; top: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
+  #wx[hidden] { display: none; }
+
+  /* ---------------------------------------------------------------- onboarding: coach marks over the real UI */
+  .coach { position: relative; pointer-events: auto; display: flex; align-items: flex-start; gap: 10px; max-width: 400px; padding: 11px 12px 8px 11px; border-radius: 18px; color: var(--label); animation: tip-in .45s var(--spring); }
+  .coach .tile { width: 34px; height: 34px; border-radius: 9px; font-size: 19px; }
+  .coach-main { flex: 1; min-width: 0; }
+  .coach small { display: block; font: 600 12px var(--round); color: var(--label2); text-transform: uppercase; letter-spacing: .3px; }
+  .coach b { display: block; margin-top: 1px; font-size: 16px; line-height: 21px; font-weight: 600; }
+  .coach p { margin: 2px 0 0; font-size: 14px; line-height: 19px; color: var(--label2); }
+  .coach-acts { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .coach-acts .linkbtn { margin-left: -6px; font-size: 14px; color: var(--label2); }
+  .coach-acts .pill { min-width: 72px; height: 30px; font-size: 14px; }
+  .coach-dots { display: flex; gap: 4px; }
+  .coach-dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--fill); }
+  .coach-dots i.on { width: 14px; background: var(--blue); }
+  .coach-dots i.done { background: var(--blue); opacity: .45; }
+  .coach-ring { position: absolute; z-index: 8; left: 0; top: 0; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 3px #ffcc00, 0 0 0 6px rgba(255, 204, 0, .28); animation: coach-ring 1.6s ease-in-out infinite; }
+  @keyframes coach-ring { 50% { box-shadow: 0 0 0 3px #ffcc00, 0 0 0 10px rgba(255, 204, 0, .12); } }
+  .cm { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .cm i { position: absolute; left: -27px; top: -27px; width: 54px; height: 54px; border: 3px solid #ffcc00; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), 0 0 14px rgba(255, 204, 0, .55); animation: cm-pulse 1.6s ease-in-out infinite; }
+  @keyframes cm-pulse { 50% { transform: scale(1.14); opacity: .75; } }
+  .intro .coach, .intro .coach-ring { opacity: 0; }
+
+  /* ---------------------------------------------------------------- map photo mode: no UI, a stamp, a shutter */
+  .photo .top, .photo .rail, .photo .talk, .photo .talk-pop, .photo .home, .photo .sheet, .photo .psheet, .photo .stick, .photo .placebar,
+  .photo .coach-ring, .photo .city, .photo .hold, .photo #wx { visibility: hidden !important; pointer-events: none !important; }
+  .photo .leaflet-control-container { opacity: .6; }
+  .stamp { position: absolute; z-index: 9; left: 16px; bottom: calc(var(--sb) + 118px); max-width: calc(100% - 32px); padding: 11px 15px 12px; border-radius: 16px; color: #fff;
+    background: rgba(0, 0, 0, .42); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); pointer-events: none; }
+  .stamp b { display: block; font: 700 20px/24px var(--round); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stamp span { display: block; margin-top: 2px; font-size: 14px; line-height: 18px; opacity: .88; }
+  .stamp span + span { font-weight: 600; opacity: 1; }
+  .pbar { position: absolute; z-index: 9; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+    padding: 18px 20px calc(var(--sb) + 18px); background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .5)); color: #fff; }
+  .pbar .linkbtn { justify-self: start; color: #fff; font-size: 17px; }
+  .phint { justify-self: end; max-width: 130px; font-size: 12px; line-height: 16px; text-align: right; opacity: .85; }
+  .shutter { width: 72px; height: 72px; padding: 0; border: 4px solid #fff; border-radius: 50%; background: none; }
+  .shutter i { display: block; width: 58px; height: 58px; margin: 3px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .shutter:active i { transform: scale(.9); }
+  .shutter:disabled i { opacity: .5; }
+  .flash { position: absolute; z-index: 10; inset: 0; background: #fff; pointer-events: none; animation: flash .45s ease-out forwards; }
+  @keyframes flash { from { opacity: .85; } to { opacity: 0; } }
 </style>
 
 <div id="app">
-  <div id="map" role="application" aria-label="Map"></div>
+  <div id="map" role="application" aria-label="Map" aria-describedby="mapSum"></div>
+  <canvas id="wx" hidden aria-hidden="true"></canvas>
+  <p class="sr" id="mapSum"></p>
 
   <div class="top" id="top">
     <div class="top-row">
@@ -764,14 +824,22 @@
         <div class="chiprow" id="liveChips" hidden></div>
       </div>
       <!-- Compact stats, top right (bag, health, credits, hexes). -->
-      <header class="stats mglass" id="hud" aria-label="Your resources">
-        <span class="st"><span class="emo">🎒</span><b id="bagUsed">–</b><small id="bagSlots"></small></span>
-        <span class="st"><span class="emo" id="hudHeart">❤️</span><b id="hudHp">–</b></span>
-        <span class="st"><span class="emo">🪙</span><b id="credits">–</b></span>
+      <header class="stats mglass" id="hud" role="group" aria-label="Your resources">
+        <span class="st" aria-hidden="true"><span class="emo">🎒</span><b id="bagUsed">–</b><small id="bagSlots"></small></span>
+        <span class="st" aria-hidden="true"><span class="emo" id="hudHeart">❤️</span><b id="hudHp">–</b></span>
+        <span class="st" aria-hidden="true"><span class="emo">🪙</span><b id="credits">–</b></span>
       </header>
     </div>
-    <div class="tips" id="tips"></div>
+    <div class="tips" id="tips" aria-live="polite"></div>
+    <div class="coach mglass" id="coach" hidden role="region" aria-live="polite" aria-labelledby="coachTitle">
+      <div class="tile" id="coachTile" aria-hidden="true"></div>
+      <div class="coach-main">
+        <small id="coachStep"></small><b id="coachTitle"></b><p id="coachText"></p>
+        <div class="coach-acts"><button class="linkbtn" id="coachSkip" type="button" data-i18n>Skip Tour</button><span class="coach-dots" id="coachDots" aria-hidden="true"></span><button class="pill" id="coachNext" type="button" data-i18n>Next</button></div>
+      </div>
+    </div>
   </div>
+  <div class="coach-ring" id="coachRing" hidden aria-hidden="true"></div>
   <div class="city" id="city"><small data-i18n>Welcome to</small><b id="cityName"></b><div class="city-rule"><i></i><span id="cityFace"></span><i></i></div><p id="cityText"></p></div>
   <div class="hold" id="hold"><svg viewBox="0 0 76 76"><circle class="bg" cx="38" cy="38" r="32"/><circle class="fg" cx="38" cy="38" r="32"/></svg></div>
 
@@ -780,6 +848,7 @@
     <button class="rbtn" id="leadersBtn" type="button" aria-label="Your area and rankings"><span class="emo">🔍</span></button>
     <button class="rbtn" id="shopBtn" type="button" aria-label="Shop and inventory" hidden><span class="emo">📦</span><span class="badge" id="invBadge" hidden></span></button>
     <button class="rbtn" id="missionsBtn" type="button" aria-label="Missions"><span class="emo">🏆</span><span class="badge" id="msBadge" hidden></span></button>
+    <button class="rbtn" id="routeBtn" type="button" aria-label="Walking route" aria-pressed="false" hidden><span class="emo">🧭</span></button>
     <button class="rbtn" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
   </nav>
   <button class="talk mglass" id="talkBtn" type="button" aria-label="Say something" hidden><span class="emo">💬</span></button>
@@ -811,6 +880,7 @@
         <button class="btn" type="button" data-go="today"><span class="bi">📅</span><span data-i18n>Today</span></button>
         <button class="btn" type="button" data-go="crew"><span class="bi">👥</span><span data-i18n>Crew</span></button>
         <button class="btn" type="button" data-go="leaders"><span class="bi">🔍</span><span data-i18n>Area &amp; Rankings</span></button>
+        <button class="btn" type="button" data-go="photo"><span class="bi">📷</span><span data-i18n>Map Photo</span></button>
         <button class="btn" type="button" data-go="howto"><span class="bi">❓</span><span data-i18n>How to Play</span></button>
         <button class="btn" type="button" data-go="settings"><span class="bi">⚙️</span><span data-i18n>Settings</span></button>
       </div>
@@ -855,6 +925,12 @@
     </div>
     <div class="ps-body" id="psBody"></div>
   </section>
+  <div class="stamp" id="stamp" hidden aria-hidden="true"><b id="stampCity"></b><span id="stampDate"></span><span id="stampWho"></span></div>
+  <div class="pbar" id="photoBar" hidden>
+    <button class="linkbtn" id="photoCancel" type="button" data-i18n>Cancel</button>
+    <button class="shutter" id="photoShoot" type="button" aria-label="Take photo"><i></i></button>
+    <span class="phint" data-i18n>Pinch and drag to frame your land.</span>
+  </div>
   <div class="banner glass" id="toast" role="status"><span class="emo" id="toastIcon"></span><span id="toastText"></span></div>
   <div class="busy glass" id="busy" hidden><span class="spinner"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="busyText" data-i18n>Loading…</span></div>
 
@@ -918,6 +994,7 @@
           <div class="row"><span class="num">3</span><div class="row-main" data-i18n>Knock-outs and wilted plants give you part of the owner's credits.</div></div>
         </div>
         <p class="sec-f" data-i18n>You can only act near where you really are. Anything further away needs a real walk.</p>
+        <button class="btn tinted" id="tourAgain" type="button" data-i18n>Show the Tour Again</button>
       </div>
     </div>
   </div>
@@ -1007,6 +1084,13 @@
         <div class="group">
           <button class="row t" id="langRow" type="button"><div class="tile sm tint-blue">🌐</div><div class="row-main"><div class="row-title" data-i18n>Language</div></div><span class="row-value" id="langValue"></span><span class="row-chev" data-icon="chev"></span></button>
         </div>
+        <h4 class="sec-h" data-i18n>Accessibility</h4>
+        <div class="group">
+          <button class="row t" id="textRow" type="button"><div class="tile sm tint-blue">🔠</div><div class="row-main"><div class="row-title" data-i18n>Text Size</div></div><span class="row-value" id="textValue"></span><span class="row-chev" data-icon="chev"></span></button>
+          <button class="row t" id="motionRow" type="button"><div class="tile sm tint-indigo">🌀</div><div class="row-main"><div class="row-title" data-i18n>Reduce Motion</div></div><span class="row-value" id="motionValue"></span><span class="row-chev" data-icon="chev"></span></button>
+          <div class="row t"><div class="tile sm tint-orange">🎨</div><div class="row-main"><div class="row-title" data-i18n>Color-Blind-Safe Colors</div></div><label class="switch"><input type="checkbox" id="cbSwitch" aria-label="Color-blind-safe colors"><span></span></label></div>
+        </div>
+        <p class="sec-f" data-i18n>Automatic follows your device's settings. Color-blind-safe colors show your land in blue and your rivals' in orange and purple tones.</p>
         <h4 class="sec-h" data-i18n>Location</h4>
         <div class="group">
           <div class="row t"><div class="tile sm tint-blue">🚶</div><div class="row-main"><div class="row-title" data-i18n>Simulated Walking</div></div><label class="switch"><input type="checkbox" id="simSwitch" aria-label="Simulated walking"><span></span></label></div>
@@ -1025,6 +1109,8 @@
         <h4 class="sec-h" data-i18n>Map</h4>
         <div class="group">
           <div class="row t"><div class="tile sm tint-green">🗺️</div><div class="row-main"><div class="row-title" data-i18n>Map</div></div><span class="row-value" id="mapValue"></span></div>
+          <div class="row t"><div class="tile sm tint-indigo">🌙</div><div class="row-main"><div class="row-title" data-i18n>Night Map</div><div class="row-sub" id="sunText"></div></div><label class="switch"><input type="checkbox" id="nightSwitch" aria-label="Night map"><span></span></label></div>
+          <div class="row t"><div class="tile sm tint-teal">🌦️</div><div class="row-main"><div class="row-title" data-i18n>Weather on the Map</div><div class="row-sub" id="wxText"></div></div><label class="switch"><input type="checkbox" id="wxSwitch" aria-label="Weather on the map"><span></span></label></div>
           <button class="row t" id="keyRow" type="button"><div class="tile sm tint-gray">🔑</div><div class="row-main"><div class="row-title" data-i18n>Google Maps Key</div></div><span class="row-value" id="keyValue"></span><span class="row-chev" data-icon="chev"></span></button>
         </div>
         <p class="sec-f" id="mapFoot"></p>
@@ -1666,6 +1752,40 @@
       '{n} remote harvests left today': 'Bugün {n} uzaktan hasat hakkın kaldı', 'Harvested {c} credits from {n} plants': '{n} bitkiden {c} kredi hasat ettin', 'Day {n} in a row': 'Üst üste {n}. gün',
       '{n} left today': 'Bugün {n} kaldı', 'King of the week · {n} points': 'Haftanın kralı · {n} puan', '{n} points this week': 'Bu hafta {n} puan',
       'Your side: {emoji} {name} · {n} points': 'Yakan: {emoji} {name} · {n} puan', '{n} members': '{n} üye',
+      // ---- client-only: accessibility, the tour, photo mode, day and night, weather, the walking route
+      'Area & Rankings': 'Bölge ve Sıralama', 'Accessibility': 'Erişilebilirlik', 'Text Size': 'Yazı Boyutu', 'Reduce Motion': 'Hareketi Azalt', 'Color-Blind-Safe Colors': 'Renk Körlüğüne Uygun Renkler',
+      'Color-blind-safe colors': 'Renk körlüğüne uygun renkler', 'Default': 'Varsayılan', 'Large': 'Büyük', 'Extra Large': 'Çok Büyük', 'On': 'Açık', 'Off': 'Kapalı',
+      "Automatic follows your device's settings. Color-blind-safe colors show your land in blue and your rivals' in orange and purple tones.":
+        'Otomatik, cihazının ayarlarını izler. Renk körlüğüne uygun renklerde arazin mavi, rakiplerinki turuncu ve mor tonlarında görünür.',
+      'Automatic follows the text size of your device.': 'Otomatik, cihazının yazı boyutunu izler.',
+      'Fewer animations: no pops, no gliding map, no weather on the map. Automatic follows your device.': 'Daha az animasyon: zıplama yok, kayan harita yok, haritada hava durumu yok. Otomatik, cihazını izler.',
+      'Night Map': 'Gece Haritası', 'Night map': 'Gece haritası', 'Weather on the Map': 'Haritada Hava Durumu', 'Weather on the map': 'Haritada hava durumu',
+      'Follows the sun where you are': 'Bulunduğun yerde güneşi izler', 'Night now · sunrise {time}': 'Şu an gece · gün doğumu {time}', 'Night now': 'Şu an gece',
+      'Day now · sunset {time}': 'Şu an gündüz · gün batımı {time}', 'Day now': 'Şu an gündüz', 'Off while Reduce Motion is on': 'Hareketi Azalt açıkken kapalı',
+      'Rain, snow and wind where you are': 'Bulunduğun yerde yağmur, kar ve rüzgâr',
+      '{c} credits, health {h}, bag {a} of {b}': '{c} kredi, sağlık {h}, çanta {a} / {b}', 'Your player card': 'Oyuncu kartın', 'Around you now': 'Şu an çevrende',
+      'You own {n} hexes.': '{n} altıgenin var.', '{n} plants have credits to collect.': '{n} bitkide toplanacak kredi var.', '{n} animals nearby.': 'Yakında {n} hayvan var.',
+      '{n} players nearby.': 'Yakında {n} oyuncu var.', 'It is night.': 'Gece.',
+      'Skip Tour': 'Turu Geç', 'Next': 'İleri', 'Step {n} of {m}': 'Adım {n} / {m}', 'Show the Tour Again': 'Turu Yeniden Göster',
+      'Tap the hex you stand on, then Found Headquarters. Your first hex is free.': 'Durduğun altıgene dokun, sonra Karargâh Kur düğmesine bas. İlk altıgenin ücretsiz.',
+      'Collect your credits': 'Kredilerini topla',
+      'Tap a plant to collect its credits. Hold one for 3 seconds to collect from every plant in reach.': 'Kredilerini toplamak için bir bitkiye dokun. Menzildeki bütün bitkilerden toplamak için birini 3 saniye basılı tut.',
+      'Plants make credits over time. When one has some, tap it to collect them.': 'Bitkiler zamanla kredi üretir. Birinde kredi birikince dokun ve topla.',
+      'Claim land': 'Arazi sahiplen', 'Tap free land next to yours, then Claim & Plant. A plant grows there and makes credits.': 'Arazinin yanındaki boş bir yere dokun, sonra Sahiplen ve Ek düğmesine bas. Orada bir bitki büyür ve kredi üretir.',
+      'Grow a plant': 'Bir bitki büyüt', 'Tap one of your plants, then Grow. Bigger plants make more credits.': 'Bitkilerinden birine dokun, sonra Büyüt düğmesine bas. Büyük bitkiler daha çok kredi üretir.',
+      'Open your bag': 'Çantanı aç', 'Tap your player card or swipe it up: your bag, your record and your profile.': 'Oyuncu kartına dokun ya da yukarı kaydır: çantan, istatistiklerin ve profilin.',
+      'Daily and weekly missions give credits and boosters. Tap 🏆 to see them.': 'Günlük ve haftalık görevler kredi ve güçlendirici verir. Görmek için 🏆 simgesine dokun.',
+      'That’s the basics. Enjoy the walk!': 'Temeller bu kadar. İyi yürüyüşler!',
+      'Map Photo': 'Harita Fotoğrafı', 'Take photo': 'Fotoğraf çek', 'Pinch and drag to frame your land.': 'Arazini kadraja almak için sıkıştır ve sürükle.',
+      'Clash of Cities': 'Clash of Cities', 'Photo saved': 'Fotoğraf kaydedildi', 'My land in {place}: {n} · Clash of Cities': 'Arazim, {place}: {n} · Clash of Cities',
+      'Your Photo Is Ready': 'Fotoğrafın Hazır', 'Share': 'Paylaş', 'Save to Files': 'Dosyalara Kaydet', "Couldn't make the photo. Try again.": 'Fotoğraf oluşturulamadı. Tekrar dene.',
+      'Walking route': 'Yürüyüş rotası', 'Walking Route': 'Yürüyüş Rotası', 'Walking route: {dist}, about {time}': 'Yürüyüş rotası: {dist}, yaklaşık {time}', '{dist} · {time}': '{dist} · {time}',
+      'A {dist} loop with {n} stops, about {time}': '{n} duraklı {dist} tur, yaklaşık {time}', '{dist} · about {time} · {n} stops': '{dist} · yaklaşık {time} · {n} durak',
+      '{n} plants · {c} credits': '{n} bitki · {c} kredi', '{dist} {dir}': '{dist} {dir}', 'Stop {n}, {leg} from the last': '{n}. durak, öncekinden {leg}', 'End Route': 'Rotayı Bitir',
+      'Nothing to walk to right now: your plants in reach are all you need, and today’s landmarks are visited.': 'Şu an yürünecek bir yer yok: menzilindeki bitkiler yeter, bugünün simge yapılarına da uğradın.',
+      'Route done. Well walked!': 'Rota tamam. İyi yürüdün!',
+      'A loop through your plants with credits and the landmarks you haven’t visited today, back to where you are. Follow the dotted line.':
+        'Kredisi olan bitkilerinden ve bugün uğramadığın simge yapılardan geçip bulunduğun yere dönen bir tur. Noktalı çizgiyi izle.',
     },
     // Server errors by code, for messages with numbers in them (and anything new): a text, or a function of the error's details.
     errors: {
@@ -2205,7 +2325,7 @@
   }
   const post = (path, body) => api('POST', path, body, { idem: newKey() });
   const doClaim = (id) => command(() => post('/v1/territory/claim', { cell: id, location: fix() }),
-    (r) => toast(r.result.foundedHq ? t('Headquarters founded') : t('Hex claimed for {n} credits', { n: fmtNum(r.result.cost.credits || 0) }), false, r.result.foundedHq ? E.hq : E.flag));
+    (r) => { tourEvent(r.result.foundedHq ? 'hq' : 'claim'); toast(r.result.foundedHq ? t('Headquarters founded') : t('Hex claimed for {n} credits', { n: fmtNum(r.result.cost.credits || 0) }), false, r.result.foundedHq ? E.hq : E.flag); });
   const doBuy = (type) => command(() => post('/v1/shop/buy', { type }), () => toast(t('{name} added to your inventory', { name: bName(type) }), false, E.shop));
   const doPlace = (id, type) => command(() => post('/v1/buildings', { cell: id, type, location: fix() }), () => toast(t('{name} placed. Construction started.', { name: bName(type) }), false, E.building));
   const doMove = (bid, id) => command(() => post(`/v1/buildings/${bid}/move`, { cell: id, location: fix() }), (r) => toast(t('{name} moved', { name: bName(r.result.building.type) }), false, E.move));
@@ -2213,7 +2333,7 @@
   const doCollect = (cells) => command(() => post('/v1/plants/collect', { ...(cells ? { cells } : {}), location: fix() }),
     (r) => toast(r.result.plants > 1 ? t('Collected {n} credits from {p} plants', { n: fmtNum(r.result.collected.credits || 0), p: r.result.plants }) : t('Collected {n} credits', { n: fmtNum(r.result.collected.credits || 0) }), false, E.coin));
   const doGrow = (id, levels) => command(() => post(`/v1/plants/${id}/upgrade`, { levels, location: fix() }),
-    (r) => toast(t('Growing to level {n} · {time}', { n: r.result.level, time: fmtLeft(Date.parse(r.result.readyAt) - serverNow()) }), false, stageOf(r.result.level).emoji));
+    (r) => tourEvent('grow') || toast(t('Growing to level {n} · {time}', { n: r.result.level, time: fmtLeft(Date.parse(r.result.readyAt) - serverNow()) }), false, stageOf(r.result.level).emoji));
   const doItem = (path, body, msg) => command(() => (body === null ? api('DELETE', path, undefined, { idem: newKey() }) : post(path, body)), () => msg && toast(msg, false, E.box));
   const doIcon = (id, icon) => command(() => post(`/v1/plants/${id}/icon`, { icon }), () => toast(t('New look'), false, icon || stageOf(myPlants.get(id).level).emoji));
   const doSell = (id) => command(() => post(`/v1/plants/${id}/sell`, { location: fix() }), (r) => {
@@ -2222,10 +2342,12 @@
     select(null);
   });
   const doClaimAll = () => command(() => post('/v1/territory/claim-all', { location: fix() }), (r) => {
+    tourEvent('claim');
     const n = r.result.count, left = r.result.left;
     toast(tn(n, 'Claimed {n} hex for {c} credits', 'Claimed {n} hexes for {c} credits', { c: fmtNum(r.result.cost.credits || 0) }) + (left ? t(' · {n} more in reach', { n: left }) : ''), false, '🌱');
   });
   const doGrowAll = () => command(() => post('/v1/plants/upgrade-all', { location: fix() }), (r) => {
+    tourEvent('grow');
     const n = r.result.count, left = r.result.left;
     toast(tn(n, 'Growing {n} plant for {c} credits', 'Growing {n} plants for {c} credits', { c: fmtNum(r.result.cost.credits || 0) }) + (left ? t(' · {n} more need credits', { n: left }) : ''), false, '⏫');
   });
@@ -2272,6 +2394,7 @@
     clearTimeout(collectTimer);
     collectTimer = setTimeout(() => sendCollect(false), 350);
     tipDone('tap');
+    tourEvent('collect');
     afterLocalCollect();
     return true;
   }
@@ -2301,6 +2424,7 @@
     if (navigator.vibrate) navigator.vibrate(25);
     toast(tn(n, 'Collected {c} credits from {n} plant', 'Collected {c} credits from {n} plants', { c: fmtNum(total) }), false, E.coin);
     tipDone('hold');
+    tourEvent('collect');
     afterLocalCollect();
     clearTimeout(collectTimer);
     sendCollect(true);
@@ -2674,18 +2798,21 @@
   const MAP = { mpp: 0.5, maxMpp: 2.4, fadeMpp: 1.0, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 99, maxGridRings: 40, worldRings: 45 };
   const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
   // The map follows the system appearance, like Apple Maps.
-  const dark = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  // At night (the sun is down where you play) the map goes dark too; see "day and night" below.
+  let sysDark = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  let mapDark = sysDark;
+  let CB = lsGet('coc.cb') === '1'; // color-blind-safe territory colors (Settings → Accessibility)
   // Territory is shown with emoji, so hexes are nearly invisible: no grid, no fills, faint borders,
   // and a light outline only where you can claim next (within reach) and around the selection.
   // Territory is a soft tint in each owner's color (no outlines), so the map stays readable underneath.
   const STY = {};
   function hexStyles() {
     if (STY.n) return STY;
-    const W = dark ? '#ffffff' : '#1c1c1e', none = { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0 };
+    const W = mapDark ? '#ffffff' : '#1c1c1e', none = { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0 };
     Object.assign(STY, {
       own: { ...none, z: 4 }, rival: { ...none, z: 3 }, claimR: { ...none, z: 2 }, claim: { ...none, z: 2 }, nR: { ...none, z: 1 }, n: { ...none, z: 1 },
       oMe: { ...none, z: 5 }, oRival: { ...none, z: 5 },
-      lot: { fill: COL.own, fillOpacity: 0.42, stroke: W, strokeOpacity: 0, width: 0, z: 6 },
+      lot: { fill: CB ? '#0072b2' : COL.own, fillOpacity: 0.42, stroke: W, strokeOpacity: 0, width: 0, z: 6 },
       sel: { ...none, z: 20 },
       reach: { fill: W, fillOpacity: 0.04, stroke: W, strokeOpacity: 0.5, width: 1.5, z: 10 },
       acc: { fill: W, fillOpacity: 0.05, stroke: W, strokeOpacity: 0, width: 0, z: 11 },
@@ -2695,7 +2822,7 @@
   /** The style key for a territory tint in this color. */
   function tintKey(color) {
     const k = `t:${color}`;
-    if (!STY[k]) STY[k] = { fill: color, fillOpacity: dark ? 0.3 : 0.26, stroke: color, strokeOpacity: 0, width: 0, z: 5 };
+    if (!STY[k]) STY[k] = { fill: color, fillOpacity: mapDark ? 0.3 : 0.26, stroke: color, strokeOpacity: 0, width: 0, z: 5 };
     return k;
   }
   let map = null; // the active engine
@@ -2736,7 +2863,7 @@
       center: new mk.Coordinate(center.lat, center.lng),
       showsCompass: mk.FeatureVisibility.Hidden, showsMapTypeControl: false, showsZoomControl: false, showsUserLocationControl: false,
       showsScale: mk.FeatureVisibility.Hidden, isRotationEnabled: false, showsPointsOfInterest: true,
-      colorScheme: dark ? mk.Map.ColorSchemes.Dark : mk.Map.ColorSchemes.Light,
+      colorScheme: mapDark ? mk.Map.ColorSchemes.Dark : mk.Map.ColorSchemes.Light,
     });
     const S = hexStyles();
     const style = (k) => { const s = S[k] || S.n; return new mk.Style({ fillColor: s.fill, fillOpacity: s.fillOpacity, strokeColor: s.stroke, strokeOpacity: s.strokeOpacity, lineWidth: s.width }); };
@@ -2744,7 +2871,7 @@
     const st = (k) => (styleCache[k] = styleCache[k] || style(k));
     const coord = (p) => new mk.Coordinate(p.lat, p.lng);
     const hexes = new Map(), outlines = [];
-    let sel = null;
+    let sel = null, route = null;
     const reach = new mk.CircleOverlay(coord(center), REACH, { style: st('reach') });
     const acc = new mk.CircleOverlay(coord(center), 1, { style: st('acc') });
     let reachShown = false, accShown = false;
@@ -2785,6 +2912,7 @@
         for (const { key, polygons } of list) {
           for (const poly of polygons) {
             const o = new mk.PolygonOverlay(poly.map((ring) => ring.map(([lng, lat]) => new mk.Coordinate(lat, lng))), { style: st(key) });
+            o._k = key;
             o.enabled = false;
             outlines.push(o);
           }
@@ -2801,7 +2929,24 @@
         if (show) { acc.coordinate = coord(p); acc.radius = r; }
         if (show !== accShown) { accShown = show; show ? m.addOverlay(acc) : m.removeOverlay(acc); }
       },
+      restyle(dk) {
+        m.colorScheme = dk ? mk.Map.ColorSchemes.Dark : mk.Map.ColorSchemes.Light;
+        for (const k of Object.keys(styleCache)) delete styleCache[k];
+        for (const o of [...hexes.values(), ...outlines]) o.style = st(o._k);
+        reach.style = st('reach');
+        acc.style = st('acc');
+        if (sel) sel.style = st('sel');
+        if (route) route.style = new mk.Style({ strokeColor: routeColor(), lineWidth: 3, lineDash: [1, 8], lineCap: 'round', strokeOpacity: 0.95 });
+      },
+      setRoute(path) {
+        if (route) { m.removeOverlay(route); route = null; }
+        if (!path) return;
+        route = new mk.PolylineOverlay(path.map(coord), { style: new mk.Style({ strokeColor: routeColor(), lineWidth: 3, lineDash: [1, 8], lineCap: 'round', strokeOpacity: 0.95 }) });
+        route.enabled = false;
+        m.addOverlay(route);
+      },
       addMarker(elm, p, z) {
+        elm.setAttribute('aria-hidden', 'true');
         const a = new mk.Annotation(coord(p), () => elm, { calloutEnabled: false, enabled: false, animates: false, displayPriority: 1000, anchorOffset: new DOMPoint(0, 0), size: { width: 0, height: 0 } });
         if (z) a.zIndex = z;
         m.addAnnotation(a);
@@ -2849,7 +2994,7 @@
     const opts = {
       center, zoom: zoomFor(mpp, center.lat), minZoom: 3, maxZoom: 21, disableDefaultUI: true, clickableIcons: false,
       keyboardShortcuts: false, gestureHandling: 'greedy', headingInteractionEnabled: false, tiltInteractionEnabled: false,
-      isFractionalZoomEnabled: true, backgroundColor: dark ? '#242426' : '#f5f3ee', styles: [...(dark ? darkStyle : light), ...clean],
+      isFractionalZoomEnabled: true, backgroundColor: mapDark ? '#242426' : '#f5f3ee', styles: [...(mapDark ? darkStyle : light), ...clean],
     };
     if (!gKey) {
       // Without a key Google shows a dialog under our controls; the game explains the missing key itself.
@@ -2866,6 +3011,9 @@
     const sel = new gm.Polygon({ map: m, paths: [], visible: false, ...gs('sel') });
     const reach = new gm.Circle({ map: m, center, radius: REACH, visible: false, ...gs('reach') });
     const acc = new gm.Circle({ map: m, center, radius: 1, visible: false, ...gs('acc') });
+    // The walking route: a thin dotted line (round dots along an invisible stroke).
+    const routeOpts = () => ({ clickable: false, strokeOpacity: 0, zIndex: 30, icons: [{ icon: { path: gm.SymbolPath.CIRCLE, scale: 1.7, strokeOpacity: 0, fillOpacity: 0.95, fillColor: routeColor() }, offset: '0', repeat: '9px' }] });
+    const route = new gm.Polyline({ map: m, path: [], visible: false, ...routeOpts() });
     const markers = new Set();
     class Overlay extends gm.OverlayView {
       constructor() { super(); this.root = document.createElement('div'); this.root.className = 'ov'; }
@@ -2920,7 +3068,17 @@
       setSelection(path) { if (path) sel.setPaths([path]); sel.setVisible(!!path); },
       setReach(p, show) { reach.setCenter(p); if (reach.getRadius() !== REACH) reach.setRadius(REACH); reach.setVisible(show); },
       setAccuracy(p, r) { acc.setVisible(r > 0); if (r > 0) { acc.setCenter(p); acc.setRadius(r); } },
+      restyle(dk) {
+        m.setOptions({ styles: [...(dk ? darkStyle : light), ...clean] });
+        m.data.setStyle((f) => gs(f.getProperty('s')));
+        sel.setOptions(gs('sel'));
+        reach.setOptions(gs('reach'));
+        acc.setOptions(gs('acc'));
+        route.setOptions(routeOpts());
+      },
+      setRoute(path) { route.setPath(path || []); route.setVisible(!!path); },
       addMarker(elm, p) {
+        elm.setAttribute('aria-hidden', 'true');
         let ll = new gm.LatLng(p.lat, p.lng);
         const mk = {
           // Exact (fractional) position, set in the overlay's draw(): the same frame the map moves its panes.
@@ -2975,12 +3133,15 @@
       attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: false,
       updateWhenZooming: false, updateWhenIdle: false, keepBuffer: 6,
     }).addTo(m);
-    if (dark) el.classList.add('osm-dark');
+    if (mapDark) el.classList.add('osm-dark');
     const S = hexStyles();
     const ls = (k) => { const s = S[k] || S.n; return { stroke: s.width > 0, color: s.stroke, opacity: s.strokeOpacity, weight: s.width, fillColor: s.fill, fillOpacity: s.fillOpacity, interactive: false }; };
     // SVG, not canvas: during a pinch the vector shapes scale smoothly instead of a stretched bitmap that sharpens at the end.
     const pane = (name, z) => { m.createPane(name).style.zIndex = z; return L.svg({ pane: name, padding: 0.5 }); };
-    const rHex = pane('cocHex', 401), rOut = pane('cocOut', 402), rReach = pane('cocReach', 403), rSel = pane('cocSel', 404);
+    const rHex = pane('cocHex', 401), rOut = pane('cocOut', 402), rReach = pane('cocReach', 403), rSel = pane('cocSel', 404), rRoute = pane('cocRoute', 405);
+    const routeStyle = () => ({ color: routeColor(), weight: 3.2, opacity: 0.95, dashArray: '0.1 9', lineCap: 'round', interactive: false });
+    const route = L.polyline([], { ...routeStyle(), renderer: rRoute });
+    let routeShown = false;
     const hexes = new Map();
     let outlines = [];
     const sel = L.polygon([], { ...ls('sel'), renderer: rSel }).addTo(m);
@@ -3056,6 +3217,19 @@
         outlines = [...next.keys()];
       },
       setMaxMpp(mpp) { m.setMinZoom(zoomFor(mpp, m.getCenter().lat)); },
+      restyle(dk) {
+        el.classList.toggle('osm-dark', dk);
+        for (const o of hexes.values()) o.setStyle(ls(o._k));
+        for (const o of outlines) o.setStyle(ls(o._key));
+        sel.setStyle(ls('sel'));
+        reach.setStyle(ls('reach'));
+        acc.setStyle(ls('acc'));
+        route.setStyle(routeStyle());
+      },
+      setRoute(path) {
+        if (path) route.setLatLngs(path.map((q) => [q.lat, q.lng]));
+        if (!!path !== routeShown) { routeShown = !!path; path ? route.addTo(m) : route.remove(); }
+      },
       setSelection(path) { sel.setLatLngs(path || []); },
       setReach(p, show) {
         reach.setLatLng([p.lat, p.lng]);
@@ -3068,6 +3242,7 @@
         if (show !== accShown) { accShown = show; show ? acc.addTo(m) : acc.remove(); }
       },
       addMarker(elm, p, z) {
+        elm.setAttribute('aria-hidden', 'true');
         const mk = new Pin(elm, p, z || 0).addTo(m);
         return { move(q) { mk.setLatLng(q); }, remove() { mk.remove(); } };
       },
@@ -3096,6 +3271,7 @@
   async function initMap(center) {
     const el = $('map');
     const tryEngine = async (make) => { try { return await make(); } catch (e) { el.innerHTML = ''; return null; } };
+    applySun(center); // the first map style already follows the sun
     const osm = () => osmEngine(el, center, MAP.mpp * 4), google = () => googleEngine(el, center, MAP.mpp * 4);
     if (mapPref === 'osm') map = (await tryEngine(osm)) || (await google());
     else {
@@ -3154,19 +3330,23 @@
     }
   }
   function restyleGrid() { for (const id of shownHexes) map.setHex(id, cell(id).path, styleKey(id)); }
-  function syncOutlines() {
+  /** Owned hexes by owner, each with its territory tint (color-blind-safe colors when that's on). */
+  function territoryGroups() {
     const byOwner = new Map();
     for (const id of myCellSet) (byOwner.get('me') || byOwner.set('me', []).get('me')).push(id);
     for (const [id, c] of world.cells) {
       const o = ownerOf(id);
       if (o && o !== 'me') (byOwner.get(o) || byOwner.set(o, []).get(o)).push(id);
     }
-    const list = [];
+    const out = [];
     for (const [o, ids] of byOwner) {
       const color = o === 'me' ? me.player.color : (world.owners[o] && world.owners[o].color);
-      list.push({ key: tintKey(color || (o === 'me' ? COL.own : COL.rival)), polygons: h3.cellsToMultiPolygon(ids, true) });
+      out.push({ owner: o, ids, color: CB ? cbColor(o) : color || (o === 'me' ? COL.own : COL.rival) });
     }
-    map.setOutlines(list);
+    return out;
+  }
+  function syncOutlines() {
+    map.setOutlines(territoryGroups().map((g) => ({ key: tintKey(g.color), polygons: h3.cellsToMultiPolygon(g.ids, true) })));
   }
   function computeFrontier() {
     const f = new Set();
@@ -3407,8 +3587,8 @@
     if (!circlesAt || key !== circlesKey || distM(circlesAt, pos) > 0.8) {
       circlesAt = pos;
       circlesKey = key;
-      map.setReach(pos, true);
-      map.setAccuracy(pos, acc);
+      map.setReach(pos, !photo.on);
+      map.setAccuracy(pos, photo.on ? 0 : acc);
     }
   }
 
@@ -3428,7 +3608,7 @@
   }
   function followCamera(animate) {
     if (!follow || !map || !pos) return;
-    map.setCenter(centerFor(pos), animate);
+    map.setCenter(centerFor(pos), RM ? false : animate);
   }
   function setFollow(on) {
     follow = on;
@@ -3495,6 +3675,8 @@
       setText($('hudHp'), fmtNum(hp));
       setText($('hudHeart'), c.knockedOut ? '💫' : hp / c.maxHp < 0.35 ? '💔' : '❤️');
     }
+    const hudLabel = t('{c} credits, health {h}, bag {a} of {b}', { c: fmtNum(credits()), h: c ? fmtNum(hpNow()) : '–', a: bag ? bag.used : 0, b: bag ? bag.slots : 0 });
+    if ($('hud').getAttribute('aria-label') !== hudLabel) $('hud').setAttribute('aria-label', hudLabel);
     const n = invTotal();
     $('invBadge').hidden = !n;
     $('invBadge').textContent = n;
@@ -3557,7 +3739,7 @@
     homeEl.classList.toggle('large', d === 2);
     if (d < 2) $('homeBody').scrollTop = 0;
     $('homeHead').setAttribute('aria-expanded', String(d > 0));
-    if (d && !was) { select(null); renderHomeTab(true); }
+    if (d && !was) { select(null); renderHomeTab(true); tourEvent('bag'); }
     if (d) renderHomeStats();
     layoutControls();
   }
@@ -3575,7 +3757,7 @@
   $('homeGo').addEventListener('click', (e) => {
     const b = e.target.closest('[data-go]');
     if (!b || Date.now() - homeDragEnd < 300) return;
-    ({ shop: openShop, leaders: openLeaders, missions: openMissions, today: openToday, crew: openCrew, howto: () => openModal('howto'), settings: openSettings })[b.dataset.go]();
+    ({ shop: openShop, leaders: openLeaders, missions: openMissions, today: openToday, crew: openCrew, howto: () => openModal('howto'), settings: openSettings, photo: enterPhoto })[b.dataset.go]();
   });
   homeEl.addEventListener('wheel', (e) => { if (homeDetent === 1 && e.deltaY > 0) setHome(2); }, { passive: true });
   (() => {
@@ -3779,7 +3961,8 @@
   }
   function renderTips() {
     if (!me || !started) return;
-    const show = TIPS.filter((t) => !tipsDone.has(t.id) && t.when()).slice(0, 2);
+    // While the guided tour runs, it is the only hint on screen.
+    const show = tour.state === 'on' ? [] : TIPS.filter((t) => !tipsDone.has(t.id) && t.when()).slice(0, 2);
     const key = show.map((t) => t.id).join();
     if (key === tipsKey) return;
     tipsKey = key;
@@ -3817,6 +4000,7 @@
     if (selected || target || panel) renderSheet();
     syncTiles();
     syncPins();
+    setText($('mapSum'), mapSummary());
   }
 
   // ------------------------------------------------------------------ UI: the hex sheet
@@ -3853,6 +4037,7 @@
     const reloading = a.kind === 'fire' && a.enabled && reloadLeft() > 0;
     btn.disabled = !a.enabled || reloading;
     btn.className = `btn${a.cls ? ' ' + a.cls : ''}`;
+    btn.dataset.kind = a.kind || a.key || '';
     if (bi.textContent !== a.icon) bi.textContent = a.icon;
     btn.lastElementChild.textContent = reloading ? t('Reloading…') : a.label;
     const text = !a.enabled && !a.reachOnly ? a.why : '';
@@ -4328,6 +4513,7 @@
     appEl.style.setProperty('--ctl-bottom', h ? `${Math.round(sheetBottomPx() + h + 14)}px` : barH ? `${barH + 14}px` : 'calc(var(--sb) + 40px)');
     appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topBarBottom() - 12))}px`);
     appEl.style.setProperty('--attr-bottom', `${barH}px`);
+    if (tour.state === 'on') renderTour(900); // the coach mark follows sheets opening and closing
   }
   const topBarBottom = () => topEl.firstElementChild.getBoundingClientRect().bottom;
   /** Opens the sheet for a player or an animal (aim at it). */
@@ -4669,6 +4855,7 @@
   }
   function openMissions() {
     select(null);
+    tourEvent('missions');
     openModal('missions');
     renderMissions();
     if (!msState.data || Date.now() - msState.at > 15000) loadMissions();
@@ -4830,6 +5017,8 @@
       live.events = await api('GET', `/v1/events?lat=${pos.lat.toFixed(5)}&lng=${pos.lng.toFixed(5)}`);
       live.eventsAt = Date.now();
       live.eventsPos = { ...pos };
+      applySun();
+      weatherFx.update();
     } catch (e) { /* next time */ } finally {
       loadEvents.busy = false;
     }
@@ -4877,6 +5066,7 @@
       parts.push(`<div class="capsule sm mglass moving" data-transit role="button"><span class="emo">🚆</span><span>${esc(t('On the move'))}</span>` +
         `<button class="cpill" type="button" data-remote${tr.remoteLeft > 0 ? '' : ' disabled'}>${esc(t('Harvest · {n}', { n: tr.remoteLeft }))}</button></div>`);
     }
+    if (route.on && route.stops.length) parts.push(`<button class="capsule sm mglass" type="button" data-route aria-label="${esc(t('Walking route: {dist}, about {time}', { dist: fmtDist(route.meters), time: fmtDur(route.minutes * 60) }))}"><span class="emo">🧭</span><span>${esc(t('{dist} · {time}', { dist: fmtDist(route.meters), time: fmtDur(route.minutes * 60) }))}</span></button>`);
     if (tr.ferry && tr.ferry.pending) parts.push(`<button class="capsule sm chest" type="button" data-ferry><span class="emo">🎁</span><span>${esc(t('Ferry chest'))}</span></button>`);
     const key = parts.join('');
     if (key !== chipsKey) { chipsKey = key; box.innerHTML = key; }
@@ -4891,6 +5081,7 @@
     if (e.target.closest('[data-weather]')) return openWeather();
     if (e.target.closest('[data-transit]')) return openTransit();
     if (e.target.closest('[data-ferry]')) return doFerry();
+    if (e.target.closest('[data-route]')) return openRoutePanel();
   });
   const todayBtn = () => ({ key: 'today', label: t("Today's Events"), icon: '📅', enabled: true, cls: 'tinted', run: openToday });
   function openEvent(id) {
@@ -5120,6 +5311,7 @@
   const doCheckin = (id) => command(() => post(`/v1/landmarks/${id}/checkin`, { location: fix() }), (r) => {
     const x = r.result;
     if (live.landmarks && x.landmark) live.landmarks.set(id, x.landmark);
+    markVisited(id);
     syncLandmarks();
     toast(x.youAreKing ? t('Checked in. You are the king of {name}!', { name: loc(x.landmark) }) : t('Checked in: +{p} point, +{n} credits', { p: x.points, n: fmtNum(x.credits) }), false, x.youAreKing ? '👑' : '📍');
   });
@@ -5359,6 +5551,7 @@
     $('keyRow').hidden = !map || map.kind === 'apple';
     $('keyValue').textContent = gAuthFailed ? t('Rejected') : gKey ? t('Set') : t('Not Set');
     $('langValue').textContent = langLabel(lsGet(LANG_STORE));
+    fillClientSettings();
     const foot = !map ? '' : map.kind === 'apple' ? 'Apple Maps, the same map as the iPhone app.' : map.kind === 'osm' ? (mapPref === 'osm' ? 'OpenStreetMap, picked on this device.' : 'OpenStreetMap, because Google Maps could not load here.')
       : gKey ? 'Google Maps, with the key on this device.' : 'Google Maps without an API key: Google marks it “for development purposes only” until a key is set.';
     $('mapFoot').textContent = `${foot ? t(foot) + ' ' : ''}${t('Hexes use H3 resolution {res}, about {n} m across.', { res: RES, n: hexAcross() })}`;
@@ -5449,7 +5642,7 @@
   });
   $('locateBtn').addEventListener('click', () => {
     if (!pos || !map) return;
-    if (follow) map.setView(centerFor(pos), MAP.mpp, true);
+    if (follow) map.setView(centerFor(pos), MAP.mpp, !RM);
     setFollow(true);
     followCamera(true);
   });
@@ -5559,11 +5752,943 @@
     syncLandmarks();
     loadLandmarks(true);
     loadCrew();
+    $('routeBtn').hidden = false;
+    applySun();
+    tourStart();
     $('locateBtn').classList.toggle('following', follow);
     if (!me.territory.count) {
       select(cellAt(pos.lat, pos.lng));
       toast(mode === 'gps' ? t('You are here. Found your Headquarters!') : t('Walk with the joystick'), false, mode === 'gps' ? E.here : E.sim);
     }
+  }
+
+  // ------------------------------------------------------------------ accessibility: text size, reduce motion, color-blind-safe colors, VoiceOver
+  // All on this device only. "Automatic" follows the system: Dynamic Type on iPhone (the size of
+  // -apple-system-body), the browser's font size elsewhere, and prefers-reduced-motion.
+  const A11Y = { text: 'coc.textSize', motion: 'coc.motion', cb: 'coc.cb', night: 'coc.nightMap', wx: 'coc.weatherFx' };
+  const mq = (q) => (window.matchMedia ? matchMedia(q) : null);
+  const onMq = (m, f) => { if (!m) return; if (m.addEventListener) m.addEventListener('change', f); else if (m.addListener) m.addListener(f); };
+  const mqMotion = mq('(prefers-reduced-motion: reduce)');
+  let RM = false, textScale = 1;
+  const TEXT_SIZES = [['auto', 'Automatic'], ['1', 'Default'], ['1.15', 'Large'], ['1.3', 'Extra Large']];
+  const MOTION = [['auto', 'Automatic'], ['on', 'On'], ['off', 'Off']];
+  /** The system's text size relative to the default (1 = default). */
+  function systemTextScale() {
+    const p = document.createElement('span');
+    p.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none';
+    p.style.font = '-apple-system-body'; // Dynamic Type on Apple devices; ignored elsewhere
+    document.body.appendChild(p);
+    const apple = p.style.font ? parseFloat(getComputedStyle(p).fontSize) / 17 : 1;
+    p.style.font = '';
+    p.style.fontSize = 'medium'; // the browser's own text size setting
+    const browser = parseFloat(getComputedStyle(p).fontSize) / 16;
+    p.remove();
+    const f = Math.max(apple > 0 ? apple : 1, browser > 0 ? browser : 1);
+    return Math.min(1.5, Math.max(0.9, Math.round(f * 100) / 100));
+  }
+  // Text sizes live in the stylesheet in px: scale the UI's (never the map's: emojis there keep one
+  // size on screen), from the original values each time.
+  const NOT_UI = /\.(tt|pin|pi|pb|op|bot|be|pe|lm|lme|gain|dmg|hpbar|selring|osm-mk|cm|hold|city|cap|nm|bubble|aim|leaflet[\w-]*|tile|emo|bi|w-ic|hero-ic|knob|fbig|rbtn)\b/;
+  let fontRules = null;
+  function collectFontRules() {
+    fontRules = [];
+    const el = document.querySelector('style');
+    if (!el || !el.sheet) return;
+    const walk = (rules) => {
+      for (const r of rules) {
+        if (!r.selectorText) { if (r.cssRules) walk(r.cssRules); continue; }
+        if (NOT_UI.test(r.selectorText)) continue;
+        const font = r.style.getPropertyValue('font'), fs = r.style.getPropertyValue('font-size'), lh = r.style.getPropertyValue('line-height');
+        if (/Emoji/.test(font || r.style.getPropertyValue('font-family'))) continue;
+        if (/\dpx/.test(font) || /\dpx$/.test(fs) || /\dpx$/.test(lh)) fontRules.push({ r, font, fs, lh });
+      }
+    };
+    try { walk(el.sheet.cssRules); } catch (e) { /* no access */ }
+  }
+  const scalePx = (v, f) => v.replace(/(\d*\.?\d+)px/g, (m, n) => `${Math.round(parseFloat(n) * f * 10) / 10}px`);
+  function applyTextSize() {
+    const v = lsGet(A11Y.text) || 'auto';
+    const f = v === 'auto' ? systemTextScale() : Math.min(1.5, Math.max(0.8, parseFloat(v) || 1));
+    if (!fontRules) collectFontRules();
+    if (f === textScale) return;
+    textScale = f;
+    for (const x of fontRules) {
+      if (x.font) x.r.style.setProperty('font', scalePx(x.font, f));
+      else {
+        if (/px$/.test(x.fs)) x.r.style.setProperty('font-size', scalePx(x.fs, f));
+        if (/px$/.test(x.lh)) x.r.style.setProperty('line-height', scalePx(x.lh, f));
+      }
+    }
+    document.documentElement.style.setProperty('--ts', String(f));
+    homeGeo = psGeo = '';
+    layoutControls();
+  }
+  function applyMotion() {
+    const v = lsGet(A11Y.motion) || 'auto';
+    RM = v === 'on' || (v === 'auto' && !!(mqMotion && mqMotion.matches));
+    document.documentElement.classList.toggle('rm', RM);
+    weatherFx.update();
+  }
+  onMq(mqMotion, applyMotion);
+  /** Color-blind-safe territory colors (Okabe–Ito): you in blue, rivals in orange, vermilion, purple, yellow or green. */
+  const CB_OWN = '#0072b2', CB_RIVALS = ['#e69f00', '#d55e00', '#cc79a7', '#f0e442', '#009e73'];
+  function cbColor(owner) {
+    if (owner === 'me') return CB_OWN;
+    let h = 0;
+    for (const ch of String(owner)) h = (h * 31 + ch.charCodeAt(0)) | 0;
+    return CB_RIVALS[Math.abs(h) % CB_RIVALS.length];
+  }
+  function setColorBlind(on) {
+    CB = !!on;
+    lsSet(A11Y.cb, CB ? '1' : null);
+    document.documentElement.classList.toggle('cb', CB);
+    restyleMap();
+  }
+  /** Rebuilds the map's shape styles (after the night map or color-blind colors changed). */
+  function restyleMap() {
+    const tints = Object.keys(STY).filter((k) => k.startsWith('t:')).map((k) => k.slice(2));
+    for (const k of Object.keys(STY)) delete STY[k];
+    hexStyles();
+    for (const c of tints) tintKey(c);
+    appEl.classList.toggle('mapdark', mapDark);
+    if (!map) return;
+    if (me && pos) syncOutlines();
+    if (map.restyle) map.restyle(mapDark);
+    if (me && pos) restyleGrid();
+    if (route.on) drawRoute();
+  }
+  /** VoiceOver: dialogs, tabs and labels the markup alone doesn't give. */
+  function a11ySetup() {
+    for (const m of document.querySelectorAll('.modal')) {
+      const pg = m.querySelector('.page');
+      if (!pg) continue;
+      pg.setAttribute('role', 'dialog');
+      pg.setAttribute('aria-modal', 'true');
+      const h = pg.querySelector('.nav h3, h2');
+      if (h) { if (!h.id) h.id = `${m.id}Title`; pg.setAttribute('aria-labelledby', h.id); }
+      else if (m.id === 'leaders') pg.setAttribute('aria-label', t('Area & Rankings'));
+    }
+    $('welcome').setAttribute('role', 'dialog');
+    $('welcome').setAttribute('aria-labelledby', 'joinTitle');
+    sheetEl.setAttribute('role', 'dialog');
+    sheetEl.setAttribute('aria-labelledby', 'sheetTitle');
+    psEl.setAttribute('role', 'dialog');
+    psEl.setAttribute('aria-labelledby', 'psName');
+    homeEl.setAttribute('aria-label', t('Your player card'));
+    $('liveChips').setAttribute('role', 'group');
+    $('liveChips').setAttribute('aria-label', t('Around you now'));
+    // Emojis next to a text or inside a labelled button are decoration.
+    for (const e of document.querySelectorAll('.rbtn .emo, .talk .emo, .bigbtns .bi, .w-ic, .settings .tile, #settings .tile, .shop-ic, .hero-ic, .knob')) e.setAttribute('aria-hidden', 'true');
+    for (const id of ['homeSeg', 'shopSeg', 'lbSeg', 'msSeg', 'speedSeg', 'lbScope']) {
+      const box = $(id);
+      if (!box) continue;
+      const sync = () => {
+        if (box.getAttribute('role') !== 'tablist') box.setAttribute('role', 'tablist');
+        for (const b of box.children) {
+          if (b.getAttribute('role') !== 'tab') b.setAttribute('role', 'tab');
+          const on = String(b.classList.contains('on'));
+          if (b.getAttribute('aria-selected') !== on) b.setAttribute('aria-selected', on);
+        }
+      };
+      sync();
+      new MutationObserver(sync).observe(box, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+    }
+    document.documentElement.classList.toggle('cb', CB);
+    applyTextSize();
+    applyMotion();
+    onMq(mq('(prefers-color-scheme: dark)'), (e) => { sysDark = e.matches; applySun(); });
+    window.addEventListener('resize', () => { if ((lsGet(A11Y.text) || 'auto') === 'auto') applyTextSize(); wxResize(); });
+  }
+  /** What the map shows, for VoiceOver (the map itself is a picture). */
+  function mapSummary() {
+    if (!me || !started) return '';
+    let full = 0;
+    for (const p of myPlants.values()) if (plantStoredNow(p) >= 1) full++;
+    const parts = [tn(me.territory.count, 'You own {n} hex.', 'You own {n} hexes.')];
+    if (full) parts.push(tn(full, '{n} plant has credits to collect.', '{n} plants have credits to collect.'));
+    const near = (lat, lng) => distM(pos, { lat, lng }) <= 250;
+    const bots = (world.bots || []).filter((b) => near(b.center[0], b.center[1])).length, players = world.players.filter((x) => near(x.center[0], x.center[1])).length;
+    if (bots) parts.push(tn(bots, '{n} animal nearby.', '{n} animals nearby.'));
+    if (players) parts.push(tn(players, '{n} player nearby.', '{n} players nearby.'));
+    if (appEl.classList.contains('night')) parts.push(t('It is night.'));
+    if (wx.kind) parts.push(loc(currentWeather(), 'label') + '.');
+    return parts.join(' ');
+  }
+
+  // ------------------------------------------------------------------ onboarding: a guided first five minutes (coach marks over the real UI)
+  // Six steps: found the HQ, collect, claim, grow, open the bag, missions. Each ends when you do it
+  // (or tap Next); Skip ends the tour. It resumes where it left off. While it runs the tips wait,
+  // and the tips it covers are marked done when it finishes.
+  const TOUR_STORE = 'coc.tour';
+  const tour = (() => {
+    const d = { state: '', step: 0, seen: [] };
+    try { return { ...d, ...JSON.parse(lsGet(TOUR_STORE) || '{}') }; } catch (e) { return d; }
+  })();
+  const saveTour = () => lsSet(TOUR_STORE, JSON.stringify({ state: tour.state, step: tour.step, seen: tour.seen }));
+  const primaryBtn = (kind) => (sheetOpen && sheetKind === 'hex' ? document.querySelector(`#sheetPrimary .btn[data-kind="${kind}"]:not(:disabled)`) : null);
+  /** Your plant nearest to you: with credits (for collecting), or any you can grow. */
+  function tourPlant(withCredits) {
+    if (!pos) return null;
+    let best = null, bd = Infinity;
+    for (const [id, p] of myPlants) {
+      if (p.wilted || (withCredits ? plantStoredNow(p) < 1 : p.growTo || p.upgradeCost === null || myByCell.has(id))) continue;
+      const d = distM(pos, cell(id));
+      if (d <= REACH && d < bd) { bd = d; best = id; }
+    }
+    return best;
+  }
+  /** Free land next to yours, in reach, nearest to you. */
+  function tourFrontier() {
+    let best = null, bd = Infinity;
+    for (const id of frontier) {
+      if (!reachSet.has(id) || ownerOf(id)) continue;
+      const d = distM(pos, cell(id));
+      if (d < bd) { bd = d; best = id; }
+    }
+    return best;
+  }
+  const TOUR = [
+    { id: 'hq', icon: E.hq, tint: 'blue', title: () => t('Found your Headquarters'), text: () => t('Tap the hex you stand on, then Found Headquarters. Your first hex is free.'),
+      state: () => me.territory.count > 0, dom: () => primaryBtn('claim'), spot: () => { const id = pos && cellAt(pos.lat, pos.lng); return id && !ownerOf(id) ? id : null; } },
+    { id: 'collect', icon: '👆', tint: 'yellow', title: () => t('Collect your credits'),
+      text: () => (tourPlant(true) ? t('Tap a plant to collect its credits. Hold one for 3 seconds to collect from every plant in reach.') : t('Plants make credits over time. When one has some, tap it to collect them.')),
+      spot: () => tourPlant(true) },
+    { id: 'claim', icon: '🌱', tint: 'green', title: () => t('Claim land'), text: () => t('Tap free land next to yours, then Claim & Plant. A plant grows there and makes credits.'),
+      dom: () => primaryBtn('claim'), spot: () => tourFrontier() },
+    { id: 'grow', icon: '⏫', tint: 'orange', title: () => t('Grow a plant'), text: () => t('Tap one of your plants, then Grow. Bigger plants make more credits.'),
+      dom: () => (sheetOpen && sheetKind === 'plant' ? document.querySelector('#psGrow [data-grow]:not(:disabled)') : null), spot: () => tourPlant(false) },
+    { id: 'bag', icon: '🎒', tint: 'teal', title: () => t('Open your bag'), text: () => t('Tap your player card or swipe it up: your bag, your record and your profile.'),
+      dom: () => (homeDetent || sheetOpen ? null : $('homeHead')) },
+    { id: 'missions', icon: '🏆', tint: 'indigo', title: () => t('Missions'), text: () => t('Daily and weekly missions give credits and boosters. Tap 🏆 to see them.'),
+      dom: () => (homeDetent || sheetOpen ? null : $('missionsBtn')) },
+  ];
+  function tourStart() {
+    if (tour.state) return renderTour();
+    // Returning players (already some land) don't need it; everyone else gets it once.
+    tour.state = me.territory.count >= 3 ? 'done' : 'on';
+    tour.step = 0;
+    saveTour();
+    renderTour();
+  }
+  /** You did something the tour teaches. */
+  function tourEvent(id) {
+    if (!tour.seen.includes(id)) { tour.seen.push(id); if (tour.state === 'on') saveTour(); }
+    if (tour.state === 'on') setTimeout(() => renderTour(600), 250);
+  }
+  function tourNext() {
+    if (tour.state !== 'on') return;
+    tour.step++;
+    if (tour.step >= TOUR.length) return tourFinish(true);
+    saveTour();
+    renderTour();
+  }
+  function tourFinish(done) {
+    tour.state = done ? 'done' : 'skipped';
+    saveTour();
+    if (done) {
+      for (const id of ['walk', 'hq', 'claim', 'tap']) tipsDone.add(id);
+      lsSet(TIPS_KEY, JSON.stringify([...tipsDone]));
+      tour.cheer = true; // said when the map is in view again
+    }
+    renderTour();
+    renderTips();
+  }
+  const tourSkip = () => tourFinish(false);
+  function tourReplay() {
+    tour.state = 'on';
+    tour.step = 0;
+    tour.seen = [];
+    saveTour();
+    closeModal('howto');
+    renderTour();
+    renderTips();
+  }
+  $('coachNext').addEventListener('click', tourNext);
+  $('coachSkip').addEventListener('click', tourSkip);
+  $('tourAgain').addEventListener('click', tourReplay);
+  // The coach mark: a ring around a control, or a pulsing circle on a hex of the map (a map marker,
+  // so it moves with the map exactly like the emojis).
+  const coachPin = { el: null, handle: null, cell: null };
+  const coachRing = { el: $('coachRing'), target: null, raf: 0, key: '', until: 0 };
+  function placeCoachPin(id) {
+    if (!map) return;
+    if (!coachPin.el) {
+      coachPin.el = document.createElement('div');
+      coachPin.el.className = 'cm';
+      coachPin.el.innerHTML = '<i></i>';
+    }
+    coachPin.el.hidden = !id;
+    if (!id || id === coachPin.cell) return;
+    coachPin.cell = id;
+    const c = cell(id);
+    if (!coachPin.handle) coachPin.handle = map.addMarker(coachPin.el, { lat: c.lat, lng: c.lng }, 10);
+    else coachPin.handle.move({ lat: c.lat, lng: c.lng });
+  }
+  function ringFrame() {
+    coachRing.raf = 0;
+    const el = coachRing.target;
+    if (!el || !el.isConnected) { coachRing.el.hidden = true; return; }
+    const r = el.getBoundingClientRect(), a = appEl.getBoundingClientRect();
+    const pad = 4, key = `${Math.round(r.left)}|${Math.round(r.top)}|${Math.round(r.width)}|${Math.round(r.height)}`;
+    if (key !== coachRing.key) {
+      coachRing.key = key;
+      const s = coachRing.el.style;
+      s.width = `${r.width + pad * 2}px`;
+      s.height = `${r.height + pad * 2}px`;
+      s.transform = `translate(${r.left - a.left - pad}px, ${r.top - a.top - pad}px)`;
+      s.borderRadius = getComputedStyle(el).borderRadius === '50%' ? '50%' : `${Math.max(12, parseFloat(getComputedStyle(el).borderTopLeftRadius) + pad)}px`;
+    }
+    coachRing.el.hidden = !r.width;
+    // Follows a sheet or a card for as long as it slides, then rests (checked again once a second).
+    if (performance.now() < coachRing.until) coachRing.raf = requestAnimationFrame(ringFrame);
+  }
+  function kickRing(ms) {
+    coachRing.until = Math.max(coachRing.until, performance.now() + ms);
+    if (!coachRing.raf && coachRing.target) coachRing.raf = requestAnimationFrame(ringFrame);
+  }
+  function setCoachTarget(el) {
+    if (coachRing.target === el) return;
+    coachRing.target = el;
+    coachRing.key = '';
+    if (!el) { coachRing.el.hidden = true; if (coachRing.raf) cancelAnimationFrame(coachRing.raf); coachRing.raf = 0; return; }
+    kickRing(900);
+  }
+  let tourKey = '';
+  /** Shows the current step; `follow` (ms): the layout is moving, keep the ring on its control meanwhile. */
+  function renderTour(follow) {
+    const box = $('coach');
+    if (tour.state === 'on' && me) {
+      let s = TOUR[tour.step];
+      // Steps you already did (or whose result is there) finish by themselves.
+      while (s && (tour.seen.includes(s.id) || (s.state && s.state()))) {
+        tour.step++;
+        saveTour();
+        s = TOUR[tour.step];
+      }
+      if (!s) return tourFinish(true);
+    }
+    const inView = started && !!me && !photo.on && !placing && !document.querySelector('.modal.open');
+    if (tour.cheer && inView) { tour.cheer = false; toast(t('That’s the basics. Enjoy the walk!'), false, '🎉'); }
+    const show = tour.state === 'on' && inView;
+    box.hidden = !show;
+    if (!show) { setCoachTarget(null); placeCoachPin(null); tourKey = ''; return; }
+    const s = TOUR[tour.step], title = s.title(), text = s.text();
+    const key = `${tour.step}|${title}|${text}|${LANG}`;
+    if (key !== tourKey) {
+      tourKey = key;
+      setTile($('coachTile'), s.icon, s.tint, '');
+      $('coachStep').textContent = t('Step {n} of {m}', { n: tour.step + 1, m: TOUR.length });
+      $('coachTitle').textContent = title;
+      $('coachText').textContent = text;
+      $('coachNext').textContent = tour.step === TOUR.length - 1 ? t('Done') : t('Next');
+      $('coachDots').innerHTML = TOUR.map((x, i) => `<i class="${i === tour.step ? 'on' : i < tour.step ? 'done' : ''}"></i>`).join('');
+    }
+    const el = s.dom ? s.dom() : null;
+    setCoachTarget(el);
+    kickRing(follow || 0);
+    placeCoachPin(!el && s.spot ? s.spot() : null);
+  }
+
+  // ------------------------------------------------------------------ map photo mode: hide the UI, frame your land, a stamp, share
+  const photo = { on: false, busy: false, last: null, bitmaps: new Map() };
+  function stampLines() {
+    const area = $('cityName').textContent.trim(), city = live.events && live.events.city ? loc(live.events.city) : '';
+    const place = [area, city].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(', ') || t('Clash of Cities');
+    const date = new Date(serverNow()).toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' });
+    const who = `${avatarOf(me.player)} ${me.player.username} · ${tn(me.territory.count, '{n} hex', '{n} hexes')}`;
+    return { place, date, who };
+  }
+  function enterPhoto() {
+    if (!started || !map || !me || photo.on) return;
+    if (homeDetent) setHome(false);
+    if (placing) stopPlacing();
+    select(null);
+    for (const m of document.querySelectorAll('.modal.open')) closeModal(m.id);
+    photo.on = true;
+    appEl.classList.add('photo');
+    const s = stampLines();
+    $('stampCity').textContent = s.place;
+    $('stampDate').textContent = s.date;
+    $('stampWho').textContent = s.who;
+    $('stamp').hidden = false;
+    $('photoBar').hidden = false;
+    if (route.on && map.setRoute) map.setRoute(null);
+    map.setReach(pos, false); // a clean picture: no reach circle either
+    map.setAccuracy(pos, 0);
+    renderTour();
+    weatherFx.update();
+    $('photoShoot').focus({ preventScroll: true });
+  }
+  function exitPhoto() {
+    if (!photo.on) return;
+    photo.on = false;
+    appEl.classList.remove('photo');
+    $('stamp').hidden = true;
+    $('photoBar').hidden = true;
+    if (route.on) drawRoute();
+    circlesAt = null;
+    updatePlayerVisuals();
+    renderTour();
+    weatherFx.update();
+  }
+  $('photoCancel').addEventListener('click', exitPhoto);
+  $('photoShoot').addEventListener('click', () => shootPhoto());
+  /** A map tile as a bitmap the canvas may read: fetched again with CORS (tile servers allow it). */
+  function tileBitmap(src) {
+    let p = photo.bitmaps.get(src);
+    if (!p) {
+      if (photo.bitmaps.size > 300) photo.bitmaps.clear();
+      p = fetch(src, { mode: 'cors', credentials: 'omit' }).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.blob(); }).then((b) => createImageBitmap(b));
+      p.catch(() => photo.bitmaps.delete(src));
+      photo.bitmaps.set(src, p);
+    }
+    return p;
+  }
+  const FONT_UI = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif';
+  const FONT_EMO = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+  /** Draws what the map shows (tiles, territory, emojis) plus the stamp, like a screenshot without the UI. */
+  async function renderPhoto() {
+    const mapEl = $('map'), mr = mapEl.getBoundingClientRect(), W = Math.round(mr.width), H = Math.round(mr.height);
+    const sc = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(W * sc);
+    cv.height = Math.round(H * sc);
+    const c = cv.getContext('2d');
+    c.scale(sc, sc);
+    c.fillStyle = mapDark ? '#242426' : '#f5f3ee';
+    c.fillRect(0, 0, W, H);
+    // 1. Map tiles, in the order the map stacks them.
+    const imgs = [...mapEl.querySelectorAll('img')].map((img) => {
+      const r = img.getBoundingClientRect(), cs = getComputedStyle(img);
+      const ok = img.complete && img.naturalWidth > 16 && r.width > 16 && r.right > mr.left && r.left < mr.right && r.bottom > mr.top && r.top < mr.bottom &&
+        cs.visibility !== 'hidden' && cs.display !== 'none' && !img.closest('.ov, .osm-mk, .leaflet-marker-pane, .leaflet-control-container, .gm-style-cc, a');
+      return ok ? { src: img.currentSrc || img.src, r, op: parseFloat(cs.opacity) || 1 } : null;
+    }).filter(Boolean);
+    let tiles = 0, tilesFailed = 0;
+    const got = await Promise.all(imgs.map((x) => Promise.race([tileBitmap(x.src), new Promise((res, rej) => setTimeout(() => rej(new Error('timeout')), 5000))]).then((b) => ({ ...x, b }), () => null)));
+    if (mapEl.classList.contains('osm-dark') && 'filter' in c) c.filter = 'invert(1) hue-rotate(180deg) brightness(.92) contrast(.9) saturate(.7)';
+    for (const x of got) {
+      if (!x) { tilesFailed++; continue; }
+      tiles++;
+      c.globalAlpha = Math.min(1, x.op);
+      c.drawImage(x.b, x.r.left - mr.left, x.r.top - mr.top, x.r.width, x.r.height);
+    }
+    c.globalAlpha = 1;
+    if ('filter' in c) c.filter = 'none';
+    // 2. Territory: each owner's soft tint.
+    let hexes = 0;
+    for (const g of territoryGroups()) {
+      c.beginPath();
+      for (const poly of h3.cellsToMultiPolygon(g.ids, true)) {
+        for (const ring of poly) {
+          ring.forEach(([lng, lat], i) => { const q = map.toPx({ lat, lng }); if (q) i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); });
+          c.closePath();
+        }
+      }
+      c.globalAlpha = mapDark ? 0.3 : 0.26;
+      c.fillStyle = g.color;
+      c.fill('evenodd');
+      hexes += g.ids.length;
+    }
+    c.globalAlpha = 1;
+    // 3. The emojis on the map (plants, buildings, landmarks, animals, players), where they stand now.
+    const night = appEl.classList.contains('night');
+    let emoji = 0;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    for (const el of mapEl.querySelectorAll('.lm .lme, .tt i, .pin .pb, .pin .sub, .bot .be, .op .pe, .op .on, .op.me .ring')) {
+      if (!el.getClientRects().length) continue;
+      const r = el.getBoundingClientRect(), x = r.left - mr.left + r.width / 2, y = r.top - mr.top + r.height / 2;
+      if (x < -40 || y < -40 || x > W + 40 || y > H + 40) continue;
+      const cs = getComputedStyle(el), zoom = el.offsetWidth ? r.width / el.offsetWidth : 1;
+      c.save();
+      c.globalAlpha = parseFloat(cs.opacity) || 1;
+      if (el.classList.contains('ring')) {
+        c.strokeStyle = 'rgba(255,255,255,.7)';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.arc(x, y, r.width / 2 - 1, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+        continue;
+      }
+      if (el.classList.contains('on')) {
+        c.font = `700 12px ${FONT_UI}`;
+        c.shadowColor = '#000';
+        c.shadowBlur = 3;
+        c.fillStyle = '#fff';
+        c.fillText(el.textContent, x, y);
+        c.restore();
+        continue;
+      }
+      if (el.classList.contains('lme')) {
+        c.fillStyle = mapDark ? 'rgba(44,44,46,.92)' : 'rgba(255,255,255,.9)';
+        c.shadowColor = 'rgba(0,0,0,.35)';
+        c.shadowBlur = 6;
+        c.shadowOffsetY = 2;
+        c.beginPath();
+        c.arc(x, y, r.width / 2, 0, Math.PI * 2);
+        c.fill();
+        c.shadowColor = 'transparent';
+        c.strokeStyle = '#ffcc00';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.arc(x, y, r.width / 2 - 1, 0, Math.PI * 2);
+        c.stroke();
+      }
+      const text = el.textContent.trim();
+      if (!text) { c.restore(); continue; }
+      c.font = `${(parseFloat(cs.fontSize) || 20) * zoom}px ${FONT_EMO}`;
+      const glow = night && el.parentElement && el.parentElement.classList.contains('tt') && !el.parentElement.classList.contains('wilted');
+      c.shadowColor = glow ? 'rgba(255,214,102,.9)' : 'rgba(0,0,0,.4)';
+      c.shadowBlur = glow ? 9 : 3;
+      c.shadowOffsetY = glow ? 0 : 1.5;
+      c.fillText(text, x, y + 1);
+      c.restore();
+      emoji++;
+    }
+    // 4. The stamp: where, when, who and how much land.
+    const s = stampLines(), pad = 14, x0 = 16;
+    const f1 = `700 20px ${FONT_UI}`, f2 = `400 14px ${FONT_UI}`, f3 = `600 14px ${FONT_UI}`;
+    const wOf = (f, txt) => { c.font = f; return c.measureText(txt).width; };
+    const bw = Math.min(W - 32, Math.max(wOf(f1, s.place), wOf(f2, s.date), wOf(f3, s.who)) + pad * 2), bh = 20 + 18 + 18 + pad * 2 + 4;
+    const y0 = H - 16 - bh;
+    c.fillStyle = 'rgba(0,0,0,.45)';
+    roundRect(c, x0, y0, bw, bh, 16);
+    c.fill();
+    c.textAlign = 'left';
+    c.textBaseline = 'alphabetic';
+    c.fillStyle = '#fff';
+    const clip = (f, txt) => { c.font = f; let v = txt; while (v.length > 1 && c.measureText(v).width > bw - pad * 2) v = v.slice(0, -2) + '…'; return v; };
+    c.font = f1; c.fillText(clip(f1, s.place), x0 + pad, y0 + pad + 18);
+    c.globalAlpha = 0.88;
+    c.font = f2; c.fillText(clip(f2, s.date), x0 + pad, y0 + pad + 40);
+    c.globalAlpha = 1;
+    c.font = f3; c.fillText(clip(f3, s.who), x0 + pad, y0 + pad + 60);
+    // The game's name and the map's credit, bottom right.
+    c.textAlign = 'right';
+    c.shadowColor = 'rgba(0,0,0,.6)';
+    c.shadowBlur = 4;
+    c.font = `800 13px ${FONT_UI}`;
+    c.fillText('Clash of Cities', W - 14, H - 30);
+    c.font = `500 10px ${FONT_UI}`;
+    c.globalAlpha = 0.85;
+    c.fillText(map.kind === 'osm' ? '© OpenStreetMap' : map.kind === 'apple' ? '© Apple Maps' : '© Google Maps', W - 14, H - 16);
+    c.globalAlpha = 1;
+    c.shadowColor = 'transparent';
+    const blob = await new Promise((res, rej) => { try { cv.toBlob((b) => (b ? res(b) : rej(new Error('no image'))), 'image/png'); } catch (e) { rej(e); } });
+    return { blob, w: cv.width, h: cv.height, tiles, tilesFailed, emoji, hexes };
+  }
+  function savePhoto(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    toast(t('Photo saved'), false, '📷');
+  }
+  async function shootPhoto() {
+    if (!photo.on || photo.busy) return;
+    photo.busy = true;
+    $('photoShoot').disabled = true;
+    if (!RM) {
+      const fl = document.createElement('div');
+      fl.className = 'flash';
+      appEl.appendChild(fl);
+      setTimeout(() => fl.remove(), 500);
+    }
+    try {
+      const r = await renderPhoto();
+      photo.last = r;
+      const s = stampLines(), name = `clash-of-cities-${new Date(serverNow()).toISOString().slice(0, 10)}.png`;
+      const text = t('My land in {place}: {n} · Clash of Cities', { place: s.place, n: tn(me.territory.count, '{n} hex', '{n} hexes') });
+      const file = typeof File === 'function' ? new File([r.blob], name, { type: 'image/png' }) : null;
+      const share = () => navigator.share({ files: [file], title: 'Clash of Cities', text });
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        r.how = 'share';
+        try {
+          await share();
+        } catch (e) {
+          // The picture took a moment and the tap no longer counts as the gesture: ask once more.
+          if (e && e.name === 'NotAllowedError') {
+            showAlert(t('Your Photo Is Ready'), s.place, [
+              { label: t('Share'), style: 'strong', onTap: () => share().catch(() => {}) },
+              { label: t('Save to Files'), onTap: () => savePhoto(r.blob, name) },
+              { label: t('Cancel') },
+            ]);
+          } else if (!e || e.name !== 'AbortError') { r.how = 'download'; savePhoto(r.blob, name); }
+        }
+      } else {
+        r.how = 'download';
+        savePhoto(r.blob, name);
+      }
+    } catch (e) {
+      toast(t("Couldn't make the photo. Try again."), true);
+    } finally {
+      photo.busy = false;
+      $('photoShoot').disabled = false;
+    }
+  }
+
+  // ------------------------------------------------------------------ day and night: the map follows the sun
+  // From the server (`sun` in /v1/events or /v1/me: phase, sunrise, sunset) when it sends it, else
+  // computed here with the NOAA solar equations for where you play. Night map on light phones too;
+  // a dark phone always gets the dark map. Plants glow softly at night.
+  let sunNow = null, sunOverride = null;
+  /** Sunrise and sunset (ms) of the UTC day `ms` falls in; 'up' or 'down' all day near the poles. */
+  function solarDay(ms, lat, lng) {
+    const d = new Date(ms), y = d.getUTCFullYear(), midnight = Date.UTC(y, d.getUTCMonth(), d.getUTCDate());
+    const doy = Math.round((midnight - Date.UTC(y, 0, 1)) / 864e5) + 1, leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    const g = ((2 * Math.PI) / (leap ? 366 : 365)) * (doy - 1 + (12 - lng / 15 - 12) / 24);
+    const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+    const decl = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+    const cosHa = Math.cos(90.833 * RAD) / (Math.cos(lat * RAD) * Math.cos(decl)) - Math.tan(lat * RAD) * Math.tan(decl);
+    if (cosHa < -1) return 'up';
+    if (cosHa > 1) return 'down';
+    const ha = Math.acos(cosHa) / RAD;
+    return { rise: midnight + (720 - 4 * (lng + ha) - eq) * 60000, set: midnight + (720 - 4 * (lng - ha) - eq) * 60000 };
+  }
+  function sunLocal(p, now) {
+    let up = false, polar = null, nextRise = null, nextSet = null, lastSet = null, lastRise = null;
+    for (const k of [-1, 0, 1, 2]) {
+      const s = solarDay(now + k * 864e5, p.lat, p.lng);
+      if (s === 'up' || s === 'down') { if (k === 0) polar = s; continue; }
+      if (s.rise <= now && now < s.set) up = true;
+      if (s.rise > now && (nextRise === null || s.rise < nextRise)) nextRise = s.rise;
+      if (s.set > now && (nextSet === null || s.set < nextSet)) nextSet = s.set;
+      if (s.set <= now && (lastSet === null || s.set > lastSet)) lastSet = s.set;
+      if (s.rise <= now && (lastRise === null || s.rise > lastRise)) lastRise = s.rise;
+    }
+    if (polar) up = polar === 'up';
+    const H = 36e5 / 2; // dawn and dusk: half an hour around sunrise and sunset
+    const phase = up ? (nextSet && nextSet - now < H ? 'dusk' : lastRise && now - lastRise < H ? 'dawn' : 'day') : nextRise && nextRise - now < H ? 'dawn' : lastSet && now - lastSet < H ? 'dusk' : 'night';
+    return { phase, night: !up, sunrise: up ? lastRise : nextRise, sunset: up ? nextSet : lastSet, source: 'local' };
+  }
+  function sunState(p, now) {
+    if (sunOverride) return { phase: sunOverride, night: sunOverride === 'night', sunrise: null, sunset: null, source: 'test' };
+    const srv = (live.events && live.events.sun) || (me && me.sun);
+    if (srv && (srv.sunrise || srv.phase)) {
+      const r = srv.sunrise && Date.parse(srv.sunrise), s = srv.sunset && Date.parse(srv.sunset);
+      // Times say it best (the phase is from when the server answered); the phase alone otherwise.
+      const night = r && s ? now < r || now >= s : srv.phase === 'night';
+      if (!(r && s && (now > s + 864e5 || now < r - 864e5))) return { phase: srv.phase || (night ? 'night' : 'day'), night, sunrise: r || null, sunset: s || null, source: 'server' };
+    }
+    return sunLocal(p, now);
+  }
+  function applySun(at) {
+    const p = at || pos || (cfg && cfg.client && cfg.client.defaultCenter);
+    if (!p) return;
+    sunNow = sunState(p, serverNow());
+    const night = lsGet(A11Y.night) !== '0' && sunNow.night;
+    appEl.classList.toggle('night', night);
+    const dk = sysDark || night;
+    if (dk !== mapDark) { mapDark = dk; restyleMap(); }
+    appEl.classList.toggle('mapdark', mapDark);
+  }
+  const routeColor = () => (mapDark ? '#64d2ff' : '#007aff');
+
+  // ------------------------------------------------------------------ weather on the map: rain, snow or wind (from /v1/events)
+  // One canvas over the map, drawn at 30 frames a second in screen space (it never touches the map
+  // or its markers). Paused when the page is hidden, behind a full page, in photo mode, with reduce
+  // motion or when turned off in Settings.
+  const wx = { kind: '', canvas: $('wx'), ctx: null, parts: [], running: false, raf: 0, last: 0, w: 0, h: 0, dpr: 1, vx: 0, frames: 0, override: undefined, key: '' };
+  const currentWeather = () => (wx.override !== undefined ? wx.override : live.events && live.events.weather) || null;
+  function wxKindOf(w) {
+    if (!w) return '';
+    const c = w.code;
+    if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 'snow';
+    if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95) return 'rain';
+    if ((w.windKmh || 0) >= 28) return 'wind';
+    return '';
+  }
+  function wxResize() {
+    if (!wx.running) return;
+    const r = appEl.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    wx.w = r.width;
+    wx.h = r.height;
+    wx.dpr = dpr;
+    wx.canvas.width = Math.round(r.width * dpr);
+    wx.canvas.height = Math.round(r.height * dpr);
+    wx.ctx = wx.canvas.getContext('2d');
+    wx.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function wxSeed(w) {
+    const area = wx.w * wx.h, heavy = w.code >= 63 && w.code !== 71 && w.code !== 73 ? 1.5 : 1, rnd = Math.random;
+    const toward = (((w.windDir || 0) + 180) % 360) * RAD, wind = Math.min(60, w.windKmh || 0);
+    wx.vx = Math.sin(toward) * wind * (wx.kind === 'snow' ? 1.6 : 4);
+    wx.dirX = Math.sin(toward) >= 0 ? 1 : -1;
+    const n = wx.kind === 'rain' ? Math.round((area / 4200) * heavy) : wx.kind === 'snow' ? Math.round(area / 6500) : 7;
+    wx.parts = [];
+    for (let i = 0; i < n; i++) {
+      if (wx.kind === 'rain') wx.parts.push({ x: rnd() * wx.w, y: rnd() * wx.h, l: 9 + rnd() * 9, v: 620 + rnd() * 280 });
+      else if (wx.kind === 'snow') wx.parts.push({ x: rnd() * wx.w, y: rnd() * wx.h, r: 1 + rnd() * 1.8, v: 28 + rnd() * 34, ph: rnd() * 6.28 });
+      else wx.parts.push({ x: rnd() * wx.w, y: 40 + rnd() * (wx.h - 80), l: 50 + rnd() * 70, v: 140 + rnd() * 120 + wind * 3, a: rnd() * 6.28, amp: 4 + rnd() * 8 });
+    }
+  }
+  function wxFrame(ts) {
+    if (!wx.running) return;
+    wx.raf = requestAnimationFrame(wxFrame);
+    if (ts - wx.last < 32) return; // 30 frames a second is plenty for weather
+    const dt = wx.last ? Math.min(0.1, (ts - wx.last) / 1000) : 0.033;
+    wx.last = ts;
+    wx.frames++;
+    const c = wx.ctx, W = wx.w, H = wx.h, dark = mapDark;
+    c.clearRect(0, 0, W, H);
+    c.beginPath();
+    if (wx.kind === 'rain') {
+      const k = 1 / Math.hypot(wx.vx, 700);
+      for (const p of wx.parts) {
+        p.y += p.v * dt;
+        p.x += wx.vx * dt;
+        if (p.y - p.l > H) { p.y = -p.l; p.x = Math.random() * (W + 80) - 40; }
+        if (p.x > W + 40) p.x -= W + 80; else if (p.x < -40) p.x += W + 80;
+        c.moveTo(p.x, p.y);
+        c.lineTo(p.x - wx.vx * k * p.l, p.y - 700 * k * p.l);
+      }
+      c.strokeStyle = dark ? 'rgba(190, 212, 255, .38)' : 'rgba(70, 100, 140, .32)';
+      c.lineWidth = 1;
+      c.lineCap = 'round';
+      c.stroke();
+    } else if (wx.kind === 'snow') {
+      const tt = ts / 1000;
+      for (const p of wx.parts) {
+        p.y += p.v * dt;
+        p.x += (wx.vx + Math.sin(tt + p.ph) * 14) * dt;
+        if (p.y - p.r > H) { p.y = -p.r; p.x = Math.random() * W; }
+        if (p.x > W + 10) p.x -= W + 20; else if (p.x < -10) p.x += W + 20;
+        c.moveTo(p.x + p.r, p.y);
+        c.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      }
+      c.fillStyle = dark ? 'rgba(255, 255, 255, .8)' : 'rgba(255, 255, 255, .92)';
+      c.shadowColor = dark ? 'transparent' : 'rgba(0, 0, 0, .18)';
+      c.shadowBlur = dark ? 0 : 2;
+      c.fill();
+      c.shadowColor = 'transparent';
+    } else {
+      for (const p of wx.parts) {
+        p.x += p.v * dt * wx.dirX;
+        p.a += dt * 2;
+        if (wx.dirX > 0 ? p.x - p.l > W : p.x + p.l < 0) { p.x = wx.dirX > 0 ? -p.l : W + p.l; p.y = 40 + Math.random() * (H - 80); }
+        const y = p.y + Math.sin(p.a) * p.amp;
+        c.moveTo(p.x, y);
+        c.quadraticCurveTo(p.x - (wx.dirX * p.l) / 2, y - p.amp, p.x - wx.dirX * p.l, y);
+      }
+      c.strokeStyle = dark ? 'rgba(255, 255, 255, .22)' : 'rgba(60, 70, 90, .2)';
+      c.lineWidth = 1.4;
+      c.lineCap = 'round';
+      c.stroke();
+    }
+  }
+  const weatherFx = {
+    update() {
+      const w = currentWeather(), kind = wxKindOf(w);
+      const run = !!kind && started && !RM && lsGet(A11Y.wx) !== '0' && !document.hidden && !photo.on && !document.querySelector('.modal.open');
+      const key = `${kind}|${w ? `${w.code}|${Math.round(w.windKmh || 0)}|${w.windDir || 0}` : ''}`;
+      if (run && !wx.running) {
+        wx.running = true;
+        wx.canvas.hidden = false;
+        wxResize();
+        wx.last = 0;
+        wx.raf = requestAnimationFrame(wxFrame);
+      } else if (!run && wx.running) {
+        wx.running = false;
+        cancelAnimationFrame(wx.raf);
+        if (wx.ctx) wx.ctx.clearRect(0, 0, wx.w, wx.h);
+        wx.canvas.hidden = true;
+      }
+      if (run && (key !== wx.key || !wx.parts.length)) { wx.kind = kind; wx.key = key; wxSeed(w); }
+      if (!run) { wx.kind = kind; wx.key = ''; wx.parts = []; }
+    },
+  };
+
+  // ------------------------------------------------------------------ walking route: a loop through plants to collect and landmarks to visit
+  // Stops: your plants with credits (grouped: standing at one collects its neighbours in reach) and
+  // landmarks you haven't visited today, not those in reach already. Ordered by nearest neighbour,
+  // then 2-opt, from you and back. A thin dotted line with its distance and time; the map never moves.
+  const route = { on: false, stops: [], path: null, meters: 0, minutes: 0, sig: '', at: null };
+  const WALK_MS = 1.3; // walking speed, m/s
+  const LM_STORE = 'coc.lmVisited';
+  const todayKey = () => new Date(serverNow()).toDateString();
+  function markVisited(id) {
+    let v = {};
+    try { v = JSON.parse(lsGet(LM_STORE) || '{}'); } catch (e) { /* none */ }
+    for (const k of Object.keys(v)) if (v[k] !== todayKey()) delete v[k];
+    v[id] = todayKey();
+    lsSet(LM_STORE, JSON.stringify(v));
+  }
+  function visitedToday(id) {
+    try { if (JSON.parse(lsGet(LM_STORE) || '{}')[id] === todayKey()) return true; } catch (e) { /* none */ }
+    const v = live.landmarks && live.landmarks.get(id);
+    return !!(v && v.nextCheckinAt && Date.parse(v.nextCheckinAt) > serverNow());
+  }
+  const loopLength = (start, pts) => { let m = 0, a = start; for (const p of pts) { m += distM(a, p); a = p; } return pts.length ? m + distM(a, start) : 0; };
+  function nearestOrder(start, pts) {
+    const left = new Set(pts.map((x, i) => i)), order = [];
+    let at = start;
+    while (left.size) {
+      let best = -1, bd = Infinity;
+      for (const j of left) { const d = distM(at, pts[j]); if (d < bd) { bd = d; best = j; } }
+      order.push(best);
+      left.delete(best);
+      at = pts[best];
+    }
+    return order;
+  }
+  /** A short loop from `start` through every point and back: nearest neighbour, then 2-opt. Returns the order (indices). */
+  function planLoop(start, pts) {
+    if (pts.length < 2) return pts.map((x, i) => i);
+    const nodes = [start, ...pts], D = (a, b) => distM(nodes[a], nodes[b]);
+    let seq = [0, ...nearestOrder(start, pts).map((i) => i + 1), 0];
+    for (let pass = 0, better = true; better && pass < 60; pass++) {
+      better = false;
+      for (let i = 1; i < seq.length - 2; i++) {
+        for (let k = i + 1; k < seq.length - 1; k++) {
+          const a = seq[i - 1], b = seq[i], c = seq[k], d = seq[k + 1];
+          if (D(a, c) + D(b, d) < D(a, b) + D(c, d) - 0.01) {
+            seq = [...seq.slice(0, i), ...seq.slice(i, k + 1).reverse(), ...seq.slice(k + 1)];
+            better = true;
+          }
+        }
+      }
+    }
+    return seq.slice(1, -1).map((i) => i - 1);
+  }
+  function routeStops() {
+    const stops = [];
+    // Plants with credits, fullest first; each stop takes the plants within reach of it.
+    const plants = [...myPlants.entries()].filter(([, p]) => !p.wilted && plantStoredNow(p) >= 1)
+      .map(([id, p]) => ({ id, c: cell(id), n: plantStoredNow(p), p })).sort((a, b) => b.n - a.n);
+    const taken = new Set();
+    for (const x of plants) {
+      if (taken.has(x.id)) continue;
+      const group = plants.filter((y) => !taken.has(y.id) && distM(x.c, y.c) <= REACH * 0.8);
+      for (const y of group) taken.add(y.id);
+      if (distM(pos, x.c) <= REACH) continue; // collect those right here
+      stops.push({ kind: 'plants', key: x.id, lat: x.c.lat, lng: x.c.lng, n: group.length, credits: group.reduce((s, y) => s + y.n, 0), emoji: x.p.emoji });
+    }
+    for (const l of allLandmarks()) {
+      const d = distM(pos, l);
+      if (d > 1500 || d <= l.radius || visitedToday(l.id)) continue; // a walk, not a trek
+      stops.push({ kind: 'landmark', key: l.id, lat: l.lat, lng: l.lng, name: loc(l), emoji: l.emoji });
+    }
+    // At most a dozen, the nearest.
+    return stops.sort((a, b) => distM(pos, a) - distM(pos, b)).slice(0, 12);
+  }
+  function planRoute() {
+    const stops = routeStops(), order = planLoop(pos, stops);
+    route.stops = order.map((i) => stops[i]);
+    route.sig = route.stops.map((x) => x.key).sort().join();
+    route.at = { ...pos };
+    route.meters = loopLength(pos, route.stops);
+    route.minutes = Math.max(1, Math.round(route.meters / WALK_MS / 60));
+    drawRoute();
+  }
+  function drawRoute() {
+    if (!map || !map.setRoute) return;
+    route.path = route.on && route.stops.length && pos ? [{ ...pos }, ...route.stops.map((x) => ({ lat: x.lat, lng: x.lng })), { ...pos }] : null;
+    if (!photo.on) map.setRoute(route.path);
+  }
+  function toggleRoute(on) {
+    const want = on === undefined ? !route.on : !!on;
+    if (!map || !pos || !me) return;
+    if (want) {
+      route.on = true;
+      planRoute();
+      if (!route.stops.length) {
+        route.on = false;
+        drawRoute();
+        toast(t('Nothing to walk to right now: your plants in reach are all you need, and today’s landmarks are visited.'), false, '🧭');
+      } else toast(tn(route.stops.length, 'A {dist} loop with {n} stop, about {time}', 'A {dist} loop with {n} stops, about {time}', { dist: fmtDist(route.meters), time: fmtDur(route.minutes * 60) }), false, '🧭');
+    } else {
+      route.on = false;
+      route.stops = [];
+      drawRoute();
+      if (panel === routeInfo) select(null);
+    }
+    $('routeBtn').setAttribute('aria-pressed', String(route.on));
+    renderLiveChips();
+  }
+  $('routeBtn').addEventListener('click', () => toggleRoute());
+  /** Keeps the route fresh: new stops when plants fill or get collected, the ends follow you. */
+  function updateRoute() {
+    if (!route.on || !pos || !me) return;
+    const sig = routeStops().map((x) => x.key).sort().join();
+    if (sig !== route.sig) {
+      planRoute();
+      if (!route.stops.length) { toggleRoute(false); toast(t('Route done. Well walked!'), false, '🧭'); }
+    } else if (route.at && distM(route.at, pos) > 6) {
+      route.at = { ...pos };
+      route.meters = loopLength(pos, route.stops);
+      route.minutes = Math.max(1, Math.round(route.meters / WALK_MS / 60));
+      drawRoute();
+    }
+  }
+  function routeInfo() {
+    const out = blankOut();
+    out.title = t('Walking Route');
+    out.sub = tn(route.stops.length, '{dist} · about {time} · {n} stop', '{dist} · about {time} · {n} stops', { dist: fmtDist(route.meters), time: fmtDur(route.minutes * 60) });
+    out.tile = { icon: '🧭', tint: 'blue' };
+    let at = pos;
+    route.stops.forEach((x, i) => {
+      const leg = distM(at, x);
+      at = x;
+      out.rows.push({ key: `r${i}`, icon: x.emoji || '📍', tint: x.kind === 'landmark' ? 'yellow' : 'green',
+        title: x.kind === 'landmark' ? x.name : tn(x.n, '{n} plant · {c} credits', '{n} plants · {c} credits', { c: fmtNum(x.credits) }),
+        sub: t('{dist} {dir}', { dist: fmtDist(distM(pos, x)), dir: compass(bearing(pos, x)) }) + ' · ' + t('Stop {n}, {leg} from the last', { n: i + 1, leg: fmtDist(leg) }), button: '', enabled: false });
+    });
+    out.primary.push({ key: 'endroute', label: t('End Route'), icon: '🏁', cls: 'tinted', enabled: true, run: () => toggleRoute(false) });
+    out.note = t('A loop through your plants with credits and the landmarks you haven’t visited today, back to where you are. Follow the dotted line.');
+    return out;
+  }
+  const openRoutePanel = () => openPanel(routeInfo);
+
+  // ------------------------------------------------------------------ Settings on this device (accessibility, night map, weather)
+  function fillClientSettings() {
+    const tv = lsGet(A11Y.text) || 'auto', mv = lsGet(A11Y.motion) || 'auto';
+    $('textValue').textContent = t((TEXT_SIZES.find((x) => x[0] === tv) || TEXT_SIZES[0])[1]);
+    $('motionValue').textContent = mv === 'auto' ? `${t('Automatic')} (${RM ? t('On') : t('Off')})` : t(mv === 'on' ? 'On' : 'Off');
+    $('cbSwitch').checked = CB;
+    $('nightSwitch').checked = lsGet(A11Y.night) !== '0';
+    const s = sunNow;
+    $('sunText').textContent = !s || s.source === 'test' ? t('Follows the sun where you are') : s.night
+      ? (s.sunrise ? t('Night now · sunrise {time}', { time: fmtTime(s.sunrise) }) : t('Night now'))
+      : s.sunset ? t('Day now · sunset {time}', { time: fmtTime(s.sunset) }) : t('Day now');
+    $('wxSwitch').checked = lsGet(A11Y.wx) !== '0';
+    $('wxSwitch').disabled = RM;
+    const w = currentWeather();
+    $('wxText').textContent = RM ? t('Off while Reduce Motion is on') : w ? `${w.emoji || ''} ${loc(w, 'label')}`.trim() : t('Rain, snow and wind where you are');
+  }
+  function pick(title, msg, list, store, after) {
+    const cur = lsGet(store) || 'auto';
+    showAlert(title, msg, [
+      ...list.map(([v, label]) => ({ label: `${t(label)}${v === cur ? ' ✓' : ''}`, onTap: () => { lsSet(store, v === 'auto' ? null : v); after(); fillClientSettings(); } })),
+      { label: t('Cancel'), style: 'strong' },
+    ]);
+  }
+  $('textRow').addEventListener('click', () => pick(t('Text Size'), t('Automatic follows the text size of your device.'), TEXT_SIZES, A11Y.text, applyTextSize));
+  $('motionRow').addEventListener('click', () => pick(t('Reduce Motion'), t('Fewer animations: no pops, no gliding map, no weather on the map. Automatic follows your device.'), MOTION, A11Y.motion, applyMotion));
+  $('cbSwitch').addEventListener('change', (e) => setColorBlind(e.target.checked));
+  $('nightSwitch').addEventListener('change', (e) => { lsSet(A11Y.night, e.target.checked ? null : '0'); applySun(); fillClientSettings(); });
+  $('wxSwitch').addEventListener('change', (e) => { lsSet(A11Y.wx, e.target.checked ? null : '0'); weatherFx.update(); fillClientSettings(); });
+
+  /** Once a second: the tour, the weather's state, the route; the sun every half minute. */
+  function clientTick(n) {
+    if (!started) return;
+    renderTour();
+    weatherFx.update();
+    if (n % 8 === 1) updateRoute();
+    if (n % 120 === 1) applySun();
   }
 
   // ------------------------------------------------------------------ loop
@@ -5575,7 +6700,7 @@
     if (moved) {
       reachDirty = true;
       updatePlayerVisuals();
-      if (follow && t - lastFollow > 600) { lastFollow = t; followCamera('glide'); }
+      if (follow && t - lastFollow > 600) { lastFollow = t; followCamera(RM ? false : 'glide'); }
     }
     if (moved !== walking) {
       walking = moved;
@@ -5601,6 +6726,7 @@
     // Events and weather: every minute, and soon after you moved far.
     if (me && started && (tickN % 240 === 9 || (tickN % 8 === 3 && live.eventsPos && pos && distM(live.eventsPos, pos) > 2000))) loadEvents();
     if (tickN % 480 === 17 && me && started) loadLandmarks(true);
+    if (tickN % 4 === 1) clientTick(tickN);
   }
 
   // ------------------------------------------------------------------ boot
@@ -5620,6 +6746,7 @@
     setMe(await api('GET', '/v1/me'));
   }
   async function boot() {
+    a11ySetup();
     setFollow(true);
     busy(t('Connecting…'));
     try {
@@ -5646,7 +6773,7 @@
     requestAnimationFrame(frame);
     setInterval(tick, 250);
     window.addEventListener('resize', () => { layoutControls(); followCamera(false); });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden && me) { loadMe(); syncLocation(true); } });
+    document.addEventListener('visibilitychange', () => { weatherFx.update(); if (!document.hidden && me) { loadMe(); syncLocation(true); applySun(); } });
   }
 
   // Hooks used by the automated browser tests.
@@ -5681,6 +6808,33 @@
     get lang() { return LANG; },
     t: (key, vars) => t(key, vars),
     teleport(lat, lng) { pos = { lat, lng }; playerMoved(false); updateReach(true); syncLocation(true); refreshUi(); },
+    // Client-only features: accessibility, the tour, photo mode, day and night, weather, the walking route.
+    get textScale() { return textScale; },
+    setTextSize: (v) => { lsSet(A11Y.text, v === 'auto' ? null : String(v)); applyTextSize(); },
+    get reduceMotion() { return RM; },
+    setMotion: (v) => { lsSet(A11Y.motion, v === 'auto' ? null : v); applyMotion(); },
+    get colorBlind() { return CB; },
+    setColorBlind: (on) => setColorBlind(on),
+    tintColors: () => (me ? territoryGroups().map((g) => ({ owner: g.owner, color: g.color })) : []),
+    get tour() { const s = TOUR[tour.step]; return { state: tour.state, step: tour.step, id: s ? s.id : null, visible: !$('coach').hidden, title: $('coachTitle').textContent, ring: !$('coachRing').hidden, pin: !!(coachPin.el && !coachPin.el.hidden && coachPin.handle) }; },
+    tourNext: () => tourNext(),
+    tourSkip: () => tourSkip(),
+    tourReplay: () => tourReplay(),
+    photo: (on) => (on === false ? exitPhoto() : enterPhoto()),
+    get photoOn() { return photo.on; },
+    photoRender: async () => { const r = await renderPhoto(); photo.last = r; return { w: r.w, h: r.h, bytes: r.blob.size, type: r.blob.type, tiles: r.tiles, tilesFailed: r.tilesFailed, emoji: r.emoji, hexes: r.hexes }; },
+    photoShoot: () => shootPhoto(),
+    get photoLast() { return photo.last ? { w: photo.last.w, h: photo.last.h, bytes: photo.last.blob.size, how: photo.last.how } : null; },
+    get sun() { return sunNow && { ...sunNow, sunrise: sunNow.sunrise && new Date(sunNow.sunrise).toISOString(), sunset: sunNow.sunset && new Date(sunNow.sunset).toISOString() }; },
+    get night() { return appEl.classList.contains('night'); },
+    get mapDark() { return mapDark; },
+    sunAt: (lat, lng, iso) => { const r = sunLocal({ lat, lng }, Date.parse(iso)); return { ...r, sunrise: r.sunrise && new Date(r.sunrise).toISOString(), sunset: r.sunset && new Date(r.sunset).toISOString() }; },
+    setSun: (phase) => { sunOverride = phase || null; applySun(); },
+    get weatherFx() { return { kind: wx.kind, running: wx.running, particles: wx.parts.length, frames: wx.frames }; },
+    setWeather: (w) => { wx.override = w === undefined ? undefined : w; weatherFx.update(); },
+    get route() { return { on: route.on, stops: route.stops.map((x) => ({ kind: x.kind, lat: x.lat, lng: x.lng, n: x.n || 0 })), meters: route.meters, minutes: route.minutes, points: route.path ? route.path.length : 0 }; },
+    toggleRoute: (on) => toggleRoute(on),
+    planLoop: (start, pts) => { const order = planLoop(start, pts); return { order, meters: loopLength(start, order.map((i) => pts[i])), nnMeters: loopLength(start, nearestOrder(start, pts).map((i) => pts[i])) }; },
   };
 
   boot();
