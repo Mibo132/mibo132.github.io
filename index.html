@@ -117,6 +117,10 @@
   }
   .talk-pop button { padding: 8px 12px; border: 0; border-radius: 16px; background: var(--row); color: var(--label); font: 500 15px var(--font); }
   .talk-pop button:active { background: var(--row-hi); }
+  .talk-pop .cmd { flex: 1 1 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--green-t); text-align: left; }
+  .talk-pop .cmd .emo { font-size: 24px; }
+  .talk-pop .cmd b { display: block; font-size: 15px; font-weight: 600; color: var(--label); }
+  .talk-pop .cmd small { display: block; font-size: 12px; color: var(--label2); }
   /* Home sheet: collapsed it is your player bar; tap or drag it up and the same sheet shows your
      profile, bag and combat stats. Same material and grabber as every other sheet. */
   .home {
@@ -698,7 +702,6 @@
         <span class="st"><span class="emo">🎒</span><b id="bagUsed">–</b><small id="bagSlots"></small></span>
         <span class="st"><span class="emo" id="hudHeart">❤️</span><b id="hudHp">–</b></span>
         <span class="st"><span class="emo">🪙</span><b id="credits">–</b></span>
-        <span class="st"><span class="emo">🗺️</span><b id="hexes">–</b></span>
       </header>
     </div>
     <div class="tips" id="tips"></div>
@@ -834,7 +837,7 @@
         <h4 class="sec-h">Grow</h4>
         <div class="group steps">
           <div class="row"><span class="num">1</span><div class="row-main">Tap the hex you stand on to found your <b>Headquarters</b>. Your first hex is free.</div></div>
-          <div class="row"><span class="num">2</span><div class="row-main">Tap an outlined hex next to your land, within reach, to claim it. A 🌱 plant grows there.</div></div>
+          <div class="row"><span class="num">2</span><div class="row-main">Tap free land next to yours, within reach, to claim it for 100 credits. A 🌱 plant grows there. Or open 💬 and tap <b>Claim All Land in Reach</b>.</div></div>
           <div class="row"><span class="num">3</span><div class="row-main">Plants make credits. <b>Tap a plant</b> to collect. <b>Hold a plant for 3 seconds</b> to collect from every plant in reach.</div></div>
           <div class="row"><span class="num">4</span><div class="row-main">Tap a plant with nothing to collect to open it: grow it (it evolves every 10 levels) and add boosters.</div></div>
           <div class="row"><span class="num">5</span><div class="row-main">Buy buildings in the 🛒 Shop and place them on your plants.</div></div>
@@ -1501,6 +1504,10 @@
     toast(`Sold for ${fmtNum(r.result.paid.credits || 0)} credits${r.result.lost > 0 ? ` (${fmtNum(r.result.lost)} didn't fit in storage)` : ''}`, false, '💰');
     select(null);
   });
+  const doClaimAll = () => command(() => post('/v1/territory/claim-all', { location: fix() }), (r) => {
+    const n = r.result.count, left = r.result.left;
+    toast(`Claimed ${n} hex${n === 1 ? '' : 'es'} for ${fmtNum(r.result.cost.credits || 0)} credits${left ? ` · ${left} more in reach` : ''}`, false, '🌱');
+  });
   const doBag = () => command(() => post('/v1/shop/bag', {}), (r) => toast(`Your bag holds ${r.result.slots} items now`, false, '🎒'));
 
   // ------------------------------------------------------------------ collecting: tap a plant, or hold one for 3 s
@@ -1829,12 +1836,11 @@
         out.tile = { icon: E.flag, tint: 'blue' };
         out.primary.push(act('claim', 'Found Headquarters', E.flag, reachWhy));
       } else {
-        const cost = me.territory.nextClaimCost.amount, max = me.territory.max, n = me.territory.count, borders = touchesMine(id);
-        out.sub = `Your territory: ${n} of ${max} hexes`;
+        const cost = me.territory.nextClaimCost.amount, borders = touchesMine(id);
+        out.sub = borders ? `${fmtNum(cost)} credits per hex` : 'Claim land next to yours';
         out.tile = { icon: E.neutral, tint: borders ? 'orange' : 'gray' };
         let why = null;
         if (!borders) why = 'Must border your territory';
-        else if (n >= max) why = 'Upgrade your Headquarters to claim more hexes';
         else if (credits() < cost) why = `Need ${fmtNum(cost)} credits`;
         if (borders) out.tags.push({ tint: 'orange', icon: E.border, text: 'Borders your territory' });
         out.primary.push(act('claim', `Claim & Plant for ${fmtNum(cost)} Credits`, '🌱', why || reachWhy));
@@ -1905,7 +1911,7 @@
           out.rows.push({ key: 'base', kind: 'base', icon: '🎨', tint: 'indigo', title: 'Name & Color', sub: `${me.player.baseName || 'Headquarters'} · your territory color`, button: 'Edit', enabled: true });
           const nx = cfg.hq.levels[b.level];
           out.note = nx
-            ? `Level ${b.level + 1} allows ${nx.maxTerritoryCells} hexes, ${nx.builders} builder${nx.builders === 1 ? '' : 's'} and up to ` +
+            ? `Level ${b.level + 1} gives ${nx.builders} builder${nx.builders === 1 ? '' : 's'} and up to ` +
               Object.entries(nx.buildingLimits).filter(([, n]) => n > 0).map(([t, n]) => `${n} ${emojiFor(t)}`).join(' · ') + '.'
             : 'Your Headquarters is at the highest level in this test build.';
         }
@@ -2358,7 +2364,7 @@
   }
   function computeFrontier() {
     const f = new Set();
-    if (!me.territory.count || me.territory.count >= me.territory.max) return f;
+    if (!me.territory.count) return f;
     for (const id of myCellSet) for (const n of h3.gridDisk(id, 1)) if (!ownerOf(n)) f.add(n);
     return f;
   }
@@ -2673,7 +2679,6 @@
     if (!me) return;
     const bag = me.bag, c = me.combat;
     setText($('credits'), fmtShort(credits()));
-    setText($('hexes'), me.territory.count);
     setText($('bagUsed'), bag ? bag.used : '–');
     setText($('bagSlots'), bag ? `/${bag.slots}` : '');
     if (c) {
@@ -2877,7 +2882,7 @@
         statRow('🎁', 'gray', 'Boosters Found', fmtNum(st.itemsFound || 0)) +
         statRow('🌿', 'gray', 'Plant Levels Grown', fmtNum(st.plantLevels || 0)) + '</div>';
       html += `<h4 class="sec-h">Base</h4><div class="group">` +
-        statRow('🗺️', 'green', 'Territory', `${fmtNum(me.territory.count)} of ${fmtNum(me.territory.max)} hexes`) +
+        statRow('🗺️', 'green', 'Hexes Owned', fmtNum(me.territory.count)) +
         statRow(E.builder, 'orange', 'Builders', hqLevel() ? `${bs.total - bs.busy} of ${bs.total} free` : '–') +
         statRow(E.coin, 'yellow', 'Storage', `${fmtNum(credits())} of ${fmtNum(capacity())}`) + '</div>';
       html += `<p class="sec-f">Shots hit ${Math.round(c.accuracyNear * 100)} % of the time up close and ${Math.round(c.accuracyFar * 100)} % at ${c.rangeMeters} m.</p>`;
@@ -2933,7 +2938,7 @@
   const TIPS = [
     { id: 'walk', icon: '🚶', tint: 'teal', title: 'Walk to play', text: 'You can act inside the circle around you.', when: () => me.territory.count < 3 },
     { id: 'hq', icon: E.hq, tint: 'blue', title: 'Found your Headquarters', text: 'Tap the hex you stand on. It’s free.', when: () => !me.territory.count },
-    { id: 'claim', icon: '🌱', tint: 'green', title: 'Plant around you', text: 'Tap an outlined hex inside the circle.', when: () => me.territory.count > 0 && me.territory.count < 6 },
+    { id: 'claim', icon: '🌱', tint: 'green', title: 'Plant around you', text: 'Tap free land next to yours, or 💬 → Claim All.', when: () => me.territory.count > 0 && me.territory.count < 6 },
     { id: 'tap', icon: '👆', tint: 'yellow', title: 'Tap a plant to collect', text: 'Plants make credits over time.', when: () => me.territory.count > 0 && hasCredits() },
     { id: 'hold', icon: '✋', tint: 'orange', title: 'Hold a plant for 3 seconds', text: 'Collects from every plant in reach.', when: () => myPlants.size >= 3 && tipsDone.has('tap') && hasCredits() },
     { id: 'fight', icon: '🎯', tint: 'red', title: 'Hunt animals', text: 'Tap one, then Fire. They drop boosters.', when: () => me.territory.count >= 3 && (world.bots || []).length > 0 },
@@ -3434,7 +3439,6 @@
     if (!hq || !cur || !nx) return '';
     const rows = [];
     const row = (icon, tint, title, sub) => rows.push(`<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div>${sub ? `<div class="row-sub">${esc(sub)}</div>` : ''}</div></div>`);
-    row(E.neutral, 'green', `${nx.maxTerritoryCells} hexes`, `now ${cur.maxTerritoryCells}`);
     if (nx.builders > cur.builders) row(E.builder, 'orange', `${nx.builders} builders`, `now ${cur.builders}`);
     for (const [type, bd] of Object.entries(cfg.buildings)) {
       if (!bd.buildable) continue;
@@ -3627,11 +3631,14 @@
   function openTalk() {
     const pop = $('talkPop');
     if (!pop.hidden) { pop.hidden = true; return; }
-    pop.innerHTML = cfg.social.emotes.map((t, i) => `<button type="button" data-say="${i}">${esc(t)}</button>`).join('');
+    const cost = me ? me.territory.nextClaimCost.amount : 100;
+    pop.innerHTML = (me && me.territory.count ? `<button type="button" class="cmd" data-cmd="claimall"><span class="emo">🌱</span><span><b>Claim All Land in Reach</b><small>${fmtNum(cost)} credits per hex · as much as you can pay</small></span></button>` : '') +
+      cfg.social.emotes.map((t, i) => `<button type="button" data-say="${i}">${esc(t)}</button>`).join('');
     pop.hidden = false;
   }
   $('talkBtn').addEventListener('click', openTalk);
   $('talkPop').addEventListener('click', async (e) => {
+    if (e.target.closest('[data-cmd="claimall"]')) { $('talkPop').hidden = true; return doClaimAll(); }
     const b = e.target.closest('[data-say]');
     if (!b) return;
     const text = cfg.social.emotes[+b.dataset.say];
