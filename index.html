@@ -9,8 +9,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Clash of Cities">
-<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<style>
+  /* Full screen: no theme colour, so nothing paints a bar under the notch; the map runs edge to edge
+     (the controls keep their own safe-area insets), and anything behind it matches the map. */
+  html, body { background: #e5e3df !important; }
+  @media (prefers-color-scheme: dark) { html, body { background: #242424 !important; } }
+  #map { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; }
+</style>
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://cdn.apple-mapkit.com">
