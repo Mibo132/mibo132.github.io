@@ -241,8 +241,14 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, .55), 0 0 18px rgba(0, 0, 0, .35); opacity: 0; transform: scale(.94); transition: opacity .6s, transform .8s var(--spring);
   }
   .city.show { opacity: 1; transform: none; }
+  .city p:empty { display: none; }
+  /* while the title shows, the controls wait off-screen, then slide in */
+  .top { transition: opacity .35s, transform .45s var(--spring); }
+  .intro .top { opacity: 0; transform: translateY(-30px); }
+  .intro .rail { opacity: 0; pointer-events: none; transform: translate(80px, -50%); }
+  .intro .talk { opacity: 0; pointer-events: none; transform: translateX(90px); }
   .city small { display: block; font: 700 22px var(--round); }
-  .city b { display: block; font: 900 52px/58px var(--round); letter-spacing: -1px; }
+  .city b { display: block; font: 900 clamp(32px, 11vw, 52px)/1.1 var(--round); letter-spacing: -1px; overflow-wrap: anywhere; }
   .city-rule { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px auto 8px; max-width: 260px; }
   .city-rule i { flex: 1; height: 2px; border-radius: 1px; background: rgba(255, 255, 255, .85); box-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
   .city-rule span { font: 26px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
@@ -623,8 +629,8 @@
   .hide-pins .pin { display: none; }
   #map { isolation: isolate; } /* keeps map-library layers (Leaflet uses z-index 400+) below the game UI */
   /* when zoomed far out, plants fade (territory tint, buildings, players and animals stay) */
-  .tt, .bot { transition: opacity .25s; }
-  .zoomed-out .tt, .zoomed-out .bot { opacity: 0; }
+  .tt .grow { position: absolute; left: 0; top: 12px; height: 15px; padding: 0 5px; border-radius: 8px; background: rgba(0, 0, 0, .62); color: #fff;
+    font: 600 10px/15px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap; transform: translateX(-50%); }
   .selring { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(52, 199, 89, .32); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25); pointer-events: none; transition: opacity .15s; }
   .selring[hidden] { display: block !important; opacity: 0; }
   .pin .sub { position: absolute; left: 6px; top: 3px; font: 13px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .4)); }
@@ -1461,7 +1467,8 @@
   }
   function maybeReloadWorld() {
     if (!me || !pos) return;
-    const view = map ? map.center() : pos, farView = mapScale() <= MAP.gridMpp && world.center && distM(world.center, view) > 250;
+    // Wherever you look (at any zoom): the world around the view, with its plants and animals.
+    const view = map ? map.center() : pos, farView = world.center && distM(world.center, view) > 250;
     const stale = Date.now() - world.at > cfg.client.worldRefreshSeconds * 1000;
     const moved = world.center && distM(world.center, pos) > 180;
     if (!world.center || stale || moved || farView) loadWorld(farView ? view : pos);
@@ -1497,7 +1504,7 @@
   const doCollect = (cells) => command(() => post('/v1/plants/collect', { ...(cells ? { cells } : {}), location: fix() }),
     (r) => toast(`Collected ${fmtNum(r.result.collected.credits || 0)} credits${r.result.plants > 1 ? ` from ${r.result.plants} plants` : ''}`, false, E.coin));
   const doGrow = (id, levels) => command(() => post(`/v1/plants/${id}/upgrade`, { levels, location: fix() }),
-    (r) => toast(`${stageOf(r.result.level).emoji} Level ${r.result.level}${stageOf(r.result.level).from === r.result.level && r.result.level > 1 ? ` · It's a ${stageOf(r.result.level).name} now!` : ''}`, false, E.up));
+    (r) => toast(`Growing to level ${r.result.level} · ${fmtLeft(Date.parse(r.result.readyAt) - serverNow())}`, false, stageOf(r.result.level).emoji));
   const doItem = (path, body, msg) => command(() => (body === null ? api('DELETE', path, undefined, { idem: newKey() }) : post(path, body)), () => msg && toast(msg, false, E.box));
   const doIcon = (id, icon) => command(() => post(`/v1/plants/${id}/icon`, { icon }), () => toast('New look', false, icon || stageOf(myPlants.get(id).level).emoji));
   const doSell = (id) => command(() => post(`/v1/plants/${id}/sell`, { location: fix() }), (r) => {
@@ -1507,6 +1514,10 @@
   const doClaimAll = () => command(() => post('/v1/territory/claim-all', { location: fix() }), (r) => {
     const n = r.result.count, left = r.result.left;
     toast(`Claimed ${n} hex${n === 1 ? '' : 'es'} for ${fmtNum(r.result.cost.credits || 0)} credits${left ? ` · ${left} more in reach` : ''}`, false, '🌱');
+  });
+  const doGrowAll = () => command(() => post('/v1/plants/upgrade-all', { location: fix() }), (r) => {
+    const n = r.result.count, left = r.result.left;
+    toast(`Growing ${n} plant${n === 1 ? '' : 's'} for ${fmtNum(r.result.cost.credits || 0)} credits${left ? ` · ${left} more need credits` : ''}`, false, '⏫');
   });
   const doBag = () => command(() => post('/v1/shop/bag', {}), (r) => toast(`Your bag holds ${r.result.slots} items now`, false, '🎒'));
 
@@ -1757,7 +1768,10 @@
     out.progress.label = stored >= 1 && !reachWhy ? 'Credits · tap the plant to collect' : 'Credits';
     if (stored >= 1 && credits() >= capacity()) out.tags.push({ tint: 'orange', icon: E.storage, text: 'Storage full: build or upgrade a Vault' });
     if (p.hp < p.maxHp) out.tags.push({ tint: p.wilted ? 'red' : 'orange', icon: p.wilted ? '🥀' : '❤️', text: `Health ${fmtNum(p.hp)} of ${fmtNum(p.maxHp)}` });
-    if (p.upgradeCost !== null) {
+    const growLeft = p.growTo && p.growEndsAt ? Math.max(0, Date.parse(p.growEndsAt) - serverNow()) : 0;
+    if (p.growTo && growLeft > 0) {
+      out.rows.push({ key: 'growing', kind: 'none', icon: E.timer, tint: 'green', title: `Growing to level ${p.growTo}`, sub: `Ready in ${fmtLeft(growLeft)}`, why: false, button: '', enabled: false });
+    } else if (p.upgradeCost !== null) {
       let cost10 = 0;
       for (let l = p.level; l < Math.min(cfg.plants.maxLevel, p.level + 10); l++) {
         const c = cfg.plants.upgradeCost;
@@ -2407,7 +2421,7 @@
   function onZoom() {
     const s = mapScale();
     // Emojis keep the same size on screen at every zoom; far out, the plants fade and the territory tint remains.
-    document.documentElement.classList.toggle('zoomed-out', s > MAP.fadeMpp);
+    void s; // emojis keep one size on screen at every zoom, and nothing hides when zoomed out
     scheduleGridSync();
   }
   function allBuildings() {
@@ -2474,11 +2488,13 @@
         tiles.set(id, t);
       }
       const p = w.p, full = w.own && plantStoredNow(p) >= p.capacity;
-      const key = `${p.emoji || stageOf(p.level).emoji}|${p.hp}|${p.maxHp}|${p.wilted}|${w.under}|${full}|${w.face}`;
+      const gl = p.growEndsAt ? Math.max(0, Date.parse(p.growEndsAt) - serverNow()) : 0;
+      const grow = p.growTo && gl > 0 ? fmtClock(gl) : '';
+      const key = `${p.emoji || stageOf(p.level).emoji}|${p.hp}|${p.maxHp}|${p.wilted}|${w.under}|${full}|${w.face}|${grow}`;
       if (t.key === key) continue;
       t.key = key;
       t.el.className = `tt${p.wilted ? ' wilted' : ''}${w.under ? ' under' : ''}`;
-      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${w.face ? `<span class="ow">${esc(w.face)}</span>` : ''}${full ? '<span class="full">🪙</span>' : ''}${hpHtml(p.hp, p.maxHp)}`;
+      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${w.face ? `<span class="ow">${esc(w.face)}</span>` : ''}${full ? '<span class="full">🪙</span>' : ''}${grow ? `<span class="grow">${grow}</span>` : ''}${hpHtml(p.hp, p.maxHp)}`;
     }
   }
 
@@ -2507,7 +2523,7 @@
   }
   /** The bot whose marker is under a tap, if any. */
   function botAt(lat, lng) {
-    if (!botPins.size || document.documentElement.classList.contains('zoomed-out')) return null;
+    if (!botPins.size) return null;
     const t = map.toPx({ lat, lng });
     let best = null, bestD = 26;
     for (const b of world.bots || []) {
@@ -2973,6 +2989,7 @@
 
   // ------------------------------------------------------------------ where you are: a large title over the map, once per area
   let cityAt = null;
+  const activeEvent = null; // { text } once events exist
   async function showCity() {
     if (!pos || (cityAt && distM(cityAt, pos) < 3000)) return;
     cityAt = { ...pos };
@@ -2984,9 +3001,11 @@
       if (!name) return;
       $('cityName').textContent = name;
       $('cityFace').textContent = avatarOf(me && me.player);
-      $('cityText').textContent = `Claim hexes to rule the city. To move, walk in real-world ${name}.`;
+      // The line under the title belongs to events (none yet): empty means hidden.
+      $('cityText').textContent = activeEvent ? activeEvent.text : '';
+      appEl.classList.add('intro');
       $('city').classList.add('show');
-      setTimeout(() => $('city').classList.remove('show'), 4200);
+      setTimeout(() => { $('city').classList.remove('show'); appEl.classList.remove('intro'); }, 3800);
     } catch (e) { /* no name, no title */ }
   }
 
@@ -3195,7 +3214,9 @@
     setText($('psLevel'), p.level);
     setText($('psSub'), `🪙 ${fmtNum(stored)}/${fmtNum(p.capacity)} (+${fmtNum(p.ratePerHour)}/h) · ${p.wilted ? '🥀' : '❤️'} ${fmtNum(p.hp)}/${fmtNum(p.maxHp)}`);
     let grow;
-    if (p.upgradeCost === null) grow = '<button class="btn gold" type="button" disabled>Fully Grown</button>';
+    const growLeft = p.growTo && p.growEndsAt ? Math.max(0, Date.parse(p.growEndsAt) - serverNow()) : 0;
+    if (p.growTo && growLeft > 0) grow = `<button class="btn gold" type="button" disabled>${E.timer} Level ${p.growTo} in ${fmtLeft(growLeft)}</button>`;
+    else if (p.upgradeCost === null) grow = '<button class="btn gold" type="button" disabled>Fully Grown</button>';
     else {
       const n = Math.min(10, cfg.plants.maxLevel - p.level), c10 = growCost(p, n);
       grow = `<button class="btn gold" type="button" data-grow="1"${reachWhy || credits() < p.upgradeCost ? ' disabled' : ''}>Grow 🪙 ${fmtNum(p.upgradeCost)}</button>` +
@@ -3633,12 +3654,14 @@
     if (!pop.hidden) { pop.hidden = true; return; }
     const cost = me ? me.territory.nextClaimCost.amount : 100;
     pop.innerHTML = (me && me.territory.count ? `<button type="button" class="cmd" data-cmd="claimall"><span class="emo">🌱</span><span><b>Claim All Land in Reach</b><small>${fmtNum(cost)} credits per hex · as much as you can pay</small></span></button>` : '') +
+      (me && (me.plants || []).length ? '<button type="button" class="cmd" data-cmd="growall"><span class="emo">⏫</span><span><b>Grow All Plants in Reach</b><small>One level each, cheapest first · as much as you can pay</small></span></button>' : '') +
       cfg.social.emotes.map((t, i) => `<button type="button" data-say="${i}">${esc(t)}</button>`).join('');
     pop.hidden = false;
   }
   $('talkBtn').addEventListener('click', openTalk);
   $('talkPop').addEventListener('click', async (e) => {
     if (e.target.closest('[data-cmd="claimall"]')) { $('talkPop').hidden = true; return doClaimAll(); }
+    if (e.target.closest('[data-cmd="growall"]')) { $('talkPop').hidden = true; return doGrowAll(); }
     const b = e.target.closest('[data-say]');
     if (!b) return;
     const text = cfg.social.emotes[+b.dataset.say];
@@ -4203,7 +4226,8 @@
       syncLocation(false);
       maybeReloadWorld();
       // Construction that just finished: the server settles it when asked.
-      if (me && me.buildings.some((b) => b.state !== 'active' && endsIn(b) <= 0) && Date.now() - meAt > 1500) { meAt = Date.now(); loadMe(); }
+      const grownUp = me && (me.plants || []).some((p) => p.growTo && Date.parse(p.growEndsAt) <= serverNow());
+      if (me && (grownUp || me.buildings.some((b) => b.state !== 'active' && endsIn(b) <= 0)) && Date.now() - meAt > 1500) { meAt = Date.now(); loadMe(); }
     }
     if (tickN % 120 === 0 && me) { loadMe(); showCity(); } // every 30 s
     if (tickN % 480 === 5 && me && started) loadMissions(); // every 2 min
