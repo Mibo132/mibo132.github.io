@@ -618,9 +618,9 @@
   .ov { position: absolute; left: 0; top: 0; }
   .hide-pins .pin { display: none; }
   #map { isolation: isolate; } /* keeps map-library layers (Leaflet uses z-index 400+) below the game UI */
-  /* no hairline seams between tiles at in-between zoom levels */
-  .leaflet-container img.leaflet-tile { image-rendering: auto; mix-blend-mode: normal; outline: 1px solid transparent; }
-  .leaflet-tile-container img.leaflet-tile { width: 256.6px !important; height: 256.6px !important; }
+  /* when zoomed far out, plants fade (territory tint, buildings, players and animals stay) */
+  .tt, .bot { transition: opacity .25s; }
+  .zoomed-out .tt, .zoomed-out .bot { opacity: 0; }
   .selring { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(52, 199, 89, .32); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25); pointer-events: none; transition: opacity .15s; }
   .selring[hidden] { display: block !important; opacity: 0; }
   .pin .sub { position: absolute; left: 6px; top: 3px; font: 13px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .4)); }
@@ -676,7 +676,7 @@
   .hide-pins .op .on { display: none; }
   /* Territory: each owned hex shows its owner's emoji. */
   .tt { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
-  .tt i { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; display: grid; place-items: center; font: 19px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
+  .tt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
   .tt.far i { opacity: .8; }
   .hide-pins .tt { display: none; }
   @media (prefers-reduced-motion: reduce) {
@@ -1923,7 +1923,7 @@
   // Apple Maps (MapKit JS) when the server can sign a MapKit token; Google Maps until then.
   // Camera and layers, tuned for ~9 m hexes (H3 res 13): the default view shows the 70 m reach circle.
   // mpp = meters per pixel. maxMpp limits zooming out: plants never overlap and your reach circle still fits the screen.
-  const MAP = { mpp: 0.26, maxMpp: 0.345, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 99, maxGridRings: 40, worldRings: 45 };
+  const MAP = { mpp: 0.5, maxMpp: 2.4, fadeMpp: 1.0, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 99, maxGridRings: 40, worldRings: 45 };
   const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
   // The map follows the system appearance, like Apple Maps.
   const dark = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
@@ -2191,9 +2191,9 @@
       zoomControl: false, attributionControl: true, preferCanvas: true, inertia: true,
     });
     m.attributionControl.setPrefix(false);
-    // Retina tiles (sharp on iPhone); no tile loading in the middle of a zoom (no flicker); a wide buffer while panning.
+    // No tile loading in the middle of a zoom (no flicker); a wide buffer while panning.
     L.tileLayer(cfg.map.tileUrlTemplate, {
-      attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: true,
+      attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: false,
       updateWhenZooming: false, updateWhenIdle: false, keepBuffer: 6,
     }).addTo(m);
     if (dark) el.classList.add('osm-dark');
@@ -2400,7 +2400,8 @@
   const pins = new Map(); // key -> pin
   function onZoom() {
     const s = mapScale();
-    void s; // emojis keep the same size on screen at every zoom (no --pz scaling, nothing hidden)
+    // Emojis keep the same size on screen at every zoom; far out, the plants fade and the territory tint remains.
+    document.documentElement.classList.toggle('zoomed-out', s > MAP.fadeMpp);
     scheduleGridSync();
   }
   function allBuildings() {
@@ -2500,7 +2501,7 @@
   }
   /** The bot whose marker is under a tap, if any. */
   function botAt(lat, lng) {
-    if (!botPins.size) return null;
+    if (!botPins.size || document.documentElement.classList.contains('zoomed-out')) return null;
     const t = map.toPx({ lat, lng });
     let best = null, bestD = 26;
     for (const b of world.bots || []) {
