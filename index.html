@@ -689,6 +689,64 @@
   .tt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
   .tt.far i { opacity: .8; }
   .hide-pins .tt { display: none; }
+
+  /* ---------------------------------------------------------------- live city: event, weather, transit and chest capsules */
+  .chiprow { display: flex; flex-wrap: wrap; gap: 6px; max-width: min(300px, calc(100vw - 170px)); pointer-events: none; }
+  .capsule.sm { height: 28px; padding: 0 11px 0 9px; gap: 5px; border-radius: 14px; font-size: 12px; }
+  .capsule.sm .emo { font-size: 13px; }
+  .capsule.sm:active { transform: scale(.96); }
+  .capsule .cpill { flex: none; height: 22px; margin-right: -8px; padding: 0 9px; border: 0; border-radius: 11px; background: var(--blue); color: #fff; font: 600 12px var(--round); font-variant-numeric: tabular-nums; }
+  .capsule .cpill:disabled { background: var(--fill); color: var(--label2); }
+  .capsule.chest { background: var(--yellow); color: #000; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .capsule.moving { padding-right: 11px; }
+  /* your companion, next to your avatar in the player bar */
+  .lv-comp { position: absolute; left: 44px; top: 46px; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 12px; background: var(--row); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); font: 15px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; pointer-events: none; }
+  /* landmarks on the map: one size at every zoom, never hidden */
+  .lm { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .lm .lme { position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 17px; background: rgba(255, 255, 255, .88);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .35), inset 0 0 0 2px #ffcc00; font: 20px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .lm.king .lme { box-shadow: 0 2px 6px rgba(0, 0, 0, .35), inset 0 0 0 2.5px #ff9500; }
+  @media (prefers-color-scheme: dark) { .lm .lme { background: rgba(44, 44, 46, .9); } }
+  /* daily streak: seven days */
+  .sdots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; padding: 2px 10px 14px; }
+  .sd { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+  .sd i { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 15px; background: var(--fill3); color: var(--label2); font: 700 13px/1 var(--round); font-style: normal; }
+  .sd.done i { background: var(--green); color: #fff; }
+  .sd.today i { background: var(--orange-t); color: var(--orange); box-shadow: inset 0 0 0 2px var(--orange); }
+  .sd.today.done i { background: var(--orange); color: #fff; box-shadow: none; }
+  .sd small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11px var(--round); color: var(--label2); }
+  .streak .row { padding-top: 12px; }
+  /* side war: two sides and a score bar */
+  .sides { padding: 14px 16px 16px; }
+  .sides-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sides-head .sd-side { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 17px; font-weight: 600; }
+  .sides-head .sd-side:last-child { flex-direction: row-reverse; text-align: right; }
+  .sides-head .sd-side b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .sides-head .emo { font-size: 26px; }
+  .sides-head .vs { flex: none; font: 700 13px var(--round); color: var(--label3); }
+  .sides-bar { display: flex; height: 10px; margin-top: 12px; border-radius: 5px; overflow: hidden; background: var(--fill); }
+  .sides-bar i { display: block; height: 100%; }
+  .sides-bar .a { background: var(--blue); } .sides-bar .b { background: var(--orange); }
+  .sides-sc { display: flex; justify-content: space-between; margin-top: 6px; font: 600 15px var(--round); font-variant-numeric: tabular-nums; }
+  .sides-sc span:first-child { color: var(--blue); } .sides-sc span:last-child { color: var(--orange); }
+  .sides p { margin: 10px 0 0; font-size: 15px; line-height: 20px; color: var(--label2); }
+  .sides p b { color: var(--label); font-weight: 600; }
+  .sides .btn { margin-top: 14px; }
+  /* crews */
+  .crew-hero { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 16px; text-align: center; }
+  .crew-hero .tile.xl { width: 88px; height: 88px; border-radius: 44px; font-size: 52px; }
+  .crew-hero h2 { margin: 8px 0 0; font-size: 24px; line-height: 29px; font-weight: 700; }
+  .crew-hero p { margin: 0; font-size: 15px; color: var(--label2); }
+  .codepill { margin-top: 8px; padding: 6px 14px; border: 0; border-radius: 16px; background: var(--blue-t); color: var(--blue); font: 600 15px var(--round); letter-spacing: 1px; }
+  .chipbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chipbtns button { padding: 9px 13px; border: 0; border-radius: 17px; background: var(--row); color: var(--label); font: 500 15px var(--font); }
+  .chipbtns button:active { background: var(--row-hi); }
+  .chipbtns button:disabled { color: var(--label3); }
+  .emo-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 2px; padding: 8px; }
+  .emo-pick button { height: 46px; border: 0; border-radius: 12px; background: none; font: 28px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .emo-pick button.on { background: var(--blue-t); box-shadow: inset 0 0 0 2px var(--blue); }
+  .row .role { flex: none; font-size: 13px; color: var(--label2); }
+  .mk-closed { opacity: .55; }
   @media (prefers-reduced-motion: reduce) {
     .sheet, .page, .banner, .alert, .stick { transition-duration: .01s !important; }
   }
@@ -702,6 +760,8 @@
       <div class="chips">
         <button class="capsule mglass" id="status" type="button"><span class="emo" id="statusEmo">⏳</span><span id="statusText" data-i18n>Loading…</span></button>
         <button class="capsule mglass keychip" id="keyChip" type="button" hidden><span class="emo" id="keyChipEmo">⚠️</span><span id="keyChipText" data-i18n>No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
+        <!-- Live city: today's events, the weather, transit mode and the ferry chest (small capsules). -->
+        <div class="chiprow" id="liveChips" hidden></div>
       </div>
       <!-- Compact stats, top right (bag, health, credits, hexes). -->
       <header class="stats mglass" id="hud" aria-label="Your resources">
@@ -732,6 +792,7 @@
   <section class="home" id="home" hidden>
     <button class="home-head" id="homeHead" type="button" aria-expanded="false">
       <span class="lv-av" id="lvAvatar"></span>
+      <span class="lv-comp" id="lvComp" hidden></span>
       <span class="lv-main">
         <span class="lv-name"><b id="lvName"></b><i class="lv-badge" id="lvBadge">1</i></span>
         <span class="lv-sub"><span id="lvSub"></span><span class="meterbar" aria-hidden="true"><i id="lvFill"></i></span></span>
@@ -747,6 +808,8 @@
       <div class="bigbtns" id="homeGo">
         <button class="btn" type="button" data-go="shop"><span class="bi">🛒</span><span data-i18n>Shop</span></button>
         <button class="btn" type="button" data-go="missions"><span class="bi">🏆</span><span data-i18n>Missions</span></button>
+        <button class="btn" type="button" data-go="today"><span class="bi">📅</span><span data-i18n>Today</span></button>
+        <button class="btn" type="button" data-go="crew"><span class="bi">👥</span><span data-i18n>Crew</span></button>
         <button class="btn" type="button" data-go="leaders"><span class="bi">🔍</span><span data-i18n>Area &amp; Rankings</span></button>
         <button class="btn" type="button" data-go="howto"><span class="bi">❓</span><span data-i18n>How to Play</span></button>
         <button class="btn" type="button" data-go="settings"><span class="bi">⚙️</span><span data-i18n>Settings</span></button>
@@ -869,7 +932,7 @@
       </header>
       <div class="page-body">
         <div class="feature" id="shopFeature"></div>
-        <div class="seg wide" id="shopSeg"><button type="button" data-seg="build" class="on" data-i18n>Buildings</button><button type="button" data-seg="bag" data-i18n>Bag &amp; Boosters</button></div>
+        <div class="seg wide" id="shopSeg"><button type="button" data-seg="build" class="on" data-i18n>Buildings</button><button type="button" data-seg="bag" data-i18n>Bag &amp; Boosters</button><button type="button" data-seg="market" data-i18n>Market</button></div>
         <div id="shopInv"></div>
         <div id="shopRows"></div>
         <div id="shopNext"></div>
@@ -888,7 +951,7 @@
   <div class="modal" id="leaders" hidden>
     <div class="scrim" data-close></div>
     <div class="page">
-      <nav class="nav"><span></span><div class="bigtabs" id="lbScope"><button type="button" data-scope="area" class="on" data-i18n>Area</button><button type="button" data-scope="world" data-i18n>World</button></div><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
+      <nav class="nav"><span></span><div class="bigtabs" id="lbScope"><button type="button" data-scope="area" class="on" data-i18n>Area</button><button type="button" data-scope="world" data-i18n>World</button><button type="button" data-scope="league" data-i18n>League</button></div><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
       <div class="lb-seg"><div class="seg wide" id="lbSeg"></div></div>
       <div class="page-body" id="leadersBody"></div>
     </div>
@@ -915,8 +978,16 @@
     <div class="scrim" data-close></div>
     <div class="page">
       <nav class="nav"><span></span><h3 data-i18n>🏆 Missions</h3><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
-      <div class="lb-seg"><div class="seg wide" id="msSeg"><button type="button" data-ms="daily" class="on" data-i18n>Daily</button><button type="button" data-ms="weekly" data-i18n>Weekly</button><button type="button" data-ms="levels" data-i18n>Levels</button></div></div>
+      <div class="lb-seg"><div class="seg wide" id="msSeg"><button type="button" data-ms="daily" class="on" data-i18n>Daily</button><button type="button" data-ms="weekly" data-i18n>Weekly</button><button type="button" data-ms="levels" data-i18n>Levels</button><button type="button" data-ms="today" data-i18n>Today</button></div></div>
       <div class="page-body" id="msBody"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="crew" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><span></span><h3 data-i18n>👥 Crew</h3><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
+      <div class="page-body" id="crewBody"></div>
     </div>
   </div>
 
@@ -974,7 +1045,7 @@
     <div class="page">
       <nav class="nav"><button class="nav-btn left" type="button" data-close data-i18n>Cancel</button><h3 data-i18n>Google Maps</h3><button class="nav-btn strong" id="keySave" type="button" data-i18n>Save</button></nav>
       <div class="page-body">
-        <p class="lead" data-i18n>The game uses Apple Maps when the server has an Apple Maps key. Until then it uses the free OpenStreetMap map. With your own Google Maps API key, this device uses Google Maps instead.</p>
+        <p class="lead" data-i18n>The game uses Google Maps. Without an API key Google marks the map “for development purposes only”; with your own key on this device the mark goes away.</p>
         <h4 class="sec-h" data-i18n>API Key</h4>
         <div class="group"><div class="row"><input class="field" id="keyInput" type="text" placeholder="AIza…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="API key"></div></div>
         <p class="sec-f" id="keyFoot"></p>
@@ -1032,6 +1103,8 @@
 
   const $ = (id) => document.getElementById(id);
   const appEl = $('app');
+  // The app is one fixed screen: never let the browser scroll it (e.g. to reveal a focused field).
+  appEl.addEventListener('scroll', () => { if (appEl.scrollTop || appEl.scrollLeft) appEl.scrollTo(0, 0); }, { passive: true });
   const topEl = $('top');
   const sheetEl = $('sheet');
   document.addEventListener('touchstart', () => {}, { passive: true }); // lets iOS Safari show :active (pressed) styles
@@ -1128,12 +1201,25 @@
   function errText(e) {
     if (!e) return '';
     const msg = e.message || '';
+    const rich = hasKey(ERR_RICH, e.code) ? ERR_RICH[e.code](e.details || {}) : '';
+    if (rich) return rich;
     if (!DICT) return msg;
     if (hasKey(DICT, msg)) return DICT[msg];
     const x = ERRS && hasKey(ERRS, e.code) ? ERRS[e.code] : null;
     if (typeof x === 'function') return x(e.details || {}) || msg;
     return x || msg;
   }
+  /** Errors whose text needs a number or a time from the details, in every language ('' = the usual text). */
+  const ERR_RICH = {
+    MARKET_CLOSED: (d) => (d.opensAt ? t('The market is closed. It opens {when}.', { when: fmtWhen(d.opensAt) }) : ''),
+    MARKET_SOLD_OUT: (d) => (d.perDay ? tn(d.perDay, 'Sold out for you today ({n} a day)', 'Sold out for you today ({n} a day)') : ''),
+    REMOTE_LIMIT: (d) => (d.perDay ? tn(d.perDay, 'You can harvest remotely {n} time a day', 'You can harvest remotely {n} times a day') : ''),
+    CHECKIN_COOLDOWN: (d) => (d.retryAfterSeconds ? t('You checked in here recently. Come back in {time}.', { time: fmtDur(d.retryAfterSeconds) }) : ''),
+    NUDGE_COOLDOWN: (d) => (d.retryAfterSeconds ? t('You just nudged your crew. Wait {time}.', { time: fmtDur(d.retryAfterSeconds) }) : ''),
+    GOAL_NOT_DONE: (d) => (d.goal ? t('Your crew has {a} of {b} credits this week. Keep collecting!', { a: fmtNum(d.progress || 0), b: fmtNum(d.goal) }) : ''),
+    CREW_FULL: (d) => (d.max ? t('This crew is full ({n} members)', { n: d.max }) : ''),
+    CLAIM_NOT_READY: (d) => (d.broken ? '' : d.claimableAt ? t('Ready again {when}', { when: fmtWhen(d.claimableAt) }) : ''),
+  };
 
   /*__LANGS_START__*/
   // Turkish. Informal "sen", like most games; game terms: hex = altıgen, credits = kredi,
@@ -1409,9 +1495,10 @@
       'With real GPS you can act on hexes within {n} m of where you are. Turn on simulated walking to test without moving.':
         'Gerçek GPS ile bulunduğun yerin {n} m çevresindeki altıgenlerde hamle yapabilirsin. Yerinden kalkmadan denemek için sanal yürüyüşü aç.',
       'Apple Maps, the same map as the iPhone app.': 'Apple Haritalar, iPhone uygulamasındakiyle aynı harita.',
-      'OpenStreetMap: free, no key needed. Apple Maps is used once the game server has an Apple Maps key; a Google Maps key on this device switches to Google.':
-        'OpenStreetMap: ücretsiz, anahtar gerekmez. Oyun sunucusunun Apple Haritalar anahtarı olunca Apple Haritalar kullanılır; bu cihazdaki bir Google Haritalar anahtarı Google’a geçirir.',
-      'Google Maps, with the key on this device, until the game server has an Apple Maps key.': 'Oyun sunucusunun Apple Haritalar anahtarı olana kadar bu cihazdaki anahtarla Google Haritalar.',
+      'OpenStreetMap, because Google Maps could not load here.': 'Google Haritalar burada yüklenemediği için OpenStreetMap.',
+      'OpenStreetMap, picked on this device.': 'OpenStreetMap, bu cihazda seçildi.',
+      'Google Maps, with the key on this device.': 'Bu cihazdaki anahtarla Google Haritalar.',
+      'Google Maps without an API key: Google marks it “for development purposes only” until a key is set.': 'API anahtarsız Google Haritalar: anahtar girilene kadar Google haritayı “yalnızca geliştirme amaçlı” diye işaretler.',
       'Hexes use H3 resolution {res}, about {n} m across.': 'Altıgenler H3 çözünürlüğü {res} kullanır, her biri yaklaşık {n} m genişliğinde.',
       'connected': 'bağlı', 'waking up': 'uyanıyor', 'unreachable': 'ulaşılamıyor',
       'Google rejected the current key for this website.': 'Google bu web sitesi için mevcut anahtarı reddetti.',
@@ -1430,8 +1517,8 @@
       'Your construction finishes and your Generators fill up as if the time had passed. Test builds only.': 'İnşaatların biter ve jeneratörlerin, o kadar zaman geçmiş gibi dolar. Yalnızca test sürümlerinde.',
       'Google Maps Key': 'Google Haritalar Anahtarı', 'Server': 'Sunucu', 'Game Server': 'Oyun Sunucusu', 'Delete Account': 'Hesabı Sil',
       'Deletes your commander, territory and buildings from the server. You start again as a new commander.': 'Komutanını, arazini ve binalarını sunucudan siler. Yeni bir komutan olarak baştan başlarsın.',
-      'The game uses Apple Maps when the server has an Apple Maps key. Until then it uses the free OpenStreetMap map. With your own Google Maps API key, this device uses Google Maps instead.':
-        'Sunucunun Apple Haritalar anahtarı varsa oyun Apple Haritalar’ı kullanır. O zamana kadar ücretsiz OpenStreetMap haritasını kullanır. Kendi Google Haritalar API anahtarınla bu cihaz Google Haritalar’a geçer.',
+      'The game uses Google Maps. Without an API key Google marks the map “for development purposes only”; with your own key on this device the mark goes away.':
+        'Oyun Google Haritalar’ı kullanır. API anahtarı olmadan Google haritayı “yalnızca geliştirme amaçlı” diye işaretler; bu cihaza kendi anahtarını girersen işaret kalkar.',
       'API Key': 'API Anahtarı', 'API key': 'API anahtarı', 'How to Get a Key': 'Anahtar Nasıl Alınır',
       'In Google Cloud Console, create a project and link a billing account.': 'Google Cloud Console’da bir proje oluştur ve bir faturalandırma hesabı bağla.',
       'Enable the <b>Maps JavaScript API</b> and create an API key.': '<b>Maps JavaScript API</b>’yi etkinleştir ve bir API anahtarı oluştur.',
@@ -1519,6 +1606,66 @@
       'Too many requests, slow down': 'Çok fazla istek, biraz yavaşla', 'Invalid request': 'Geçersiz istek', 'Building not found': 'Bina bulunamadı',
       'Apple Maps is not set up on this server yet': 'Apple Haritalar bu sunucuda henüz ayarlanmadı', 'Map tokens are only issued to the game website': 'Harita anahtarları yalnızca oyunun web sitesine verilir',
       'Invalid or expired access token': 'Oturumun geçersiz ya da süresi dolmuş', 'Missing access token': 'Oturum bulunamadı', 'Could not allocate a username': 'Kullanıcı adı atanamadı',
+      // ---- live city: events, weather, streak, market, transit (web workstream D)
+      'The market is closed. It opens {when}.': 'Pazar kapalı. {when} açılıyor.', 'You checked in here recently. Come back in {time}.': 'Buraya az önce uğradın. {time} sonra yine gel.',
+      'You just nudged your crew. Wait {time}.': 'Ekibini az önce dürttün. {time} bekle.', 'Your crew has {a} of {b} credits this week. Keep collecting!': 'Ekibin bu hafta {a} / {b} kredi topladı. Toplamaya devam!',
+      'This crew is full ({n} members)': 'Bu ekip dolu ({n} üye)', 'Ready again {when}': 'Yeniden hazır: {when}',
+      'today {time}': 'bugün {time}', 'tomorrow {time}': 'yarın {time}', '{day} {time}': '{day} {time}', '{date} {time}': '{date} {time}',
+      'Crew {name}': 'Ekip: {name}', 'Has a companion': 'Yanında bir dostu var', 'Daily Booster': 'Günlük Güçlendirici',
+      'Ready: a booster is waiting for you': 'Hazır: seni bir güçlendirici bekliyor', 'Next one {when}': 'Sıradaki: {when}', 'Claim': 'Al',
+      '{what} is in your bag': '{what} çantanda', 'The winners’ reward: {what}': 'Kazananların ödülü: {what}',
+      '{n}× credits when collecting': 'Toplarken {n} kat kredi', 'Plants grow {n}× as fast': 'Bitkiler {n} kat hızlı büyür', '{n}× as many animals': '{n} kat fazla hayvan',
+      '{name} appear': 'Ortaya çıkan: {name}', 'More {name} around': 'Etrafta daha çok hayvan: {name}', 'Luckier booster drops': 'Güçlendirici düşme şansı daha yüksek',
+      'Walking counts {n}×': 'Yürüyüş {n} kat sayılır', 'The market is open': 'Pazar açık', 'New plant look: {list}': 'Yeni bitki görünümü: {list}',
+      'While the weather lasts': 'Hava böyle kaldıkça', 'Until {time}': 'Bitiş: {time}', 'Until {when}': 'Bitiş: {when}', 'Starts {when}': 'Başlangıç: {when}', ' · until {time}': ' · bitiş {time}',
+      '+{n} event bonus': '+{n} etkinlik bonusu', '+{n} from your {emoji}': '{emoji} sayesinde +{n}', '+{n} more': '+{n} daha', '{n}°': '{n}°',
+      'On the move': 'Yoldasın', 'Harvest · {n}': 'Hasat · {n}', 'Ferry chest': 'Feribot sandığı', 'Event over': 'Etkinlik bitti', 'This event has ended.': 'Bu etkinlik sona erdi.',
+      'Time left': 'Kalan süre', 'Weather': 'Hava durumu', 'No weather report right now.': 'Şu an hava raporu yok.', '{n}° · wind {w} km/h': '{n}° · rüzgâr {w} km/sa',
+      'The weather changes the game: rain, snow and strong wind bring their own events. Updated every {n} min.': 'Hava oyunu değiştirir: yağmur, kar ve sert rüzgâr kendi etkinliklerini getirir. {n} dakikada bir güncellenir.',
+      'On the Move': 'Yoldasın', 'Only play as a passenger.': 'Yalnızca yolcuyken oyna.', 'Only while you travel': 'Yalnızca yolculuk sırasında', 'No remote harvests left today': 'Bugün uzaktan hasat hakkın kalmadı',
+      'Harvest Remotely': 'Uzaktan Hasat Et',
+      'While you ride a bus, a train or a boat you can collect from all your plants at once, from anywhere, {n} times a day. Actions on the map wait until you walk again.':
+        'Otobüste, trende ya da teknedeyken bütün bitkilerinden tek seferde, her yerden toplayabilirsin; günde {n} kez. Haritadaki hamleler yeniden yürüyene kadar bekler.',
+      'Ferry chest: {what}': 'Feribot sandığı: {what}', 'Day {n}: {what}': '{n}. gün: {what}', 'Come back tomorrow for day {n}.': '{n}. gün için yarın yine gel.',
+      'Play every day: the rewards grow for {n} days.': 'Her gün oyna: ödüller {n} gün boyunca büyür.', 'Now': 'Şimdi', 'Nothing special right now.': 'Şu an özel bir şey yok.',
+      'Coming Up': 'Yaklaşanlar', 'Nothing planned yet.': 'Henüz planlanmış bir şey yok.', 'Events in {city}. Times are in your local time.': '{city} etkinlikleri. Saatler senin yerel saatinle.',
+      'Events everywhere. Times are in your local time.': 'Her yerdeki etkinlikler. Saatler senin yerel saatinle.', 'Open now · closes {when}': 'Şimdi açık · kapanış {when}',
+      'Opens {when}': 'Açılış: {when}', 'Open now': 'Şimdi açık', 'Closed for now': 'Şimdilik kapalı', 'Sold out for today': 'Bugünlük tükendi', 'The market is closed': 'Pazar kapalı', 'Boosters': 'Güçlendiriciler',
+      'On market days you can buy a few boosters for credits. They go straight into your bag.': 'Pazar günlerinde kredinle birkaç güçlendirici alabilirsin. Doğrudan çantana gider.',
+      'Friendly · feed it and it keeps you company': 'Dost canlısı · besle, sana eşlik etsin', 'Walk closer to feed it': 'Beslemek için yaklaş', 'Feed · {coin} {n}': 'Besle · {coin} {n}',
+      'Your Companion': 'Yol Arkadaşın', 'With you for {time}': '{time} daha yanında',
+      'Fed animals keep you company for {h} h: +{pct} credits when you collect and luckier drops. Friendly animals can’t be shot.': 'Beslediğin hayvan {h} saat sana eşlik eder: toplarken +{pct} kredi ve daha şanslı düşüşler. Dost hayvanlara ateş edilmez.',
+      '{emoji} keeps you company now and brought you {what}!': '{emoji} artık sana eşlik ediyor ve sana bir hediye getirdi: {what}!', '{emoji} keeps you company for {h} h': '{emoji} {h} saat sana eşlik edecek',
+      'Landmark · {dist} away': 'Simge yapı · {dist} uzakta', '{dist} {dir} · check in within {n} m': '{dist} {dir} · uğramak için {n} m yakına gel', 'Walk closer: within {n} m': 'Yaklaş: {n} m içine gel',
+      'Next check-in in {time}': 'Sonraki uğrayış {time} sonra', 'Check In · +{n} credits': 'Uğra · +{n} kredi', '👑 {name}': '👑 {name}', 'No king yet': 'Henüz kral yok',
+      'Check in to take the crown.': 'Uğra ve tacı kap.', 'Your Points': 'Puanların', 'New Week': 'Yeni hafta',
+      'Check in once an hour for a point and {n} credits. Whoever has the most points this week is the king.': 'Saatte bir uğra: 1 puan ve {n} kredi kazan. Haftanın en çok puanlısı kral olur.',
+      'Checked in. You are the king of {name}!': 'Uğradın. Artık kral sensin: {name}!', 'Checked in: +{p} point, +{n} credits': 'Uğradın: +{p} puan, +{n} kredi',
+      'Your neighbourhood shows once the game knows where you are.': 'Oyun nerede olduğunu öğrenince mahallen görünür.', 'Not known yet. Try again in a minute.': 'Henüz bilinmiyor. Bir dakika sonra tekrar dene.',
+      'You are #{n} here with {h}.': 'Burada {h} ile {n}. sıradasın.', 'Claim a hex here to join this league.': 'Bu lige katılmak için burada bir altıgen sahiplen.',
+      'Ranked by the hexes each player owns in this neighbourhood. The leader wears its crown.': 'Bu mahallede her oyuncunun altıgenlerine göre sıralanır. Lider mahallenin tacını takar.',
+      'Ranked by the hexes each player owns in this district. The leader wears its crown.': 'Bu ilçede her oyuncunun altıgenlerine göre sıralanır. Lider ilçenin tacını takar.',
+      'Your Crowns': 'Tacların', 'Ends in {time}': '{time} sonra bitiyor', 'Next war {when}': 'Sıradaki savaş: {when}', 'Side War': 'Yaka Savaşı', 'vs': 'vs',
+      'The war is on!': 'Savaş başladı!', 'No war right now.': 'Şu an savaş yok.', 'Claim hexes during the war to score for your side.': 'Savaş sırasında altıgen sahiplen, yakana puan kazandır.',
+      'Last war: {emoji} {name} won': 'Son savaş: {emoji} {name} kazandı', 'Claim Your {rarity} Booster': '{rarity} Güçlendiricini Al', 'Reward claimed ✓': 'Ödül alındı ✓',
+      'On the last weekend of each month every hex claimed scores a point for its side of the city. Everyone who scored for the winning side gets a {rarity} booster.':
+        'Her ayın son hafta sonu sahiplenilen her altıgen, şehrin kendi yakasına bir puan kazandırır. Kazanan yakaya puan getiren herkes {rarity} bir güçlendirici alır.',
+      'Play as a Crew': 'Ekip Olarak Oyna', 'Collect {n} credits together each week and everyone gets a {rarity} booster.': 'Her hafta birlikte {n} kredi toplayın, herkes {rarity} bir güçlendirici kazansın.',
+      'Join a Crew': 'Bir Ekibe Katıl', 'Code from a friend': 'Arkadaşından gelen kod', 'Crew code': 'Ekip kodu', 'Join Crew': 'Ekibe Katıl', 'Start a Crew': 'Ekip Kur', 'Crew name': 'Ekip adı',
+      'Create Crew': 'Ekibi Kur', 'Up to {n} players. Share your crew’s code with friends so they can join.': 'En fazla {n} oyuncu. Arkadaşların katılsın diye ekip kodunu paylaş.',
+      'Code {code}': 'Kod {code}', 'This Week': 'Bu Hafta', 'Collect {n} credits together': 'Birlikte {n} kredi toplayın', '{a} of {b} · ends {when}': '{a} / {b} · bitiş {when}',
+      '{name} · {time} ago': '{name} · {time} önce', 'Someone': 'Biri', 'Nudge Your Crew': 'Ekibini Dürt', 'Members': 'Üyeler', 'Leader': 'Lider', 'Member': 'Üye',
+      'Credits each member collected this week count towards the goal.': 'Her üyenin bu hafta topladığı krediler hedefe sayılır.', 'Leave Crew': 'Ekipten Ayrıl',
+      'Type the code your friend shared': 'Arkadaşının paylaştığı kodu yaz', 'Welcome to {name}!': '{name} ekibine hoş geldin!', 'Give your crew a name (2 to 24 letters)': 'Ekibine bir ad ver (2 ile 24 harf)',
+      'Crew created. Share the code with friends!': 'Ekip kuruldu. Kodu arkadaşlarınla paylaş!', 'Code copied': 'Kod kopyalandı', 'Crew reward: {what}': 'Ekip ödülü: {what}',
+      'Nudge sent to your crew': 'Ekibine dürtme gönderildi', 'Leave {name}?': '{name} ekibinden ayrılıyor musun?', 'You can join again with the code.': 'Kodla yeniden katılabilirsin.', 'Leave': 'Ayrıl',
+      'You left the crew': 'Ekipten ayrıldın', 'Together': 'Birlikte', 'Companion': 'Yol arkadaşı', 'Crew': 'Ekip', '👥 Crew': '👥 Ekip', 'Your crew · code {code}': 'Ekibin · kod {code}',
+      'Play together with friends': 'Arkadaşlarınla birlikte oyna', "Today's Events": 'Bugünün Etkinlikleri', 'Today': 'Bugün', 'Market': 'Pazar', 'League': 'Lig',
+      'Neighbourhood': 'Mahalle', 'District': 'İlçe', 'Google Maps': 'Google Haritalar',
+      'Sold out for you today ({n} a day)': 'Bugünlük senin için tükendi (günde {n})', 'You can harvest remotely {n} times a day': 'Günde {n} kez uzaktan hasat edebilirsin',
+      '{n} remote harvests left today': 'Bugün {n} uzaktan hasat hakkın kaldı', 'Harvested {c} credits from {n} plants': '{n} bitkiden {c} kredi hasat ettin', 'Day {n} in a row': 'Üst üste {n}. gün',
+      '{n} left today': 'Bugün {n} kaldı', 'King of the week · {n} points': 'Haftanın kralı · {n} puan', '{n} points this week': 'Bu hafta {n} puan',
+      'Your side: {emoji} {name} · {n} points': 'Yakan: {emoji} {name} · {n} puan', '{n} members': '{n} üye',
     },
     // Server errors by code, for messages with numbers in them (and anything new): a text, or a function of the error's details.
     errors: {
@@ -1551,6 +1698,12 @@
       PLANT_GROWING: 'Bu bitki hâlâ büyüyor', ICON_LOCKED: (d) => (d.level ? `Önce bu bitkiyi seviye ${d.level} olana kadar büyüt` : 'Bu görünüm henüz kilitli'),
       MISSION_NOT_FOUND: 'Bu görev artık yok (süresi dolmuş olabilir)', MISSION_CLAIMED: 'Bu ödülü zaten aldın', MISSION_NOT_DONE: 'Önce görevi bitir',
       ORIGIN_NOT_ALLOWED: 'Harita anahtarları yalnızca oyunun web sitesine verilir', MAPKIT_NOT_CONFIGURED: 'Apple Haritalar bu sunucuda henüz ayarlanmadı',
+      MARKET_CLOSED: 'Pazar kapalı', MARKET_SOLD_OUT: 'Bugünlük senin için tükendi', STREAK_CLAIMED: 'Bugünün seri ödülünü zaten aldın. Yarın yine gel!',
+      REMOTE_LIMIT: 'Bugünkü uzaktan hasat hakların bitti', FERRY_NOT_READY: 'Önce feribotla karşıya geç', FERRY_CLAIMED: 'Bugünün feribot sandığını zaten açtın',
+      TARGET_FRIENDLY: 'Dost hayvanlara ateş edilmez. Onu besle!', ALREADY_FED: 'Bunu zaten besledin. Çok mutlu!', BUILDING_NOT_AVAILABLE: 'Bu bina burada satılmıyor',
+      CLAIM_NOT_READY: 'Henüz hazır değil. Yarın yine gel.', CHECKIN_COOLDOWN: 'Buraya az önce uğradın. Biraz sonra yine gel.', ALREADY_CLAIMED: 'Bu ödülü zaten aldın',
+      NOT_ELIGIBLE: 'Ödülü yalnızca kazanan yakaya puan getirenler alır', CREW_NOT_FOUND: 'Bu koda ait bir ekip yok', CREW_FULL: 'Bu ekip dolu',
+      ALREADY_IN_CREW: 'Önce ekibinden ayrıl', NOT_IN_CREW: 'Bir ekipte değilsin', GOAL_NOT_DONE: 'Ekibin bu haftanın hedefine henüz ulaşmadı', NUDGE_COOLDOWN: 'Ekibini az önce dürttün',
     },
   };
   /*__LANGS_END__*/
@@ -1607,7 +1760,6 @@
   }
   // Shown as "120 m northeast": a dictionary gives the form that fits there (Turkish: "kuzeydoğuda").
   const compass = (deg) => t(['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][Math.round(deg / 45) % 8]);
-  const SULTANAHMET = { lat: 41.0055, lng: 28.9768 };
 
   // ------------------------------------------------------------------ formatting
   function fmtDur(secs) {
@@ -1627,6 +1779,17 @@
     const s = Math.max(0, Math.ceil(ms / 1000));
     const mm = String(Math.floor((s % 3600) / 60)), ss = String(s % 60).padStart(2, '0');
     return s >= 3600 ? `${Math.floor(s / 3600)}:${mm.padStart(2, '0')}:${ss}` : `${mm}:${ss}`;
+  }
+  /** A clock time in the player's locale and time zone: "14:30". */
+  function fmtTime(iso) { return new Date(iso).toLocaleTimeString(LOCALE, { hour: 'numeric', minute: '2-digit' }); }
+  /** When something happens, in local time: "today 14:30", "tomorrow 10:00", "Sunday 10:00", "12 Oct 10:00". */
+  function fmtWhen(iso) {
+    const d = new Date(iso), now = new Date(serverNow()), time = fmtTime(iso);
+    const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5);
+    if (days === 0) return t('today {time}', { time });
+    if (days === 1) return t('tomorrow {time}', { time });
+    if (days > 1 && days < 7) return t('{day} {time}', { day: d.toLocaleDateString(LOCALE, { weekday: 'long' }), time });
+    return t('{date} {time}', { date: d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short' }), time });
   }
   const fmtDist = (m) => (m < 1000 ? t('{n} m', { n: Math.round(m) }) : t('{n} km', { n: NUM1.format(m / 1000) }));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1732,6 +1895,7 @@
   let mode = null; // 'gps' | 'sim'
   let pos = null; // where the player is (GPS or simulated)
   let selected = null, walkTarget = null, heading = 0, follow = true;
+  let panel = null; // the sheet shows something other than a hex or a target: () => its description
 
   const bdef = (type) => cfg.buildings[type];
   const bName = (type) => loc(bdef(type)) || type;
@@ -1740,7 +1904,7 @@
   const rateOf = (l) => (l && l.productionPerHour && l.productionPerHour.credits) || 0;
   const bufferOf = (l) => (l && l.bufferCapacity && l.bufferCapacity.credits) || 0;
   const storageOf = (l) => (l && l.storageCapacity && l.storageCapacity.credits) || 0;
-  const TINT_FOR = { hq: 'blue', generator: 'orange', storage: 'indigo', builder_hut: 'blue', mine: 'yellow', watchtower: 'teal', park: 'green' };
+  const TINT_FOR = { hq: 'blue', generator: 'orange', storage: 'indigo', builder_hut: 'blue', mine: 'yellow', watchtower: 'teal', park: 'green', tea_house: 'red', simit_stand: 'orange' };
   /** Each building's emoji comes from the server config (Apple's emoji on iPhone). */
   const emojiFor = (type) => (cfg && cfg.buildings[type] && cfg.buildings[type].emoji) || E.building;
 
@@ -2114,7 +2278,7 @@
   function afterLocalCollect() {
     refreshHud();
     syncTiles();
-    if (selected || target) renderSheet();
+    if (selected || target || panel) renderSheet();
   }
   /** Hold a plant 3 s: every plant in reach. */
   function collectAll() {
@@ -2151,6 +2315,8 @@
       if (cells) for (const id of cells) collectSent.delete(id);
       else collectSent.clear();
       if (r.state) setMe(r.state);
+      const extra = bonusText2(r.result);
+      if (extra) toast(extra, false, '✨');
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;
       collectSent.clear();
@@ -2360,6 +2526,7 @@
     const d = distM(pos, info.at), inRange = d <= me.combat.rangeMeters;
     out.title = info.name;
     out.tile = { icon: info.icon, tint: tg.kind === 'bot' ? 'orange' : 'blue' };
+    if (info.bot && info.bot.friendly) return describeFriend(out, info, d);
     if (tg.kind === 'bot') out.sub = t('Wild animal · drops a booster when defeated');
     else out.sub = info.player && info.player.level ? t('Level {n} commander', { n: info.player.level }) : t('Commander');
     if (info.maxHp) out.progress = { label: t('Health'), value: t('{a} of {b}', { a: fmtNum(info.hp), b: fmtNum(info.maxHp) }), frac: info.hp / info.maxHp, tint: info.hp / info.maxHp < 0.35 ? 'red' : 'green' };
@@ -2371,6 +2538,8 @@
     if (!why && me.combat.knockedOut) why = t('You are knocked out');
     if (!why && !me.player.showOnMap) why = t('Show yourself on the map to fight (Settings)');
     out.primary.push({ key: 'fire', kind: 'fire', target: tg, label: t('Fire'), icon: '🎯', why, enabled: !why, cls: 'fire' });
+    if (p && p.crew) out.tags.push({ tint: 'blue', icon: p.crew.emoji, text: t('Crew {name}', { name: p.crew.name }) });
+    if (p && p.companion) out.tags.push({ tint: 'green', icon: p.companion, text: t('Has a companion') });
     if (p) out.rows.push({ key: 'profile', kind: 'profile', owner: p.id, icon: avatarOf(p), tint: 'blue', title: t('View Profile'), sub: p.username, button: t('View'), enabled: true });
     out.note = tg.kind === 'bot'
       ? t('The further away, the harder to hit. Boosters like {scope} and {rapid} help.', { scope: boosterLabel('scope', '🎯 Scope'), rapid: boosterLabel('rapid', '🔥 Rapid Fire') })
@@ -2447,7 +2616,7 @@
           out.rows.push({ key: 'place-' + type, kind: 'place', type, icon: emojiFor(type), tint: TINT_FOR[type] || 'gray', title: t('Build {name} here', { name: loc(bd) }),
             sub: why || t('{n} ready · builds in {time} · the plant keeps growing', { n, time: fmtDur(l.buildSeconds) }), why: !!why, button: t('Build'), enabled: !why });
         }
-        const buyable = Object.entries(cfg.buildings).filter(([, x]) => x.buildable).map(([, x]) => loc(x));
+        const buyable = Object.entries(cfg.buildings).filter(([k, x]) => x.buildable && soldHere(k)).map(([, x]) => loc(x));
         out.rows.push({ key: 'shop', kind: 'shop', icon: E.shop, tint: 'blue', title: t('Buildings'),
           sub: LANG === 'en' ? 'Buy a Vault, Builder’s Hut, Watchtower or Park' : t('Buy a {list}', { list: buyable.join(', ') }), button: t('Shop'), enabled: true });
       } else {
@@ -2470,6 +2639,12 @@
           why = why || reachWhy;
           out.rows.unshift({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: emojiFor(b.type), tint: 'blue', title: t('{name} Level {n}', { name: loc(bd), n: b.level + 1 }),
             sub: why || `${t('{n} credits', { n: fmtNum(costOf(next)) })} · ${fmtDur(next.buildSeconds)} · ${effect(b.type, next)}`, why: !!why, button: t('Upgrade'), enabled: !why });
+        }
+        if (b.claimableAt) {
+          // A daily booster (the config's dailyItem, e.g. a food stand): claim it from anywhere once a day.
+          const ready = Date.parse(b.claimableAt) <= serverNow();
+          out.rows.unshift({ key: 'bclaim', kind: 'bclaim', icon: '🎁', tint: 'yellow', title: t('Daily Booster'),
+            sub: ready ? t('Ready: a booster is waiting for you') : t('Next one {when}', { when: fmtWhen(b.claimableAt) }), why: false, button: t('Claim'), enabled: ready, run: () => doBuildingClaim(b.id) });
         }
         out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: t('Move {name}', { name: loc(bd) }),
           sub: t('To another hex you own, within reach'), button: t('Move'), enabled: true });
@@ -2645,19 +2820,38 @@
       const q = new URLSearchParams({ v: 'weekly', loading: 'async', callback: '__cocMapsReady', language: LANG });
       if (gKey) q.set('key', gKey);
       loadScript(`https://maps.googleapis.com/maps/api/js?${q}`).catch(reject);
-      setTimeout(() => reject(new Error('Google Maps timed out')), 25000);
+      setTimeout(() => reject(new Error('Google Maps timed out')), 15000);
     });
     const { Map: GMap } = await google.maps.importLibrary('maps');
     const gm = google.maps;
     const zoomFor = (s, lat) => Math.log2((156543.03392 * Math.cos(lat * RAD)) / s);
+    // A clean, Apple-Maps-like look without a cloud map id: no business pins, no icons on roads and
+    // stations, soft land and water colors; a dark version with the system appearance.
+    const off = [{ visibility: 'off' }];
+    const clean = [
+      { featureType: 'poi', elementType: 'labels', stylers: off }, { featureType: 'poi.business', stylers: off },
+      { featureType: 'poi.medical', stylers: off }, { featureType: 'poi.school', elementType: 'geometry', stylers: off },
+      { featureType: 'transit', elementType: 'labels.icon', stylers: off }, { featureType: 'road', elementType: 'labels.icon', stylers: off },
+      { featureType: 'administrative.land_parcel', stylers: off }, { featureType: 'administrative.neighborhood', elementType: 'labels', stylers: off },
+    ];
+    const light = [
+      { elementType: 'geometry', stylers: [{ color: '#f5f3ee' }] }, { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#a7d4f5' }] },
+      { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#cfe8b8' }] }, { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+      { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#fbe3a6' }] }, { elementType: 'labels.text.fill', stylers: [{ color: '#6e6e73' }] },
+    ];
+    const darkStyle = [
+      { elementType: 'geometry', stylers: [{ color: '#242426' }] }, { elementType: 'labels.text.fill', stylers: [{ color: '#98989d' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#1c1c1e' }] }, { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#14324a' }] },
+      { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#23372a' }] }, { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#3a3a3c' }] },
+      { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#2c2c2e' }] }, { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#5a4a2a' }] },
+      { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f2f31' }] }, { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#48484a' }] },
+    ];
     const opts = {
-      center, zoom: Math.round(zoomFor(mpp, center.lat)), minZoom: 3, maxZoom: 21, disableDefaultUI: true, clickableIcons: false,
+      center, zoom: zoomFor(mpp, center.lat), minZoom: 3, maxZoom: 21, disableDefaultUI: true, clickableIcons: false,
       keyboardShortcuts: false, gestureHandling: 'greedy', headingInteractionEnabled: false, tiltInteractionEnabled: false,
+      isFractionalZoomEnabled: true, backgroundColor: dark ? '#242426' : '#f5f3ee', styles: [...(dark ? darkStyle : light), ...clean],
     };
-    if (gKey) {
-      opts.mapId = 'DEMO_MAP_ID';
-      if (gm.ColorScheme) opts.colorScheme = gm.ColorScheme.DARK;
-    } else {
+    if (!gKey) {
       // Without a key Google shows a dialog under our controls; the game explains the missing key itself.
       const mo = new MutationObserver(() => { const b = el.querySelector('.dismissButton'); if (b) b.click(); });
       mo.observe(el, { childList: true, subtree: true });
@@ -2729,7 +2923,8 @@
       addMarker(elm, p) {
         let ll = new gm.LatLng(p.lat, p.lng);
         const mk = {
-          place() { const proj = ov.getProjection(); const q = proj && proj.fromLatLngToDivPixel(ll); if (q) elm.style.transform = `translate(${q.x.toFixed(1)}px, ${q.y.toFixed(1)}px)`; },
+          // Exact (fractional) position, set in the overlay's draw(): the same frame the map moves its panes.
+          place() { const proj = ov.getProjection(); const q = proj && proj.fromLatLngToDivPixel(ll); if (q) elm.style.transform = `translate3d(${q.x}px,${q.y}px,0)`; },
           move(q) { ll = new gm.LatLng(q.lat, q.lng); mk.place(); },
           remove() { markers.delete(mk); elm.remove(); },
         };
@@ -2740,12 +2935,13 @@
         return mk;
       },
       attribution: 'Google Maps',
+      native: m,
     };
     return engine;
   }
   let gAuthFailed = false;
 
-  /** OpenStreetMap via Leaflet: free, no key. Used when the server has no Apple Maps key and no Google key is set. */
+  /** OpenStreetMap via Leaflet: free, no key. Used when Google Maps can't load, or when picked with ?map=osm. */
   async function osmEngine(el, center, mpp) {
     const V = '1.9.4', base = `https://cdnjs.cloudflare.com/ajax/libs/leaflet/${V}`;
     if (!document.querySelector('link[data-leaflet]')) {
@@ -2764,8 +2960,18 @@
       zoomControl: false, attributionControl: true, preferCanvas: true, inertia: true,
     });
     m.attributionControl.setPrefix(false);
-    // No tile loading in the middle of a zoom (no flicker); a wide buffer while panning.
-    L.tileLayer(cfg.map.tileUrlTemplate, {
+    // No tile loading in the middle of a zoom (no flicker); a wide buffer while panning. During a
+    // pinch Leaflet snaps the scaled tiles to whole pixels while shapes and pins move smoothly, which
+    // made everything on the map shake against the streets: keep the exact position instead.
+    const Tiles = L.TileLayer.extend({
+      _setZoomTransform(level, c, zoom) {
+        const scale = this._map.getZoomScale(zoom, level.zoom);
+        const translate = level.origin.multiplyBy(scale).subtract(this._map._getNewPixelOrigin(c, zoom));
+        if (L.Browser.any3d) L.DomUtil.setTransform(level.el, translate, scale);
+        else L.DomUtil.setPosition(level.el, translate);
+      },
+    });
+    new Tiles(cfg.map.tileUrlTemplate, {
       attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: false,
       updateWhenZooming: false, updateWhenIdle: false, keepBuffer: 6,
     }).addTo(m);
@@ -2781,6 +2987,28 @@
     const reach = L.circle([center.lat, center.lng], { radius: REACH, ...ls('reach'), renderer: rReach });
     const acc = L.circle([center.lat, center.lng], { radius: 1, ...ls('acc'), renderer: rReach });
     let reachShown = false, accShown = false;
+    // Markers: Leaflet's own markers snap to whole pixels on every frame of a pinch while the tiles
+    // and shapes scale smoothly, so emojis shook by up to a pixel. These pins keep the exact
+    // (fractional) position, follow zoom animations like the tiles, and are updated in the same
+    // 'zoom' event the tiles and shapes use.
+    const Pin = L.Layer.extend({
+      options: { pane: 'markerPane' },
+      initialize(el, ll, z) { this._el = el; this._ll = L.latLng(ll.lat, ll.lng); this._z = z; },
+      onAdd(map) {
+        const box = (this._box = document.createElement('div'));
+        box.className = `osm-mk${map._zoomAnimated ? ' leaflet-zoom-animated' : ''}`;
+        box.style.cssText = `position:absolute;left:0;top:0;z-index:${this._z * 100}`;
+        box.appendChild(this._el);
+        this.getPane().appendChild(box);
+        this._update();
+      },
+      onRemove() { this._box.remove(); },
+      getEvents() { return { zoom: this._update, viewreset: this._update, zoomanim: this._anim }; },
+      setLatLng(q) { this._ll = L.latLng(q.lat, q.lng); if (this._map) this._update(); return this; },
+      _put(pt) { this._box.style.transform = `translate3d(${pt.x}px,${pt.y}px,0)`; },
+      _update() { if (this._map) this._put(this._map.project(this._ll)._subtract(this._map.getPixelOrigin())); },
+      _anim(e) { this._put(this._map._latLngToNewLayerPoint(this._ll, e.zoom, e.center)); },
+    });
     const handlers = { tap: [], userMove: [], idle: [], zoom: [] };
     const fire = (k, ...a) => handlers[k].forEach((f) => f(...a));
     m.on('click', (e) => fire('tap', e.latlng.lat, e.latlng.lng));
@@ -2840,30 +3068,39 @@
         if (show !== accShown) { accShown = show; show ? acc.addTo(m) : acc.remove(); }
       },
       addMarker(elm, p, z) {
-        const icon = L.divIcon({ html: elm, className: 'osm-mk', iconSize: [0, 0], iconAnchor: [0, 0] });
-        const mk = L.marker([p.lat, p.lng], { icon, interactive: false, keyboard: false, zIndexOffset: (z || 0) * 1000 }).addTo(m);
-        return { move(q) { mk.setLatLng([q.lat, q.lng]); }, remove() { mk.remove(); } };
+        const mk = new Pin(elm, p, z || 0).addTo(m);
+        return { move(q) { mk.setLatLng(q); }, remove() { mk.remove(); } };
       },
       attribution: 'OpenStreetMap',
+      native: m,
     };
   }
 
+  // Which map: Google Maps by default (with or without a key; without one Google marks it "for
+  // development purposes only"). ?map=osm|apple|google picks one on this device (kept until changed,
+  // ?map=auto goes back to the default); tests use ?map=osm. OpenStreetMap is the fallback when
+  // Google can't load; Apple Maps only when picked (and the server has an Apple Maps key).
+  const MAP_STORE = 'coc.map';
+  const mapPref = (() => {
+    try {
+      const u = new URL(location.href), v = u.searchParams.get('map');
+      if (v !== null) {
+        lsSet(MAP_STORE, /^(osm|apple|google)$/.test(v) ? v : null);
+        u.searchParams.delete('map');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      }
+    } catch (e) { /* not a normal page URL */ }
+    const v = lsGet(MAP_STORE);
+    return /^(osm|apple|google)$/.test(v || '') ? v : 'google';
+  })();
   async function initMap(center) {
     const el = $('map');
-    try {
-      map = await appleEngine(el, center);
-    } catch (e) {
-      el.innerHTML = '';
-      // No Apple Maps key on the server: Google if this device has a Google key, else the free OpenStreetMap.
-      if (gKey) map = await googleEngine(el, center, MAP.mpp * 4);
-      else {
-        try {
-          map = await osmEngine(el, center, MAP.mpp * 4);
-        } catch (err) {
-          el.innerHTML = '';
-          map = await googleEngine(el, center, MAP.mpp * 4);
-        }
-      }
+    const tryEngine = async (make) => { try { return await make(); } catch (e) { el.innerHTML = ''; return null; } };
+    const osm = () => osmEngine(el, center, MAP.mpp * 4), google = () => googleEngine(el, center, MAP.mpp * 4);
+    if (mapPref === 'osm') map = (await tryEngine(osm)) || (await google());
+    else {
+      if (mapPref === 'apple') map = await tryEngine(() => appleEngine(el, center));
+      if (!map) map = (await tryEngine(google)) || (await osm());
     }
     map.on('tap', (lat, lng) => {
       if (!me || !pos || Date.now() - heldAt < 1200) return;
@@ -2874,6 +3111,8 @@
       if (bot) return selectTarget({ kind: 'bot', id: bot });
       const hit = playerAt(lat, lng);
       if (hit) return selectTarget({ kind: 'player', id: hit });
+      const lm = landmarkAt(lat, lng);
+      if (lm) return openLandmark(lm);
       select(id);
     });
     map.on('userMove', () => setFollow(false));
@@ -3065,7 +3304,7 @@
         pin = { el, handle: map.addMarker(el, { lat: b.center[0], lng: b.center[1] }, 4), key: '' };
         botPins.set(b.id, pin);
       }
-      const aimed = target && target.kind === 'bot' && target.id === b.id;
+      const aimed = target && target.kind === 'bot' && target.id === b.id && !b.friendly;
       const key = `${b.hp}|${aimed}`;
       if (pin.key !== key) {
         pin.key = key;
@@ -3259,6 +3498,10 @@
     const n = invTotal();
     $('invBadge').hidden = !n;
     $('invBadge').textContent = n;
+    const comp = alive(me.companion) ? me.companion.emoji : '';
+    $('lvComp').hidden = !comp;
+    setText($('lvComp'), comp);
+    missionsBadge();
     refreshLevelBar();
   }
   const setText = (el, v) => { v = String(v); if (el.textContent !== v) el.textContent = v; };
@@ -3332,7 +3575,7 @@
   $('homeGo').addEventListener('click', (e) => {
     const b = e.target.closest('[data-go]');
     if (!b || Date.now() - homeDragEnd < 300) return;
-    ({ shop: openShop, leaders: openLeaders, missions: openMissions, howto: () => openModal('howto'), settings: openSettings })[b.dataset.go]();
+    ({ shop: openShop, leaders: openLeaders, missions: openMissions, today: openToday, crew: openCrew, howto: () => openModal('howto'), settings: openSettings })[b.dataset.go]();
   });
   homeEl.addEventListener('wheel', (e) => { if (homeDetent === 1 && e.deltaY > 0) setHome(2); }, { passive: true });
   (() => {
@@ -3435,7 +3678,7 @@
           `${ctl}<button class="pill" type="button" data-discard="${it.id}" aria-label="${esc(t('Throw away'))}">🗑️</button></div>`;
       };
       html += `<h4 class="sec-h">${esc(t('Bag · {a} of {b}', { a: bag.used, b: bag.slots }))}</h4>`;
-      html += items.length ? `<div class="group">${items.map(row).join('')}</div>` : `<div class="group"><div class="row"><div class="row-main row-sub">${esc(t('Empty. Defeat animals on the map ({animals}) to find boosters.', { animals: '🐀 🦝 🐗 🐺 🐻 🐉' }))}</div></div></div>`;
+      html += items.length ? `<div class="group">${items.map(row).join('')}</div>` : `<div class="group"><div class="row"><div class="row-main row-sub">${esc(t('Empty. Defeat animals on the map ({animals}) to find boosters.', { animals: Object.values(cfg.bots.species).filter((x) => !x.friendly && !x.eventOnly).map((x) => x.emoji).join(' ') }))}</div></div></div>`;
       html += `<p class="sec-f">${esc(t('Turn on up to {max} player boosters at a time ({n} on). Plant boosters go into a plant: tap one of your plants.', { max: bag.maxActive, n: act.length }) + (bag.upgradeCost ? t(' A bigger bag is in the shop.') : ''))}</p>`;
       if (planted.length) {
         html += `<h4 class="sec-h">${t('In Your Plants')}</h4><div class="group">` + planted.map((it) => {
@@ -3468,6 +3711,7 @@
   });
   $('homeTab').addEventListener('click', (e) => {
     if (e.target.closest('[data-edit-profile]')) { setHome(false); return editProfile(false); }
+    if (e.target.closest('[data-open-crew]')) return openCrew();
     const d = e.target.closest('[data-discard]');
     if (!d) return;
     const it = itemsById.get(d.dataset.discard);
@@ -3495,7 +3739,8 @@
   }
   function updateKeyChip() {
     const chip = $('keyChip');
-    const show = map && map.kind === 'google' && (!gKey || gAuthFailed);
+    // Without a key Google's own mark says so; the chip only shows when Google rejects a key.
+    const show = map && map.kind === 'google' && gAuthFailed;
     chip.hidden = !show;
     $('keyChipEmo').textContent = gAuthFailed ? E.stop : E.warn;
     $('keyChipText').textContent = gAuthFailed ? t('Google Maps key rejected') : t('Map without API key');
@@ -3543,7 +3788,6 @@
 
   // ------------------------------------------------------------------ where you are: a large title over the map, once per area
   let cityAt = null;
-  const activeEvent = null; // { text } once events exist
   async function showCity() {
     if (!pos || (cityAt && distM(cityAt, pos) < 3000)) return;
     cityAt = { ...pos };
@@ -3555,8 +3799,9 @@
       if (!name) return;
       $('cityName').textContent = name;
       $('cityFace').textContent = avatarOf(me && me.player);
-      // The line under the title belongs to events (none yet): empty means hidden.
-      $('cityText').textContent = activeEvent ? activeEvent.text : '';
+      // The line under the title belongs to events: the first one on here (empty means hidden).
+      const activeEvent = activeEvents()[0];
+      $('cityText').textContent = activeEvent ? `${activeEvent.emoji} ${loc(activeEvent, 'text')}` : '';
       appEl.classList.add('intro');
       $('city').classList.add('show');
       setTimeout(() => { $('city').classList.remove('show'); appEl.classList.remove('intro'); }, 3800);
@@ -3567,8 +3812,9 @@
     refreshStatus();
     if (!me) return;
     refreshHud();
+    renderLiveChips();
     renderTips();
-    if (selected || target) renderSheet();
+    if (selected || target || panel) renderSheet();
     syncTiles();
     syncPins();
   }
@@ -3634,13 +3880,13 @@
   }
   const openSheetH = () => (sheetKind === 'plant' ? psVisible() : sheetEl.offsetHeight);
   function renderSheet() {
-    if ((!selected && !target) || !me || !pos) return;
+    if ((!selected && !target && !panel) || !me || !pos) return;
     if (sheetKind === 'plant') {
       if (selected && isPlainPlant(selected)) return renderPlantSheet();
       return select(selected); // built on, sold or gone: pick the right sheet again
     }
     if (selected && isPlainPlant(selected)) return select(selected); // just became yours: the compact sheet
-    const info = !selected && target ? describeTarget(target) : describe(selected);
+    const info = panel ? panel() : !selected && target ? describeTarget(target) : describe(selected);
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
     setTile($('sheetTile'), info.tile.icon, info.tile.tint, 'lg');
@@ -3662,6 +3908,7 @@
   }
   function onAction(a) {
     if (!a || !a.enabled) return;
+    if (a.run) return a.run();
     if (a.kind === 'fire') { target = a.target; return doShoot(a.target); }
     if (a.kind === 'profile') return openProfile(a.owner);
     if (!selected) return;
@@ -3716,6 +3963,7 @@
     if (b.state !== 'active' && left > 0) grow = `<button class="btn gold" type="button" disabled>${E.timer} ${esc(t('{time} left', { time: fmtLeft(left) }))}</button>`;
     else if (!next) grow = `<button class="btn gold" type="button" disabled>${t('Top Level')}</button>`;
     else grow = `<button class="btn gold" type="button" data-bup="${b.id}"${up && up.enabled ? '' : ' disabled'}>${t('Upgrade')} 🪙 ${fmtNum(costOf(next))}</button>`;
+    if (b.claimableAt && Date.parse(b.claimableAt) <= serverNow()) grow += `<button class="btn gold more" type="button" data-bclaim="${b.id}">🎁 ${esc(t('Claim'))}</button>`;
     if (grow !== psGrowKey) { psGrowKey = grow; $('psGrow').innerHTML = grow; }
     const upWhy = up && !up.enabled && up.sub !== reachWhy ? up.sub : null;
     setText($('psHint'), reachWhy ? `${E.walk} ${reachWhy}` : upWhy || (stored >= 1 ? t('Tap it on the map to collect') : psDetent ? '' : t('Swipe up for details')));
@@ -3837,6 +4085,8 @@
     if (b && !b.disabled && selected) return doGrow(selected, Number(b.dataset.grow));
     const u = e.target.closest('[data-bup]');
     if (u && !u.disabled) doUpgrade(u.dataset.bup);
+    const c = e.target.closest('[data-bclaim]');
+    if (c && !c.disabled) doBuildingClaim(c.dataset.bclaim);
   });
   $('psBody').addEventListener('click', (e) => {
     const r = e.target.closest('[data-row]');
@@ -3943,7 +4193,10 @@
   const infoBtn = (key) => `<button class="info" type="button" data-info="${esc(key)}" aria-label="${esc(t('Details'))}">?</button>`;
   const shopRow = (icon, tint, title, sub, right, extra = '') =>
     `<div class="row t card"><div class="tile lg tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${title}</div><div class="row-sub clamp">${esc(sub)}</div>${extra}</div>${right}</div>`;
-  const GRAD = { storage: 'orange', builder_hut: 'teal', park: 'green', watchtower: 'blue' };
+  const GRAD = { storage: 'orange', builder_hut: 'teal', park: 'green', watchtower: 'blue', tea_house: 'red', simit_stand: 'orange' };
+  /** The country you are in now (your city's, else your region's): some buildings are sold only in some countries. */
+  const countryHere = () => (me && ((me.city && me.city.country) || (me.region && me.region.country))) || null;
+  const soldHere = (type) => { const a = cfg.buildings[type] && cfg.buildings[type].availableIn; return !a || !a.length || a.includes(countryHere()); };
   function renderShop() {
     const hq = hqLevel(), bag = me.bag, inv = invTotal();
     $('shopLead').textContent = t('You have {coin} {a} of {b} · 🎒 {used}/{slots}', { coin: E.coin, a: fmtNum(credits()), b: fmtNum(capacity()), used: bag.used, slots: bag.slots });
@@ -3956,7 +4209,7 @@
         `${priceBtn('data-bag', bag.upgradeCost, credits() < bag.upgradeCost)}</div>`);
     }
     for (const [type, bd] of Object.entries(cfg.buildings)) {
-      if (!bd.buildable || buyBlock(type) || cards.length >= 4) continue;
+      if (!bd.buildable || !soldHere(type) || buyBlock(type) || cards.length >= 4) continue;
       const l = bd.levels[0];
       cards.push(`<div class="fcard g-${GRAD[type] || 'red'}"><div class="fbig">${emojiFor(type)}</div><small>${esc(catName(bd.category))}</small><b>${esc(loc(bd))}</b><p>${esc(cap1(effect(type, l)) || loc(bd, 'description'))}</p>` +
         `${priceBtn(`data-buy="${type}"`, costOf(l), false)}</div>`);
@@ -3970,7 +4223,7 @@
       for (const [cat, label] of CATEGORIES) {
         const rows = [];
         for (const [type, bd] of Object.entries(cfg.buildings)) {
-          if (!bd.buildable || bd.category !== cat) continue;
+          if (!bd.buildable || bd.category !== cat || !soldHere(type)) continue;
           const l = bd.levels[0], why = buyBlock(type), lim = me.limits[type] || { built: 0, max: 0 }, tint = TINT_FOR[type] || 'gray';
           const locked = l.requiredHq > hq;
           const count = locked ? t('Unlocks at HQ {n}', { n: l.requiredHq }) : t('{a} of {b} built', { a: lim.built + invOf(type), b: lim.max });
@@ -3985,6 +4238,9 @@
       }
       sections.push(`<p class="sec-f">${t('You pay when you buy. The building waits in your inventory; place it on one of your plants within reach and construction starts.')}</p>`);
       $('shopNext').innerHTML = nextHqUnlocks(hq);
+    } else if (shopSeg === 'market') {
+      sections.push(marketHtml());
+      $('shopNext').innerHTML = '';
     } else {
       sections.push(`<h4 class="sec-h">${t('Bag')}</h4><div class="group">` + shopRow('🎒', 'indigo', `${t('Bigger Bag')} <small>${esc(t('{n} slots', { n: bag.slots }))}</small>`,
         bag.upgradeCost ? t('{a} → {b} slots for boosters.', { a: bag.slots, b: bag.slots + cfg.items.bag.slotsPerUpgrade }) : t('Your bag is as big as it gets.'),
@@ -4019,7 +4275,7 @@
     const row = (icon, tint, title, sub) => rows.push(`<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div>${sub ? `<div class="row-sub">${esc(sub)}</div>` : ''}</div></div>`);
     if (nx.builders > cur.builders) row(E.builder, 'orange', tn(nx.builders, '{n} builder', '{n} builders'), t('now {n}', { n: cur.builders }));
     for (const [type, bd] of Object.entries(cfg.buildings)) {
-      if (!bd.buildable) continue;
+      if (!bd.buildable || !soldHere(type)) continue;
       const a = cur.buildingLimits[type] || 0, b = nx.buildingLimits[type] || 0;
       const newLevels = bd.levels.filter((l) => l.requiredHq === hq + 1).map((l) => l.level);
       const parts = [];
@@ -4037,11 +4293,16 @@
     openModal('shop');
   }
   $('shopBtn').addEventListener('click', openShop);
-  $('shopSeg').addEventListener('click', (e) => { const b = e.target.closest('[data-seg]'); if (b) { shopSeg = b.dataset.seg; renderShop(); } });
+  $('shopSeg').addEventListener('click', (e) => { const b = e.target.closest('[data-seg]'); if (b) { shopSeg = b.dataset.seg; renderShop(); if (shopSeg === 'market') loadMarket(false); } });
   $('shop').addEventListener('click', async (e) => {
     const info = e.target.closest('[data-info]');
     if (info) return shopInfo(info.dataset.info);
     if (e.target.closest('[data-bag]') && !e.target.closest('[data-bag]').disabled) { await doBag(); return renderShop(); }
+    const mb = e.target.closest('[data-mbuy]');
+    if (mb && !mb.disabled) {
+      await command(() => post(`/v1/market/${mb.dataset.mbuy}/buy`, {}), (r) => toast(t('{what} is in your bag', { what: itemToast(r.result.item) }), false, '🧺'));
+      return loadMarket(true);
+    }
     const buy = e.target.closest('[data-buy]'), put = e.target.closest('[data-place]');
     if (buy && !buy.disabled) {
       await doBuy(buy.dataset.buy);
@@ -4073,6 +4334,7 @@
   function selectTarget(t) {
     if (placing) stopPlacing();
     selected = null;
+    panel = null;
     target = t;
     selRing(null);
     sheetKind = 'hex';
@@ -4083,8 +4345,27 @@
     layoutControls();
     syncBots(); syncPlayers();
   }
+  /** Opens the sheet with anything that isn't a hex or a target (a landmark, an event, …): `fn` describes it
+   *  like describe() does, and runs again whenever the sheet refreshes. The map never moves for it. */
+  function openPanel(fn) {
+    if (placing) stopPlacing();
+    const had = target;
+    selected = null;
+    target = null;
+    if (had) { syncBots(); syncPlayers(); }
+    panel = fn;
+    selRing(null);
+    sheetKind = 'hex';
+    psEl.classList.add('off');
+    if (homeDetent) setHome(false);
+    renderSheet();
+    sheetOpen = true;
+    sheetEl.classList.remove('off');
+    layoutControls();
+  }
   function select(id) {
     if (id && placing) stopPlacing();
+    panel = null;
     selected = id || null;
     if (id || !selected) { const had = target; target = null; if (had) { syncBots(); syncPlayers(); } }
     if (!selected) {
@@ -4279,6 +4560,7 @@
     return head +
       `<div class="kpis"><div><b>${p.level || 1}</b><span>${t('Level')}</span></div><div><b>${fmtNum(p.score)}</b><span>${t('Score')}</span></div><div><b>${p.rank ? `#${p.rank}` : '–'}</b><span>${t('Rank')}</span></div></div>` +
       `<h4 class="sec-h">${t('Empire')}</h4><div class="group">${row('🌱', 'green', t('Plants'), tn(p.territory, '{n} hex', '{n} hexes'))}${buildings.join('')}</div>` +
+      (mine && embedded ? myExtrasHtml() : '') +
       `<h4 class="sec-h">${t('Stats')}</h4><div class="group">` +
       row(E.walk, 'blue', t('Distance Walked'), fmtDist(s.distanceMeters)) +
       row(E.flag, 'green', t('Hexes Claimed'), fmtNum(s.hexesClaimed)) +
@@ -4345,7 +4627,7 @@
   }
   function missionsBadge() {
     const d = msState.data;
-    const n = d ? ['daily', 'weekly', 'levels'].reduce((s, k) => s + d[k].missions.filter((m) => m.done && !m.claimed).length, 0) : 0;
+    const n = (d ? ['daily', 'weekly', 'levels'].reduce((s, k) => s + d[k].missions.filter((m) => m.done && !m.claimed).length, 0) : 0) + (me && me.streak && !me.streak.claimedToday ? 1 : 0);
     $('msBadge').hidden = !n;
     $('msBadge').textContent = n;
   }
@@ -4360,6 +4642,11 @@
   function renderMissions() {
     for (const b of $('msSeg').children) b.classList.toggle('on', b.dataset.ms === msState.tab);
     const d = msState.data, body = $('msBody');
+    if (msState.tab === 'today') {
+      body.innerHTML = todayHtml();
+      if (!live.events || Date.now() - live.eventsAt > 60000) loadEvents().then(() => { if (msState.tab === 'today' && !$('missions').hidden) body.innerHTML = todayHtml(); });
+      return;
+    }
     if (!d) { body.innerHTML = `<p class="loading">${t('Loading…')}</p>`; return; }
     const part = d[msState.tab];
     const rows = part.missions.map((m) => {
@@ -4371,7 +4658,8 @@
         `<div class="bar ${m.done ? 'green' : 'blue'}"><i style="width:${(frac * 100).toFixed(1)}%"></i></div></div>${btn}</div>`;
     });
     const firstItem = (part.missions.find((m) => m.reward.item) || {}).target;
-    let html = msState.tab === 'levels' ? `<p class="lead">${esc(firstItem ? t('You are level {n}. Every level brings credits, and level {k} and every {k}th after it a booster.', { n: part.level, k: firstItem }) : t('You are level {n}. Every level brings credits.', { n: part.level }))}</p>` : '';
+    let html = msState.tab === 'daily' ? streakCard() : '';
+    html += msState.tab === 'levels' ? `<p class="lead">${esc(firstItem ? t('You are level {n}. Every level brings credits, and level {k} and every {k}th after it a booster.', { n: part.level, k: firstItem }) : t('You are level {n}. Every level brings credits.', { n: part.level }))}</p>` : '';
     html += `<div class="group" style="margin-top:8px">${rows.join('')}</div>`;
     if (part.endsAt) {
       html += `<div class="ms-timer"><b>${msState.tab === 'daily' ? t('Missions end in') : t('Weekly missions end in')}<br>${fmtLeft(Date.parse(part.endsAt) - serverNow())}</b>` +
@@ -4387,6 +4675,7 @@
   }
   $('msSeg').addEventListener('click', (e) => { const b = e.target.closest('[data-ms]'); if (b) { msState.tab = b.dataset.ms; renderMissions(); } });
   $('msBody').addEventListener('click', (e) => {
+    if (e.target.closest('[data-streak]')) return doStreak();
     const b = e.target.closest('[data-claim]');
     if (!b || b.disabled) return;
     const kind = msState.tab, id = b.dataset.claim;
@@ -4403,7 +4692,7 @@
 
   // ------------------------------------------------------------------ UI: the Area page (who plays around you) and the rankings
   const lb = { scope: 'area', view: 'overview', area: null, areaAt: 0, world: {}, seq: 0 };
-  const LB_VIEWS = { area: [['overview', 'Overview'], ['hexes', 'By Area'], ['level', 'By Level']], world: [['hexes', 'By Area'], ['level', 'By Level']] }; // English keys, shown through t()
+  const LB_VIEWS = { area: [['overview', 'Overview'], ['hexes', 'By Area'], ['level', 'By Level']], world: [['hexes', 'By Area'], ['level', 'By Level']], league: [['neighbourhood', 'Neighbourhood'], ['district', 'District']] }; // English keys, shown through t()
   const plantOf = (level) => stageOf(Math.max(1, level || 1)).emoji;
   /** A ranking row: the tinted bar behind it shows the value against the leader's. */
   function lbRow(e, view, top) {
@@ -4457,11 +4746,12 @@
     for (const b of $('lbScope').children) b.classList.toggle('on', b.dataset.scope === lb.scope);
     $('lbSeg').innerHTML = views.map(([k, label]) => `<button type="button" data-view="${k}"${k === lb.view ? ' class="on"' : ''}>${t(label)}</button>`).join('');
     const body = $('leadersBody');
+    if (lb.scope === 'league') { body.innerHTML = leagueHtml(lb.view); return; }
     if (lb.scope === 'area') {
       const a = lb.area;
       if (!a) { body.innerHTML = `<p class="loading">${t('Loading…')}</p>`; return; }
       if (!a.located) { body.innerHTML = `<p class="loading">${E.here} ${t('Your area shows once the game knows where you are.')}</p>`; return; }
-      if (lb.view === 'overview') body.innerHTML = areaOverview(a);
+      if (lb.view === 'overview') body.innerHTML = sidesHtml() + areaOverview(a);
       else {
         const list = lb.view === 'hexes' ? a.byHexes : a.byLevel, m = a.me;
         const you = m ? t('You are #{n} in your area.', { n: lb.view === 'hexes' ? m.rankHexes : m.rankLevel }) : t('Claim a hex to join the ranking here.');
@@ -4478,8 +4768,16 @@
     const seq = ++lb.seq, scope = lb.scope, view = lb.view;
     renderLeaders();
     try {
-      if (scope === 'area') {
+      if (scope === 'league') {
+        if (!live.leagues || Date.now() - live.leaguesAt > 30000) { const g = await api('GET', '/v1/leagues'); if (seq !== lb.seq) return; live.leagues = g; live.leaguesAt = Date.now(); }
+      } else if (scope === 'area') {
         if (!lb.area || Date.now() - lb.areaAt > 20000) { const a = await api('GET', '/v1/area'); if (seq !== lb.seq) return; lb.area = a; lb.areaAt = Date.now(); }
+        if (view === 'overview' && me && me.city && (!live.sides || Date.now() - live.sidesAt > 30000)) {
+          // The side war of the city you are in (the card shows only when that city has sides).
+          const sd = await api('GET', `/v1/sides?city=${encodeURIComponent(me.city.id)}`).catch(() => null);
+          if (seq !== lb.seq) return;
+          if (sd) { live.sides = sd; live.sidesAt = Date.now(); }
+        }
       } else if (!lb.world[view] || Date.now() - lb.world[view].at > 20000) {
         const w = await api('GET', `/v1/leaderboard?limit=50&sort=${view === 'hexes' ? 'hexes' : 'score'}`);
         if (seq !== lb.seq) return;
@@ -4502,9 +4800,481 @@
   // Your own profile lives in the home sheet (same surface as your player bar).
   $('profileBack').addEventListener('click', openLeaders);
   $('leadersBody').addEventListener('click', (e) => {
+    const sc = e.target.closest('[data-sides-claim]');
+    if (sc) {
+      return command(() => post('/v1/sides/claim', { city: live.sides.city }), (r) => {
+        toast(t('The winners’ reward: {what}', { what: itemToast(r.result.item) }), false, '🏆');
+        live.sidesAt = 0;
+        loadLeaders();
+      });
+    }
     const r = e.target.closest('[data-player]');
     if (r) openProfile(r.dataset.player, true);
   });
+
+  // ------------------------------------------------------------------ live city: events, weather, streak, market, transit
+  // Everything here comes from the config and the server for whatever city (or none) you are in.
+  const live = { events: null, eventsAt: 0, eventsPos: null, market: null, marketAt: 0, landmarks: null, landmarksAt: 0, leagues: null, leaguesAt: 0,
+    sides: null, sidesAt: 0, crew: null, crewAt: 0, crewDraft: { name: '', emoji: '', code: '' } };
+  const blankOut = () => ({ title: '', sub: '', tile: { icon: '❔', tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' });
+  const alive = (c) => !!(c && c.until && Date.parse(c.until) > serverNow());
+  /** Events on right now where you are (from your state; an event that just ended drops out at once). */
+  function activeEvents() {
+    const now = serverNow();
+    return ((me && me.activeEvents) || []).filter((e) => !e.endsAt || Date.parse(e.endsAt) > now);
+  }
+  async function loadEvents() {
+    if (!pos || loadEvents.busy) return;
+    loadEvents.busy = true;
+    try {
+      live.events = await api('GET', `/v1/events?lat=${pos.lat.toFixed(5)}&lng=${pos.lng.toFixed(5)}`);
+      live.eventsAt = Date.now();
+      live.eventsPos = { ...pos };
+    } catch (e) { /* next time */ } finally {
+      loadEvents.busy = false;
+    }
+  }
+  /** What an event changes, in plain words, each with an emoji. */
+  function modifierTexts(m) {
+    const out = [];
+    if (!m) return out;
+    const sp = (id) => cfg.bots.species[id], x = (n) => NUM.format(n);
+    if (m.collectMultiplier > 1) out.push({ icon: E.coin, text: t('{n}× credits when collecting', { n: x(m.collectMultiplier) }) });
+    if (m.growSpeed > 1) out.push({ icon: '🌱', text: t('Plants grow {n}× as fast', { n: x(m.growSpeed) }) });
+    if (m.botMultiplier > 1) out.push({ icon: '🐾', text: t('{n}× as many animals', { n: x(m.botMultiplier) }) });
+    for (const id of m.botSpecies || []) if (sp(id)) out.push({ icon: sp(id).emoji, text: t('{name} appear', { name: loc(sp(id)) }) });
+    for (const [id, w] of Object.entries(m.botWeights || {})) if (w > 1 && sp(id)) out.push({ icon: sp(id).emoji, text: t('More {name} around', { name: loc(sp(id)) }) });
+    if (m.dropLuck > 1) out.push({ icon: '🎁', text: t('Luckier booster drops') });
+    if (m.distanceMultiplier > 1) out.push({ icon: E.walk, text: t('Walking counts {n}×', { n: x(m.distanceMultiplier) }) });
+    if (m.market) out.push({ icon: '🧺', text: t('The market is open') });
+    if (m.unlockIcons && m.unlockIcons.length) out.push({ icon: m.unlockIcons[0], text: t('New plant look: {list}', { list: m.unlockIcons.join(' ') }) });
+    return out;
+  }
+  const sameDay = (iso) => new Date(iso).toDateString() === new Date(serverNow()).toDateString();
+  const untilText = (ev) => (!ev.endsAt ? t('While the weather lasts') : sameDay(ev.endsAt) ? t('Until {time}', { time: fmtTime(ev.endsAt) }) : t('Until {when}', { when: fmtWhen(ev.endsAt) }));
+  const startsText = (ev) => t('Starts {when}', { when: fmtWhen(ev.startsAt) }) + (ev.endsAt ? t(' · until {time}', { time: sameDay(ev.endsAt) || new Date(ev.endsAt).toDateString() === new Date(ev.startsAt).toDateString() ? fmtTime(ev.endsAt) : fmtWhen(ev.endsAt) }) : '');
+  /** The extra credits a collection brought: an event's bonus and your companion's. */
+  function collectBonusText(res) {
+    const out = [], b = res && res.bonus && res.bonus.credits;
+    if (b > 0) out.push(t('+{n} event bonus', { n: fmtNum(b) }));
+    if (res && res.companionBonus > 0) out.push(t('+{n} from your {emoji}', { n: fmtNum(res.companionBonus), emoji: (me && me.companion && me.companion.emoji) || '🐾' }));
+    return out.join(' · ');
+  }
+  const bonusText2 = collectBonusText;
+  const itemToast = (it) => t('{emoji} {rarity} {name}', { emoji: itemType(it).emoji, rarity: rarityName(it.rarity), name: itemName(it) });
+  const rewardToast = (credits, it) => [credits ? t('+{n} credits', { n: fmtNum(credits) }) : '', it ? itemToast(it) : ''].filter(Boolean).join(t(' and '));
+
+  // Small capsules under the status: today's events, the weather, transit mode and the ferry chest.
+  let chipsKey = '';
+  function renderLiveChips() {
+    const box = $('liveChips');
+    if (!started || !me) { box.hidden = true; return; }
+    const evs = activeEvents(), w = live.events && live.events.weather, tr = me.transit || {};
+    const parts = evs.slice(0, 2).map((ev) => `<button class="capsule sm mglass" type="button" data-ev="${esc(ev.id)}"><span class="emo">${esc(ev.emoji)}</span><span>${esc(loc(ev, 'title'))}</span></button>`);
+    if (evs.length > 2) parts.push(`<button class="capsule sm mglass" type="button" data-more><span>${esc(t('+{n} more', { n: evs.length - 2 }))}</span></button>`);
+    if (w) parts.push(`<button class="capsule sm mglass" type="button" data-weather aria-label="${esc(loc(w, 'label'))}"><span class="emo">${esc(w.emoji)}</span><span>${esc(t('{n}°', { n: Math.round(w.tempC) }))}</span></button>`);
+    if (tr.moving) {
+      parts.push(`<div class="capsule sm mglass moving" data-transit role="button"><span class="emo">🚆</span><span>${esc(t('On the move'))}</span>` +
+        `<button class="cpill" type="button" data-remote${tr.remoteLeft > 0 ? '' : ' disabled'}>${esc(t('Harvest · {n}', { n: tr.remoteLeft }))}</button></div>`);
+    }
+    if (tr.ferry && tr.ferry.pending) parts.push(`<button class="capsule sm chest" type="button" data-ferry><span class="emo">🎁</span><span>${esc(t('Ferry chest'))}</span></button>`);
+    const key = parts.join('');
+    if (key !== chipsKey) { chipsKey = key; box.innerHTML = key; }
+    box.hidden = !parts.length;
+  }
+  $('liveChips').addEventListener('click', (e) => {
+    const r = e.target.closest('[data-remote]');
+    if (r) { if (!r.disabled) doRemote(); return; }
+    const ev = e.target.closest('[data-ev]');
+    if (ev) return openEvent(ev.dataset.ev);
+    if (e.target.closest('[data-more]')) return openToday();
+    if (e.target.closest('[data-weather]')) return openWeather();
+    if (e.target.closest('[data-transit]')) return openTransit();
+    if (e.target.closest('[data-ferry]')) return doFerry();
+  });
+  const todayBtn = () => ({ key: 'today', label: t("Today's Events"), icon: '📅', enabled: true, cls: 'tinted', run: openToday });
+  function openEvent(id) {
+    openPanel(() => {
+      const all = [...activeEvents(), ...((live.events && live.events.upcoming) || [])], ev = all.find((x) => x.id === id), out = blankOut();
+      if (!ev) { out.title = t('Event over'); out.sub = t('This event has ended.'); out.primary.push(todayBtn()); return out; }
+      const on = Date.parse(ev.startsAt) <= serverNow();
+      out.title = loc(ev, 'title');
+      out.sub = on ? untilText(ev) : startsText(ev);
+      out.tile = { icon: ev.emoji, tint: on ? 'orange' : 'gray' };
+      out.tags = modifierTexts(ev.modifiers || (live.events && (live.events.active.find((x) => x.id === id) || {}).modifiers)).map((m) => ({ tint: 'orange', icon: m.icon, text: m.text }));
+      if (on && ev.endsAt) {
+        const a = Date.parse(ev.startsAt), b = Date.parse(ev.endsAt);
+        out.progress = { label: t('Time left'), value: fmtLeft(b - serverNow()), frac: 1 - (serverNow() - a) / Math.max(1, b - a), tint: 'orange' };
+      }
+      out.note = loc(ev, 'text');
+      out.primary.push(todayBtn());
+      return out;
+    });
+  }
+  function openWeather() {
+    openPanel(() => {
+      const w = live.events && live.events.weather, out = blankOut();
+      if (!w) { out.title = t('Weather'); out.sub = t('No weather report right now.'); return out; }
+      const city = live.events.city;
+      out.title = loc(w, 'label');
+      out.sub = t('{n}° · wind {w} km/h', { n: Math.round(w.tempC), w: Math.round(w.windKmh) }) + (city ? ` · ${loc(city)}` : '');
+      out.tile = { icon: w.emoji, tint: 'teal' };
+      for (const ev of activeEvents().filter((x) => !x.endsAt)) {
+        out.rows.push({ key: ev.id, icon: ev.emoji, tint: 'orange', title: loc(ev, 'title'), sub: modifierTexts(ev.modifiers).map((m) => m.text).join(' · ') || loc(ev, 'text'), button: t('View'), enabled: true, run: () => openEvent(ev.id) });
+      }
+      out.note = t('The weather changes the game: rain, snow and strong wind bring their own events. Updated every {n} min.', { n: 20 });
+      out.primary.push(todayBtn());
+      return out;
+    });
+  }
+  function openTransit() {
+    openPanel(() => {
+      const tr = me.transit || {}, out = blankOut();
+      out.title = t('On the Move');
+      out.sub = t('Only play as a passenger.');
+      out.tile = { icon: '🚆', tint: 'blue' };
+      out.tags.push({ tint: tr.remoteLeft > 0 ? 'blue' : 'orange', icon: '🧺', text: tn(tr.remoteLeft || 0, '{n} remote harvest left today', '{n} remote harvests left today') });
+      const why = !tr.moving ? t('Only while you travel') : tr.remoteLeft < 1 ? t('No remote harvests left today') : null;
+      out.primary.push({ key: 'remote', label: t('Harvest Remotely'), icon: '🧺', why, enabled: !why, run: doRemote });
+      out.note = t('While you ride a bus, a train or a boat you can collect from all your plants at once, from anywhere, {n} times a day. Actions on the map wait until you walk again.', { n: tr.remotePerDay || cfg.transit.remotePerDay });
+      return out;
+    });
+  }
+  const doRemote = () => command(() => post('/v1/plants/collect-remote', {}), (r) => {
+    const res = r.result, n = (res.collected && res.collected.credits) || 0;
+    toast([tn(res.plants, 'Harvested {c} credits from {n} plant', 'Harvested {c} credits from {n} plants', { c: fmtNum(n) }), collectBonusText(res),
+      tn(res.remoteLeft, '{n} remote harvest left today', '{n} remote harvests left today')].filter(Boolean).join(' · '), false, '🧺');
+  });
+  const doFerry = () => command(() => post('/v1/ferry/claim', {}), (r) => toast(t('Ferry chest: {what}', { what: rewardToast(r.result.credits, r.result.item) }), false, '🎁'));
+  const doBuildingClaim = (id) => command(() => post(`/v1/buildings/${id}/claim`, {}), (r) => toast(t('{what} is in your bag', { what: itemToast(r.result.item) }), false, '🎁'));
+  const doStreak = () => command(() => post('/v1/streak/claim', {}), (r) => {
+    toast(t('Day {n}: {what}', { n: r.result.days, what: rewardToast(r.result.credits, r.result.item) }), false, '🔥');
+    if (!$('missions').hidden) renderMissions();
+  });
+
+  /** The daily streak: seven days in a row, each with its reward; claim today's. */
+  function streakCard() {
+    const s = me && me.streak, R = cfg.streak && cfg.streak.rewards;
+    if (!s || !R || !R.length) return '';
+    const n = R.length, cur = (Math.max(1, s.days) - 1) % n;
+    const short = (r) => (r.item ? '🎁' : `🪙${fmtShort(r.credits || 0)}`);
+    const dots = R.map((r, i) => {
+      const done = i < cur || (i === cur && s.claimedToday);
+      return `<div class="sd${done ? ' done' : ''}${i === cur ? ' today' : ''}"><i>${done ? '✓' : i + 1}</i><small>${esc(short(r))}</small></div>`;
+    }).join('');
+    const btn = s.claimedToday ? `<button class="price" type="button" disabled>✓ ${esc(t('Claimed'))}</button>` : `<button class="price" type="button" data-streak>${esc(rewardText(s.reward))}</button>`;
+    return `<div class="group streak" id="streakCard"><div class="row t"><div class="tile lg tint-orange">🔥</div><div class="row-main"><div class="row-title">${esc(tn(s.days, 'Day {n} in a row', 'Day {n} in a row'))}</div>` +
+      `<div class="row-sub">${esc(s.claimedToday ? t('Come back tomorrow for day {n}.', { n: s.days + 1 }) : t('Play every day: the rewards grow for {n} days.', { n }))}</div></div>${btn}</div><div class="sdots">${dots}</div></div>`;
+  }
+  /** Missions → Today: the weather, what is on now and what comes next, in your local time. */
+  function todayHtml() {
+    const ev = live.events, act = activeEvents();
+    const evRow = (e, on) => `<div class="row t card"><div class="tile lg tint-${on ? 'orange' : 'gray'}">${esc(e.emoji)}</div><div class="row-main"><div class="row-title">${esc(loc(e, 'title'))}</div>` +
+      `<div class="row-sub">${esc(on ? untilText(e) : startsText(e))}</div><div class="row-sub">${esc(loc(e, 'text'))}</div>` +
+      `<div class="facts">${modifierTexts(e.modifiers).map((m) => `<span>${esc(m.icon)} ${esc(m.text)}</span>`).join('')}</div></div></div>`;
+    let html = '';
+    const w = ev && ev.weather;
+    if (w) {
+      html += `<div class="group" style="margin-top:8px"><div class="row t"><div class="tile lg tint-teal">${esc(w.emoji)}</div><div class="row-main"><div class="row-title">${esc(loc(w, 'label'))}</div>` +
+        `<div class="row-sub">${esc(t('{n}° · wind {w} km/h', { n: Math.round(w.tempC), w: Math.round(w.windKmh) }))}</div></div></div></div>`;
+    }
+    html += `<h4 class="sec-h">${esc(t('Now'))}</h4>` + (act.length ? `<div class="group">${act.map((e) => evRow(e, true)).join('')}</div>`
+      : `<div class="group"><div class="row"><div class="row-main row-sub">${esc(t('Nothing special right now.'))}</div></div></div>`);
+    html += `<h4 class="sec-h">${esc(t('Coming Up'))}</h4>`;
+    if (!ev) html += `<p class="loading">${esc(t('Loading…'))}</p>`;
+    else html += ev.upcoming.length ? `<div class="group">${ev.upcoming.map((e) => evRow(e, false)).join('')}</div>` : `<div class="group"><div class="row"><div class="row-main row-sub">${esc(t('Nothing planned yet.'))}</div></div></div>`;
+    html += `<p class="sec-f">${esc(ev && ev.city ? t('Events in {city}. Times are in your local time.', { city: loc(ev.city) }) : t('Events everywhere. Times are in your local time.'))}</p>`;
+    return html;
+  }
+  function openToday() {
+    msState.tab = 'today';
+    openMissions();
+  }
+
+  // ------------------------------------------------------------------ the market (a shop section, open on market days)
+  async function loadMarket(force) {
+    if (!force && live.market && Date.now() - live.marketAt < 30000) return;
+    try {
+      live.market = await api('GET', '/v1/market');
+      live.marketAt = Date.now();
+    } catch (e) { /* shown as loading */ }
+    if (shopSeg === 'market' && !$('shop').hidden) renderShop();
+  }
+  function marketHtml() {
+    const m = live.market;
+    if (!m) return `<p class="loading">${esc(t('Loading…'))}</p>`;
+    const head = m.open ? (m.closesAt ? t('Open now · closes {when}', { when: fmtWhen(m.closesAt) }) : t('Open now')) : m.opensAt ? t('Opens {when}', { when: fmtWhen(m.opensAt) }) : t('Closed for now');
+    // The market's own name comes from the event that opens it (e.g. a Sunday market), if the config has one.
+    const rule = ((cfg.events && cfg.events.rules) || []).find((r) => r.modifiers && r.modifiers.market && ((live.events && [...live.events.active, ...live.events.upcoming].some((e) => e.id === r.id)) || false));
+    const rows = m.items.map((it) => {
+      const ty = cfg.items.types[it.type] || { emoji: '❔', for: 'player' }, r = cfg.items.rarities[it.rarity] || { multiplier: 1 };
+      const sold = it.left < 1, why = !m.open ? '' : sold ? t('Sold out for today') : credits() < it.price ? t('Need {n} credits', { n: fmtNum(it.price) }) : '';
+      return shopRow(ty.emoji, ty.for === 'player' ? 'red' : 'green', `${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small>`,
+        `${bonusText({ type: it.type, rarity: it.rarity, bonus: (ty.value || 0) * r.multiplier })} · ${tn(it.left, '{n} left today', '{n} left today')}`,
+        priceBtn(`data-mbuy="${esc(it.id)}"`, it.price, !m.open || sold || credits() < it.price), why ? `<div class="row-sub warn">${esc(why)}</div>` : '').replace('row t card', `row t card${m.open ? '' : ' mk-closed'}`);
+    });
+    return `<div class="group"><div class="row t"><div class="tile lg tint-${m.open ? 'green' : 'gray'}">🧺</div><div class="row-main"><div class="row-title">${esc(rule ? loc(rule, 'title') : m.open ? t('The market is open') : t('The market is closed'))}</div>` +
+      `<div class="row-sub" id="marketWhen">${esc(head)}</div></div></div></div><h4 class="sec-h">${esc(t('Boosters'))}</h4><div class="group">${rows.join('')}</div>` +
+      `<p class="sec-f">${esc(t('On market days you can buy a few boosters for credits. They go straight into your bag.'))}</p>`;
+  }
+
+  // ------------------------------------------------------------------ friendly animals: feed one and it keeps you company
+  function describeFriend(out, info, d) {
+    const cost = cfg.cats.feedCost, comp = alive(me.companion) ? me.companion : null;
+    out.tile = { icon: info.icon, tint: 'green' };
+    out.sub = t('Friendly · feed it and it keeps you company');
+    out.progress = null;
+    out.tags.length = 0;
+    out.tags.push(d <= REACH ? { tint: 'green', icon: E.ok, text: t('{dist} away · In reach', { dist: fmtDist(d) }) } : { tint: 'orange', icon: E.walk, text: t('{dist} {dir} · Out of reach', { dist: fmtDist(d), dir: compass(bearing(pos, info.at)) }) });
+    const why = locationBlock() || (d > REACH ? t('Walk closer to feed it') : null) || (credits() < cost ? t('Need {n} credits', { n: fmtNum(cost) }) : null);
+    out.primary.push({ key: 'feed', label: t('Feed · {coin} {n}', { coin: E.coin, n: fmtNum(cost) }), icon: '🍽️', why, enabled: !why, run: () => doFeed(info.bot.id) });
+    if (comp) out.rows.push({ key: 'comp', icon: comp.emoji, tint: 'green', title: t('Your Companion'), sub: t('With you for {time}', { time: fmtLeft(Date.parse(comp.until) - serverNow()) }), button: '', enabled: false });
+    out.note = t('Fed animals keep you company for {h} h: +{pct} credits when you collect and luckier drops. Friendly animals can’t be shot.', { h: cfg.cats.companionHours, pct: pct(Math.round(cfg.cats.collectBonus * 100)) });
+    return out;
+  }
+  const doFeed = (id) => command(() => post(`/v1/bots/${id}/feed`, { location: fix() }), (r) => {
+    const x = r.result, emo = x.companion.emoji;
+    toast(x.gift ? t('{emoji} keeps you company now and brought you {what}!', { emoji: emo, what: itemToast(x.gift) }) : t('{emoji} keeps you company for {h} h', { emoji: emo, h: cfg.cats.companionHours }), false, emo);
+    select(null);
+  });
+
+  // ------------------------------------------------------------------ landmarks: pins on the map, a king each week, check in
+  const lmPins = new Map();
+  function allLandmarks() {
+    const out = [];
+    for (const [city, c] of Object.entries((cfg && cfg.cityContent) || {})) for (const l of c.landmarks || []) out.push({ ...l, city });
+    return out;
+  }
+  function syncLandmarks() {
+    if (!map || !cfg) return;
+    for (const l of allLandmarks()) {
+      let pin = lmPins.get(l.id);
+      if (!pin) {
+        const el = document.createElement('div');
+        el.className = 'lm';
+        el.innerHTML = `<div class="lme">${esc(l.emoji)}</div>`;
+        pin = { el, l, handle: map.addMarker(el, { lat: l.lat, lng: l.lng }, 3) };
+        lmPins.set(l.id, pin);
+      }
+      const v = live.landmarks && live.landmarks.get(l.id);
+      pin.el.classList.toggle('king', !!(v && v.king && me && v.king.id === me.player.id));
+    }
+  }
+  function landmarkAt(lat, lng) {
+    if (!lmPins.size) return null;
+    const tp = map.toPx({ lat, lng });
+    let best = null, bd = 24;
+    for (const [id, p] of lmPins) {
+      const q = map.toPx({ lat: p.l.lat, lng: p.l.lng });
+      const d = q && Math.hypot(q.x - tp.x, q.y - tp.y);
+      if (d < bd) { bd = d; best = id; }
+    }
+    return best;
+  }
+  async function loadLandmarks(force) {
+    if (!force && live.landmarks && Date.now() - live.landmarksAt < 60000) return;
+    try {
+      const list = await api('GET', '/v1/landmarks');
+      live.landmarks = new Map((Array.isArray(list) ? list : list.landmarks || []).map((x) => [x.id, x]));
+      live.landmarksAt = Date.now();
+      syncLandmarks();
+      if (panel) renderSheet();
+    } catch (e) { /* next time */ }
+  }
+  function openRoute(lat, lng) {
+    // Apple Maps on iPhone, Google Maps elsewhere.
+    const apple = /iPhone|iPad|Macintosh/.test(navigator.userAgent);
+    const url = apple ? `https://maps.apple.com/?daddr=${lat.toFixed(6)},${lng.toFixed(6)}&dirflg=w`
+      : `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}&travelmode=walking`;
+    const w = window.open(url, '_blank');
+    if (w) w.opener = null;
+    else location.href = url;
+  }
+  function openLandmark(id) {
+    loadLandmarks(false);
+    openPanel(() => landmarkInfo(id));
+  }
+  function landmarkInfo(id) {
+    const l = allLandmarks().find((x) => x.id === id), out = blankOut();
+    if (!l) return out;
+    const v = live.landmarks && live.landmarks.get(id), d = distM(pos, l), inside = d <= l.radius;
+    out.title = loc(l);
+    out.sub = t('Landmark · {dist} away', { dist: fmtDist(d) });
+    out.tile = { icon: l.emoji, tint: 'yellow' };
+    out.tags.push(inside ? { tint: 'green', icon: E.here, text: t('You are here') } : { tint: 'orange', icon: E.walk, text: t('{dist} {dir} · check in within {n} m', { dist: fmtDist(d), dir: compass(bearing(pos, l)), n: l.radius }) });
+    const next = v && v.nextCheckinAt ? Date.parse(v.nextCheckinAt) - serverNow() : 0;
+    const why = locationBlock() || (!inside ? t('Walk closer: within {n} m', { n: l.radius }) : null) || (next > 0 ? t('Next check-in in {time}', { time: fmtLeft(next) }) : null);
+    out.primary.push({ key: 'checkin', label: t('Check In · +{n} credits', { n: fmtNum(cfg.landmarks.checkinCredits) }), icon: '📍', why, enabled: !why, run: () => doCheckin(id) });
+    if (!inside) {
+      out.primary.push(mode === 'gps' ? { key: 'route', label: t('Directions'), icon: E.dir, enabled: true, run: () => openRoute(l.lat, l.lng) }
+        : { key: 'walk', label: t('Walk Here'), icon: E.walk, enabled: true, run: () => { walkTarget = { lat: l.lat, lng: l.lng }; } });
+    }
+    const k = v && v.king;
+    out.rows.push({ key: 'king', icon: k ? avatarOf(k) : '👑', tint: 'yellow', title: k ? t('👑 {name}', { name: k.username }) : t('No king yet'),
+      sub: k ? tn(k.points, 'King of the week · {n} point', 'King of the week · {n} points') : v ? t('Check in to take the crown.') : t('Loading…'), button: k ? t('View') : '', enabled: !!k, run: () => k && openProfile(k.id) });
+    out.rows.push({ key: 'mine', icon: '⭐', tint: 'blue', title: t('Your Points'), sub: v ? tn(v.myPoints || 0, '{n} point this week', '{n} points this week') : t('Loading…'), button: '', enabled: false });
+    if (v && v.weekEndsAt) out.rows.push({ key: 'week', icon: E.timer, tint: 'gray', title: t('New Week'), sub: fmtWhen(v.weekEndsAt), button: '', enabled: false });
+    out.note = t('Check in once an hour for a point and {n} credits. Whoever has the most points this week is the king.', { n: fmtNum(cfg.landmarks.checkinCredits) });
+    return out;
+  }
+  const doCheckin = (id) => command(() => post(`/v1/landmarks/${id}/checkin`, { location: fix() }), (r) => {
+    const x = r.result;
+    if (live.landmarks && x.landmark) live.landmarks.set(id, x.landmark);
+    syncLandmarks();
+    toast(x.youAreKing ? t('Checked in. You are the king of {name}!', { name: loc(x.landmark) }) : t('Checked in: +{p} point, +{n} credits', { p: x.points, n: fmtNum(x.credits) }), false, x.youAreKing ? '👑' : '📍');
+  });
+
+  // ------------------------------------------------------------------ Area page: neighbourhood and district leagues, the city's side war
+  /** The neighbourhood or district league where you are (Area page → League). */
+  function leagueHtml(kind) {
+    const L = live.leagues;
+    if (!L) return `<p class="loading">${esc(t('Loading…'))}</p>`;
+    if (!L.here) return `<p class="loading">${E.here} ${esc(t('Your neighbourhood shows once the game knows where you are.'))}</p>`;
+    let html = '';
+    const part = L[kind];
+    if (!part) html += `<p class="loading">${esc(t('Not known yet. Try again in a minute.'))}</p>`;
+    else {
+      const place = [part.name, kind === 'neighbourhood' ? part.district || part.city : part.city].filter(Boolean).join(', ');
+      const you = part.you ? t('You are #{n} here with {h}.', { n: part.you.rank, h: tn(part.you.hexes, '{n} hex', '{n} hexes') }) : t('Claim a hex here to join this league.');
+      html += `<h4 class="sec-h">${esc(place)}</h4>` + lbList(part.top, 'hexes', you, kind === 'neighbourhood' ? t('Ranked by the hexes each player owns in this neighbourhood. The leader wears its crown.') : t('Ranked by the hexes each player owns in this district. The leader wears its crown.'));
+    }
+    if (L.crowns && L.crowns.length) {
+      html += `<h4 class="sec-h">${esc(t('Your Crowns'))}</h4><div class="group">${L.crowns.map((c) => statRow('👑', 'yellow', c.name, c.kind === 'district' ? t('District') : t('Neighbourhood'))).join('')}</div>`;
+    }
+    return html;
+  }
+  /** The side war card (only in a city whose config has sides). */
+  function sidesHtml() {
+    const S = live.sides;
+    if (!S || !S.sides || S.sides.length < 2 || !me || !me.city || S.city !== me.city.id) return '';
+    const [a, b] = S.sides, total = a.score + b.score, fa = total ? a.score / total : 0.5, mine = S.sides.find((x) => x.id === S.mySide);
+    const when = S.active ? t('Ends in {time}', { time: fmtLeft(Date.parse(S.endsAt) - serverNow()) }) : t('Next war {when}', { when: fmtWhen(S.startsAt) });
+    let html = `<h4 class="sec-h">${esc(t('Side War'))}</h4><div class="group sides" id="sidesCard">` +
+      `<div class="sides-head"><span class="sd-side"><span class="emo">${esc(a.emoji)}</span><b>${esc(loc(a))}</b></span><span class="vs">${esc(t('vs'))}</span><span class="sd-side"><span class="emo">${esc(b.emoji)}</span><b>${esc(loc(b))}</b></span></div>` +
+      `<div class="sides-bar"><i class="a" style="width:${(fa * 100).toFixed(1)}%"></i><i class="b" style="width:${((1 - fa) * 100).toFixed(1)}%"></i></div>` +
+      `<div class="sides-sc"><span>${fmtNum(a.score)}</span><span>${fmtNum(b.score)}</span></div>` +
+      `<p><b>${esc(S.active ? t('The war is on!') : t('No war right now.'))}</b> ${esc(when)}</p>` +
+      `<p>${esc(mine ? tn(S.myPoints, 'Your side: {emoji} {name} · {n} point', 'Your side: {emoji} {name} · {n} points', { emoji: mine.emoji, name: loc(mine) }) : t('Claim hexes during the war to score for your side.'))}</p>`;
+    const won = S.last && S.last.winner && S.sides.find((x) => x.id === S.last.winner);
+    if (won) html += `<p>${esc(t('Last war: {emoji} {name} won', { emoji: won.emoji, name: loc(won) }))}</p>`;
+    if (S.reward && S.reward.eligible && !S.reward.claimed) html += `<button class="btn" type="button" data-sides-claim>🎁 ${esc(t('Claim Your {rarity} Booster', { rarity: rarityName(S.reward.item.rarity) }))}</button>`;
+    else if (S.reward && S.reward.claimed) html += `<p>${esc(t('Reward claimed ✓'))}</p>`;
+    return html + `</div><p class="sec-f">${esc(t('On the last weekend of each month every hex claimed scores a point for its side of the city. Everyone who scored for the winning side gets a {rarity} booster.', { rarity: rarityName(cfg.sides.rewardRarity) }))}</p>`;
+  }
+
+  // ------------------------------------------------------------------ crews: play together, a weekly goal, nudges
+  const CREW_EMOJI = '🦁 🐺 🦅 🐉 🦊 🐻 🦈 🐝 🌟 🔥 ⚡ 🌊 🌙 🍀 🌹 🌻 🚀 🛡️ ⚓ 🎯 🏆 👑 💎 🎸'.split(' ');
+  /** Preset nudges in the player's language (crews.nudges, or a parallel crews.nudgesTr-style list). */
+  function nudgeList() {
+    const c = cfg.crews || {}, en = c.nudges || [];
+    const alt = LANG !== 'en' && c['nudges' + LANG.charAt(0).toUpperCase() + LANG.slice(1)];
+    return Array.isArray(alt) && alt.length === en.length ? alt : en;
+  }
+  function nudgeText(text) {
+    const c = cfg.crews || {};
+    for (const [k, v] of Object.entries(c)) {
+      if (!/^nudges/.test(k) || !Array.isArray(v)) continue;
+      const i = v.indexOf(text);
+      if (i >= 0) return nudgeList()[i] || text;
+    }
+    return text;
+  }
+  async function loadCrew() {
+    try {
+      live.crew = await api('GET', '/v1/crews/mine');
+      live.crewAt = Date.now();
+    } catch (e) { /* next time */ }
+    if (!$('crew').hidden) renderCrew();
+  }
+  function renderCrew() {
+    const body = $('crewBody'), c = live.crew;
+    if (!c) { body.innerHTML = `<p class="loading">${esc(t('Loading…'))}</p>`; return; }
+    if (!c.crew) {
+      const d = live.crewDraft;
+      if (!d.emoji) d.emoji = CREW_EMOJI[0];
+      body.innerHTML = `<div class="crew-hero"><div class="tile xl tint-blue">👥</div><h2>${esc(t('Play as a Crew'))}</h2>` +
+        `<p>${esc(t('Collect {n} credits together each week and everyone gets a {rarity} booster.', { n: fmtNum(cfg.crews.weeklyGoal), rarity: rarityName(cfg.crews.rewardRarity) }))}</p></div>` +
+        `<h4 class="sec-h">${esc(t('Join a Crew'))}</h4><div class="group"><div class="row"><input class="field" id="crewCode" type="text" maxlength="12" value="${esc(d.code)}" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="${esc(t('Code from a friend'))}" aria-label="${esc(t('Crew code'))}"></div></div>` +
+        `<button class="btn" type="button" id="crewJoin">${esc(t('Join Crew'))}</button>` +
+        `<h4 class="sec-h">${esc(t('Start a Crew'))}</h4><div class="group"><div class="row"><input class="field" id="crewName" type="text" maxlength="24" value="${esc(d.name)}" autocomplete="off" placeholder="${esc(t('Crew name'))}" aria-label="${esc(t('Crew name'))}"></div>` +
+        `<div class="emo-pick" id="crewEmoji">${CREW_EMOJI.map((e) => `<button type="button" data-cemo="${e}"${e === d.emoji ? ' class="on"' : ''} aria-label="${e}">${e}</button>`).join('')}</div></div>` +
+        `<button class="btn" type="button" id="crewCreate">${esc(t('Create Crew'))}</button>` +
+        `<p class="sec-f">${esc(t('Up to {n} players. Share your crew’s code with friends so they can join.', { n: cfg.crews.maxMembers }))}</p>`;
+      return;
+    }
+    const cr = c.crew, w = c.weekly, done = w.progress >= w.goal, frac = Math.min(1, w.progress / Math.max(1, w.goal));
+    let html = `<div class="crew-hero"><div class="tile xl tint-blue">${esc(cr.emoji)}</div><h2>${esc(cr.name)}</h2><p>${esc(tn(c.members.length, '{n} member', '{n} members'))}</p>` +
+      `<button class="codepill" type="button" data-copy="${esc(cr.code)}">${esc(t('Code {code}', { code: cr.code }))}</button></div>`;
+    html += `<h4 class="sec-h">${esc(t('This Week'))}</h4><div class="group"><div class="row t card ms-goal"><div class="tile lg tint-yellow">🎯</div><div class="row-main"><div class="row-title">${esc(t('Collect {n} credits together', { n: fmtNum(w.goal) }))}</div>` +
+      `<div class="row-sub">${esc(t('{a} of {b} · ends {when}', { a: fmtNum(w.progress), b: fmtNum(w.goal), when: fmtWhen(w.endsAt) }))}</div><div class="bar ${done ? 'green' : 'yellow'}"><i style="width:${(frac * 100).toFixed(1)}%"></i></div></div>` +
+      (w.claimed ? `<button class="price" type="button" disabled>✓ ${esc(t('Claimed'))}</button>` : `<button class="price" type="button" data-crew-claim${done ? '' : ' disabled'}>🎁 ${esc(rarityName(w.reward.item.rarity))}</button>`) + '</div></div>';
+    const n = cr.lastNudge;
+    if (n) {
+      html += `<div class="group" style="margin-top:12px"><div class="row t"><div class="tile sm tint-blue">${esc(n.from ? avatarOf(n.from) : '💬')}</div><div class="row-main"><div class="row-title">${esc(nudgeText(n.text))}</div>` +
+        `<div class="row-sub">${esc(t('{name} · {time} ago', { name: n.from ? n.from.username : t('Someone'), time: fmtDur(Math.max(60, Math.round((serverNow() - Date.parse(n.at)) / 1000))) }))}</div></div></div></div>`;
+    }
+    html += `<h4 class="sec-h">${esc(t('Nudge Your Crew'))}</h4><div class="chipbtns" id="crewNudges">${nudgeList().map((s, i) => `<button type="button" data-nudge="${i}">${esc(s)}</button>`).join('')}</div>`;
+    html += `<h4 class="sec-h">${esc(t('Members'))}</h4><div class="group">${c.members.map((m) => `<button class="row t" type="button" data-member="${esc(m.id)}"><div class="lb-av">${esc(avatarOf(m))}</div>` +
+      `<div class="row-main"><div class="row-title"><span class="dot${m.online ? ' on' : ''}"></span>${esc(m.username)}${me && m.id === me.player.id ? esc(t(' (You)')) : ''}</div>` +
+      `<div class="row-sub">${esc(`${m.role === 'owner' ? t('Leader') : t('Member')} · ${tn(m.hexes, '{n} hex', '{n} hexes')}`)}</div></div><span class="row-value">🪙 ${esc(fmtShort(m.weekCollected))}</span></button>`).join('')}</div>`;
+    html += `<p class="sec-f">${esc(t('Credits each member collected this week count towards the goal.'))}</p>`;
+    html += `<div class="group" style="margin-top:28px"><button class="row danger" type="button" data-crew-leave><div class="row-main"><div class="row-title">${esc(t('Leave Crew'))}</div></div></button></div>`;
+    body.innerHTML = html;
+  }
+  function openCrew() {
+    select(null);
+    openModal('crew');
+    renderCrew();
+    loadCrew();
+  }
+  const crewDone = (msg, emoji) => (r) => { if (r.result && r.result.crew !== undefined) live.crew = r.result.crew || { crew: null }; if (msg) toast(msg(r), false, emoji); renderCrew(); };
+  $('crewBody').addEventListener('input', (e) => {
+    if (e.target.id === 'crewName') live.crewDraft.name = e.target.value;
+    if (e.target.id === 'crewCode') live.crewDraft.code = e.target.value;
+  });
+  $('crewBody').addEventListener('click', (e) => {
+    const emo = e.target.closest('[data-cemo]');
+    if (emo) { live.crewDraft.emoji = emo.dataset.cemo; for (const b of $('crewEmoji').children) b.classList.toggle('on', b === emo); return; }
+    if (e.target.closest('#crewJoin')) {
+      const code = live.crewDraft.code.trim().toUpperCase();
+      if (code.length < 4) return toast(t('Type the code your friend shared'), true);
+      return command(() => post('/v1/crews/join', { code }), crewDone((r) => t('Welcome to {name}!', { name: r.result.crew.crew.name }), '👥'));
+    }
+    if (e.target.closest('#crewCreate')) {
+      const name = live.crewDraft.name.trim();
+      if (name.length < 2) return toast(t('Give your crew a name (2 to 24 letters)'), true);
+      return command(() => post('/v1/crews', { name, emoji: live.crewDraft.emoji }), crewDone(() => t('Crew created. Share the code with friends!'), live.crewDraft.emoji));
+    }
+    const cp = e.target.closest('[data-copy]');
+    if (cp) {
+      const code = cp.dataset.copy;
+      if (navigator.clipboard) navigator.clipboard.writeText(code).then(() => toast(t('Code copied'), false, '📋')).catch(() => toast(t('Code {code}', { code }), false, '👥'));
+      else toast(t('Code {code}', { code }), false, '👥');
+      return;
+    }
+    const cl = e.target.closest('[data-crew-claim]');
+    if (cl && !cl.disabled) return command(() => post('/v1/crews/claim', {}), crewDone((r) => t('Crew reward: {what}', { what: itemToast(r.result.item) }), '🎁'));
+    const nd = e.target.closest('[data-nudge]');
+    if (nd) return command(() => post('/v1/crews/nudge', { text: nudgeList()[+nd.dataset.nudge] }), crewDone(() => t('Nudge sent to your crew'), '📣'));
+    const mb = e.target.closest('[data-member]');
+    if (mb) { closeModal('crew'); return openProfile(mb.dataset.member); }
+    if (e.target.closest('[data-crew-leave]')) {
+      showAlert(t('Leave {name}?', { name: live.crew.crew.name }), t('You can join again with the code.'), [
+        { label: t('Cancel') },
+        { label: t('Leave'), style: 'destructive', onTap: () => command(() => post('/v1/crews/leave', {}), () => { live.crew = { crew: null }; toast(t('You left the crew'), false, '👋'); renderCrew(); }) },
+      ]);
+    }
+  });
+
+  /** Your companion and your crew, in your profile (the home sheet). */
+  function myExtrasHtml() {
+    const comp = alive(me.companion) ? me.companion : null, cr = live.crew && live.crew.crew;
+    let html = `<h4 class="sec-h">${esc(t('Together'))}</h4><div class="group">`;
+    if (comp) html += statRow(comp.emoji, 'green', t('Companion'), t('{time} left', { time: fmtLeft(Date.parse(comp.until) - serverNow()) }));
+    html += `<button class="row t" type="button" data-open-crew><div class="tile sm tint-blue">${esc(cr ? cr.emoji : '👥')}</div><div class="row-main"><div class="row-title">${esc(cr ? cr.name : t('Crew'))}</div>` +
+      `<div class="row-sub">${esc(cr ? t('Your crew · code {code}', { code: cr.code }) : t('Play together with friends'))}</div></div><span class="row-chev">${svg('chev')}</span></button></div>`;
+    return html;
+  }
 
   // ------------------------------------------------------------------ UI: create / edit profile (name + avatar)
   const setup = { tone: '', avatar: '', done: null };
@@ -4589,7 +5359,9 @@
     $('keyRow').hidden = !map || map.kind === 'apple';
     $('keyValue').textContent = gAuthFailed ? t('Rejected') : gKey ? t('Set') : t('Not Set');
     $('langValue').textContent = langLabel(lsGet(LANG_STORE));
-    $('mapFoot').textContent = `${t(map && map.kind === 'apple' ? 'Apple Maps, the same map as the iPhone app.' : map && map.kind === 'osm' ? 'OpenStreetMap: free, no key needed. Apple Maps is used once the game server has an Apple Maps key; a Google Maps key on this device switches to Google.' : 'Google Maps, with the key on this device, until the game server has an Apple Maps key.')} ${t('Hexes use H3 resolution {res}, about {n} m across.', { res: RES, n: hexAcross() })}`;
+    const foot = !map ? '' : map.kind === 'apple' ? 'Apple Maps, the same map as the iPhone app.' : map.kind === 'osm' ? (mapPref === 'osm' ? 'OpenStreetMap, picked on this device.' : 'OpenStreetMap, because Google Maps could not load here.')
+      : gKey ? 'Google Maps, with the key on this device.' : 'Google Maps without an API key: Google marks it “for development purposes only” until a key is set.';
+    $('mapFoot').textContent = `${foot ? t(foot) + ' ' : ''}${t('Hexes use H3 resolution {res}, about {n} m across.', { res: RES, n: hexAcross() })}`;
     $('serverText').textContent = `${API.replace(/^https?:\/\//, '')} · ${t(serverState === 'ok' ? 'connected' : serverState === 'waking' ? 'waking up' : 'unreachable')}`;
     openModal('settings');
   }
@@ -4756,7 +5528,8 @@
     try { start = JSON.parse(lsGet(SIM_POS) || 'null'); } catch (e) { /* ignore */ }
     const hq = me && me.buildings.find((b) => b.type === 'hq');
     const first = !pos;
-    pos = pos || start || (hq ? { lat: hq.center[0], lng: hq.center[1] } : { ...SULTANAHMET });
+    const c0 = cfg.client.defaultCenter;
+    pos = pos || start || (hq ? { lat: hq.center[0], lng: hq.center[1] } : { lat: c0.lat, lng: c0.lng });
     $('stick').hidden = false;
     if (first) startGame();
     else { refreshStatus(); playerMoved(true); }
@@ -4781,8 +5554,11 @@
     updateReach(true);
     refreshUi();
     setTimeout(() => followCamera(false), 50);
-    setTimeout(showCity, 900);
+    loadEvents().then(() => setTimeout(showCity, 600));
     loadMissions();
+    syncLandmarks();
+    loadLandmarks(true);
+    loadCrew();
     $('locateBtn').classList.toggle('following', follow);
     if (!me.territory.count) {
       select(cellAt(pos.lat, pos.lng));
@@ -4822,6 +5598,9 @@
     }
     if (tickN % 120 === 0 && me) { loadMe(); showCity(); } // every 30 s
     if (tickN % 480 === 5 && me && started) loadMissions(); // every 2 min
+    // Events and weather: every minute, and soon after you moved far.
+    if (me && started && (tickN % 240 === 9 || (tickN % 8 === 3 && live.eventsPos && pos && distM(live.eventsPos, pos) > 2000))) loadEvents();
+    if (tickN % 480 === 17 && me && started) loadLandmarks(true);
   }
 
   // ------------------------------------------------------------------ boot
@@ -4876,6 +5655,18 @@
     get world() { return world; },
     get pos() { return pos; },
     get engine() { return map && map.kind; },
+    get nativeMap() { return map && map.native; },
+    get live() { return live; },
+    openToday: () => openToday(),
+    openCrew: () => openCrew(),
+    openLandmark: (id) => openLandmark(id),
+    openEvent: (id) => openEvent(id),
+    openTransit: () => openTransit(),
+    openShop: (seg) => { if (seg) shopSeg = seg; openShop(); if (seg === 'market') loadMarket(true); },
+    openLeaders: (view, scope) => { if (view) { lb.scope = scope || 'area'; lb.view = view; } openLeaders(); },
+    loadEvents: () => loadEvents(),
+    get panelOpen() { return !!panel; },
+    errText: (code, details) => errText({ code, message: code, details }),
     toPx: (lat, lng) => map.toPx({ lat, lng }),
     withTone: (e, t) => withTone(e, t),
     select: (id) => select(id),
