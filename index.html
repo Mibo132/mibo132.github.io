@@ -13,6 +13,7 @@
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://cdn.apple-mapkit.com">
 <link rel="preconnect" href="https://maps.googleapis.com">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 </head>
@@ -202,6 +203,43 @@
   .tile.lg { width: 48px; height: 48px; border-radius: 13px; font-size: 27px; }
   .tint-blue { background: var(--blue-t); } .tint-green { background: var(--green-t); } .tint-red { background: var(--red-t); }
   .tint-orange { background: var(--orange-t); } .tint-indigo { background: var(--indigo-t); } .tint-gray { background: var(--fill3); }
+  .tint-yellow { background: rgba(255, 204, 0, .2); } .tint-teal { background: rgba(48, 176, 199, .18); }
+  .tile.xl { width: 76px; height: 76px; border-radius: 38px; font-size: 42px; }
+
+  /* shop cards, profile, leaderboard */
+  .row.card { align-items: flex-start; padding-top: 12px; padding-bottom: 12px; }
+  .row.card .tile { margin-top: 2px; }
+  .row.card.locked .tile, .row.card.locked .row-title { opacity: .5; }
+  .row.card + .row.card::before { left: 76px; }
+  .row.card .pill { align-self: center; }
+  .facts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .facts span { display: inline-flex; align-items: center; gap: 3px; height: 22px; padding: 0 7px; border-radius: 7px; background: var(--fill3); font-size: 12px; font-weight: 500; color: var(--label2); white-space: nowrap; }
+  .row-title small { color: var(--label2); font-size: 13px; }
+  .prof { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 18px; text-align: center; }
+  .prof h2 { margin: 8px 0 0; font-size: 24px; font-weight: 700; }
+  .prof p { margin: 0; font-size: 15px; color: var(--label2); }
+  .dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--label3); vertical-align: 1px; }
+  .dot.on { background: var(--green); }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 22px; border-radius: 12px; background: var(--row); }
+  .kpis div { padding: 11px 4px 10px; text-align: center; }
+  .kpis div + div { border-left: .5px solid var(--sep); }
+  .kpis b { display: block; font: 700 22px var(--round); font-variant-numeric: tabular-nums; }
+  .kpis span { font-size: 12px; color: var(--label2); }
+  .rank { flex: none; width: 30px; text-align: center; font: 700 17px var(--round); color: var(--label2); }
+  .row.me { background: var(--blue-t); }
+  .loading { padding: 40px 0; text-align: center; color: var(--label2); }
+  /* create / edit profile */
+  .av-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0 18px; }
+  .av-hero .tile.xl { width: 96px; height: 96px; border-radius: 48px; font-size: 58px; }
+  .av-hero b { font-size: 20px; }
+  .tones { display: flex; justify-content: space-between; gap: 4px; padding: 8px 10px; }
+  .tones button { flex: 1; height: 40px; border: 0; border-radius: 10px; background: none; font-size: 24px; }
+  .tones button.on { background: var(--blue-t); box-shadow: inset 0 0 0 2px var(--blue); }
+  .av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 2px; padding: 8px; }
+  .av-grid button { height: 50px; border: 0; border-radius: 12px; background: none; font-size: 31px; line-height: 1; }
+  .av-grid button.on { background: var(--blue-t); box-shadow: inset 0 0 0 2px var(--blue); }
+  .field-err { margin: 6px 16px 0; font-size: 13px; color: var(--red); }
+  .field-err:empty { display: none; }
 
   .switch { position: relative; flex: none; width: 51px; height: 31px; }
   .switch input { width: 100%; height: 100%; margin: 0; border-radius: 16px; background: var(--fill); -webkit-appearance: none; appearance: none; transition: background .25s; cursor: pointer; }
@@ -301,16 +339,22 @@
   .fatal .hero-ic { background: var(--orange-t); color: var(--orange); }
 
   /* ---------------------------------------------------------------- map overlay: building pins and the location puck */
-  .ov { position: absolute; left: 0; top: 0; --pz: 1; }
-  .ov.hide-pins .pin { display: none; }
+  :root { --pz: 1; }
+  .ov { position: absolute; left: 0; top: 0; }
+  .hide-pins .pin { display: none; }
+  #map { isolation: isolate; } /* keeps map-library layers (Leaflet uses z-index 400+) below the game UI */
+  .osm-mk { background: none; border: 0; }
+  .osm-dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.92) contrast(.9) saturate(.7); }
+  #map.leaflet-container { background: var(--bg, #f2f2f7); font: 11px var(--font); }
+  .leaflet-control-attribution { margin-bottom: calc(env(safe-area-inset-bottom) + 2px) !important; }
   .pin, .puck { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .pi { position: absolute; left: 0; top: 0; transform: scale(var(--pz)); transform-origin: 0 0; }
   /* Buildings are bare emoji standing on their hex (no badge background). */
   .pb {
-    position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; display: grid; place-items: center;
-    font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45));
+    position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; display: grid; place-items: center;
+    font-size: 22px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45));
   }
-  .t-hq .pb { left: -20px; top: -20px; width: 40px; height: 40px; font-size: 34px; }
+  .t-hq .pb { left: -16px; top: -16px; width: 32px; height: 32px; font-size: 27px; }
   .pin.far .pi { opacity: .6; }
   .lvl {
     position: absolute; left: 8px; top: 5px; min-width: 17px; height: 17px; padding: 0 4px; border: 1.5px solid #fff; border-radius: 9px;
@@ -327,6 +371,16 @@
   .cap.full { background: #ff9500; color: #fff; }
   .nm { position: absolute; left: 0; bottom: 23px; transform: translateX(-50%); font: 600 12px var(--font); color: #d70015; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
   .nm:empty { display: none; }
+  /* Online players: a person emoji with their name, at the center of their ~150 m cell. */
+  .op { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  /* Avatars are a little bigger than building emoji. */
+  .op .pe { position: absolute; left: -19px; top: -36px; width: 38px; height: 38px; display: grid; place-items: center; font-size: 31px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .4)); }
+  .op.me .pe { top: -50px; }
+  .op.me .on { top: -13px; color: #007aff; }
+  .op.me .on::before { display: none; }
+  .op .on { position: absolute; left: 0; top: 1px; transform: translateX(-50%); font: 600 12px var(--font); color: #0040dd; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
+  .op .on::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 4px; border: 1px solid #fff; border-radius: 50%; background: #34c759; vertical-align: 0; }
+  .hide-pins .op .on { display: none; }
   .puck .halo { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 122, 255, .24); animation: puck 2.4s ease-out infinite; }
   .puck .dot { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border: 3.5px solid #fff; border-radius: 50%; background: #007aff; box-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
   .puck .cone {
@@ -366,6 +420,8 @@
         <button class="capsule glass keychip" id="keyChip" type="button" hidden><span class="emo" id="keyChipEmo">⚠️</span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
       </div>
       <div class="fabs glass">
+        <button class="fab" id="leadersBtn" type="button" aria-label="Leaderboard"><span class="emo">🏆</span></button>
+        <button class="fab" id="profileBtn" type="button" aria-label="My profile"><span class="emo">👤</span></button>
         <button class="fab" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
         <button class="fab" id="locateBtn" type="button" aria-label="Follow my location" aria-pressed="true"></button>
       </div>
@@ -403,6 +459,27 @@
   <div class="banner glass" id="toast" role="status"><span class="emo" id="toastIcon"></span><span id="toastText"></span></div>
   <div class="busy glass" id="busy" hidden><span class="spinner"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="busyText">Loading…</span></div>
 
+  <div class="modal" id="setup" hidden>
+    <div class="scrim"></div>
+    <div class="page">
+      <nav class="nav"><button class="nav-btn left" id="setupCancel" type="button">Cancel</button><h3 id="setupNav">Create Your Profile</h3><span></span></nav>
+      <div class="page-body">
+        <div class="av-hero"><div class="tile xl tint-blue" id="setupPreview"></div><b id="setupPreviewName"></b></div>
+        <h4 class="sec-h">Username</h4>
+        <div class="group"><div class="row"><input class="field" id="setupName" type="text" maxlength="20" autocomplete="nickname" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Username"></div></div>
+        <p class="field-err" id="setupNameErr"></p>
+        <p class="sec-f">3 to 20 letters, digits or _. Other players see it on the map and the leaderboard.</p>
+        <h4 class="sec-h">Avatar</h4>
+        <div class="group"><div class="tones" id="setupTones"></div><div class="av-grid" id="setupPeople"></div></div>
+        <h4 class="sec-h">Faces and Animals</h4>
+        <div class="group"><div class="av-grid" id="setupFaces"></div></div>
+        <p class="sec-f">Your avatar stands on the map where other players nearby can see it.</p>
+        <p class="field-err" id="setupErr"></p>
+        <button class="btn" id="setupGo" type="button">Create Profile</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="welcome" hidden>
     <div class="scrim"></div>
     <div class="page">
@@ -411,11 +488,12 @@
         <h1 class="w-title">Welcome to Clash&nbsp;of&nbsp;Cities</h1>
         <div class="w-list">
           <div class="w-item"><div class="w-ic">🗺️</div><div><b>Claim Real Places</b><p>Found your Headquarters where you stand, then grow your territory one hex at a time.</p></div></div>
-          <div class="w-item"><div class="w-ic">🏗️</div><div><b>Build Your Base</b><p>Generators make credits and Vaults store them, even while you're away.</p></div></div>
+          <div class="w-item"><div class="w-ic">🏗️</div><div><b>Build Your Base</b><p>Buy buildings in the shop and place them on your hexes. Generators keep working while you're away.</p></div></div>
           <div class="w-item"><div class="w-ic">🚶</div><div><b>Walk to Play</b><p>You can act on hexes within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
+          <div class="w-item"><div class="w-ic">📱</div><div><b>One World</b><p>The web version and the iPhone app share the same world, with other players around you.</p></div></div>
         </div>
         <div class="w-foot">
-          <p class="w-privacy"><span class="emo">📍</span><span>Your location is only used while the game is open. Your progress is saved on this device. Watch where you walk and stay off roads, rail tracks and private property.</span></p>
+          <p class="w-privacy"><span class="emo">📍</span><span>Your location is used only while the game is open and is sent to the game server to check what you can reach. Raw GPS data is deleted after 24 hours. Watch where you walk and stay off roads, rail tracks and private property.</span></p>
           <button class="btn" id="welcomeGo" type="button">Continue</button>
           <button class="btn plain" id="welcomeSim" type="button">Play with Simulated Walking</button>
         </div>
@@ -429,13 +507,29 @@
       <nav class="nav"><span></span><h3>🛒 Shop</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
       <div class="page-body">
         <p class="lead" id="shopLead"></p>
-        <h4 class="sec-h">Buildings</h4>
-        <div class="group" id="shopRows"></div>
-        <p class="sec-f">You pay when you buy. The building goes to your inventory; place it on an empty hex you own, within reach. Construction starts when you place it.</p>
         <h4 class="sec-h" id="invHead">Inventory</h4>
         <div class="group" id="invRows"></div>
         <p class="sec-f" id="invFoot"></p>
+        <div id="shopRows"></div>
+        <p class="sec-f">You pay when you buy. The building goes to your inventory; place it on an empty hex you own, within reach. Construction starts when you place it.</p>
+        <div id="shopNext"></div>
       </div>
+    </div>
+  </div>
+
+  <div class="modal" id="profile" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><button class="nav-btn left" id="profileBack" type="button">‹ Leaderboard</button><h3 id="profileNav">Profile</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
+      <div class="page-body" id="profileBody"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="leaders" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><span></span><h3>🏆 Leaderboard</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
+      <div class="page-body" id="leadersBody"></div>
     </div>
   </div>
 
@@ -444,28 +538,41 @@
     <div class="page">
       <nav class="nav"><span></span><h3>Settings</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
       <div class="page-body">
+        <h4 class="sec-h">Account</h4>
+        <div class="group">
+          <button class="row t" id="nameRow" type="button"><div class="tile sm tint-blue" id="nameAvatar">👤</div><div class="row-main"><div class="row-title" id="nameText">–</div><div class="row-sub">Name and avatar</div></div><span class="row-value">Edit</span><span class="row-chev" data-icon="chev"></span></button>
+          <div class="row t"><div class="tile sm tint-green">🧍</div><div class="row-main"><div class="row-title">Show Me on the Map</div></div><label class="switch"><input type="checkbox" id="mapSwitch" aria-label="Show me on the map"><span></span></label></div>
+        </div>
+        <p class="sec-f">Players nearby see you on the map while you play, rounded to about 150 m. Your exact position is never shared.</p>
         <h4 class="sec-h">Location</h4>
         <div class="group">
           <div class="row t"><div class="tile sm tint-blue">🚶</div><div class="row-main"><div class="row-title">Simulated Walking</div></div><label class="switch"><input type="checkbox" id="simSwitch" aria-label="Simulated walking"><span></span></label></div>
-          <div class="row t" id="speedRow"><div class="tile sm tint-gray">⏩</div><div class="row-main"><div class="row-title">Speed</div></div><div class="seg" id="speedSeg"><button type="button" data-speed="walk">1.4 m/s</button><button type="button" data-speed="fast">20 m/s</button></div></div>
+          <div class="row t" id="speedRow"><div class="tile sm tint-gray">⏩</div><div class="row-main"><div class="row-title">Speed</div></div><div class="seg" id="speedSeg"><button type="button" data-speed="walk">1.4 m/s</button><button type="button" data-speed="fast">7 m/s</button></div></div>
         </div>
         <p class="sec-f" id="locFoot"></p>
-        <h4 class="sec-h">Testing</h4>
-        <div class="group">
-          <button class="row t action" id="skip10" type="button"><div class="tile sm tint-indigo">⏱️</div><div class="row-main"><div class="row-title">Skip 10 Minutes</div></div></button>
-          <button class="row t action" id="skip60" type="button"><div class="tile sm tint-indigo">⏳</div><div class="row-main"><div class="row-title">Skip 1 Hour</div></div></button>
-          <button class="row t action" id="skip600" type="button"><div class="tile sm tint-indigo">🕙</div><div class="row-main"><div class="row-title">Skip 10 Hours</div></div></button>
+        <div id="testingBox">
+          <h4 class="sec-h">Testing</h4>
+          <div class="group">
+            <button class="row t action" id="skip10" type="button"><div class="tile sm tint-indigo">⏱️</div><div class="row-main"><div class="row-title">Skip 10 Minutes</div></div></button>
+            <button class="row t action" id="skip60" type="button"><div class="tile sm tint-indigo">⏳</div><div class="row-main"><div class="row-title">Skip 1 Hour</div></div></button>
+            <button class="row t action" id="skip600" type="button"><div class="tile sm tint-indigo">🕙</div><div class="row-main"><div class="row-title">Skip 10 Hours</div></div></button>
+          </div>
+          <p class="sec-f">Your construction finishes and your Generators fill up as if the time had passed. Test builds only.</p>
         </div>
-        <p class="sec-f">Construction finishes and Generators fill up as if the time had passed.</p>
         <h4 class="sec-h">Map</h4>
         <div class="group">
-          <button class="row t" id="keyRow" type="button"><div class="tile sm tint-green">🗺️</div><div class="row-main"><div class="row-title">Google Maps Key</div></div><span class="row-value" id="keyValue"></span><span class="row-chev" data-icon="chev"></span></button>
+          <div class="row t"><div class="tile sm tint-green">🗺️</div><div class="row-main"><div class="row-title">Map</div></div><span class="row-value" id="mapValue"></span></div>
+          <button class="row t" id="keyRow" type="button"><div class="tile sm tint-gray">🔑</div><div class="row-main"><div class="row-title">Google Maps Key</div></div><span class="row-value" id="keyValue"></span><span class="row-chev" data-icon="chev"></span></button>
         </div>
         <p class="sec-f" id="mapFoot"></p>
-        <div class="group" style="margin-top: 32px">
-          <button class="row danger" id="resetRow" type="button"><div class="row-main"><div class="row-title">Start Over</div></div></button>
+        <h4 class="sec-h">Server</h4>
+        <div class="group">
+          <div class="row t"><div class="tile sm tint-gray">🛰️</div><div class="row-main"><div class="row-title">Game Server</div><div class="row-sub" id="serverText"></div></div></div>
         </div>
-        <p class="sec-f">Progress is saved in this browser on this device.</p>
+        <div class="group" style="margin-top: 32px">
+          <button class="row danger" id="deleteRow" type="button"><div class="row-main"><div class="row-title">Delete Account</div></div></button>
+        </div>
+        <p class="sec-f">Deletes your commander, territory and buildings from the server. You start again as a new commander.</p>
       </div>
     </div>
   </div>
@@ -475,22 +582,16 @@
     <div class="page">
       <nav class="nav"><button class="nav-btn left" type="button" data-close>Cancel</button><h3>Google Maps</h3><button class="nav-btn strong" id="keySave" type="button">Save</button></nav>
       <div class="page-body">
-        <p class="lead">The map is Google Maps. Without an API key, Google dims it and marks it “for development purposes only”. A key from your own Google Cloud account removes that.</p>
+        <p class="lead">The game uses Apple Maps when the server has an Apple Maps key. Until then it uses the free OpenStreetMap map. With your own Google Maps API key, this device uses Google Maps instead.</p>
         <h4 class="sec-h">API Key</h4>
         <div class="group"><div class="row"><input class="field" id="keyInput" type="text" placeholder="AIza…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="API key"></div></div>
         <p class="sec-f" id="keyFoot"></p>
-        <h4 class="sec-h">Map ID (Optional)</h4>
-        <div class="group"><div class="row"><input class="field" id="mapIdInput" type="text" placeholder="DEMO_MAP_ID" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Map ID"></div></div>
-        <p class="sec-f">With a key, the game uses Google's vector map, which follows your phone's light or dark mode. Leave this empty to use Google's demo map ID.</p>
         <h4 class="sec-h">How to Get a Key</h4>
         <div class="group steps">
-          <div class="row"><span class="num">1</span><div class="row-main">In Google Cloud Console, create a project and link a billing account. Google includes free monthly map loads, which cover testing.</div></div>
-          <div class="row"><span class="num">2</span><div class="row-main">Enable the <b>Maps JavaScript API</b>.</div></div>
-          <div class="row"><span class="num">3</span><div class="row-main">Under <b>Keys &amp; Credentials</b>, create an API key.</div></div>
-          <div class="row"><span class="num">4</span><div class="row-main">Restrict the key to the website <b id="originText"></b> and to the Maps JavaScript API.</div></div>
-          <div class="row"><span class="num">5</span><div class="row-main">Paste the key above and tap <b>Save</b>.</div></div>
+          <div class="row"><span class="num">1</span><div class="row-main">In Google Cloud Console, create a project and link a billing account.</div></div>
+          <div class="row"><span class="num">2</span><div class="row-main">Enable the <b>Maps JavaScript API</b> and create an API key.</div></div>
+          <div class="row"><span class="num">3</span><div class="row-main">Restrict the key to the website <b id="originText"></b>, paste it above and tap <b>Save</b>.</div></div>
         </div>
-        <a class="btn tinted" id="consoleLink" href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" rel="noopener">Open Google Cloud Console</a>
         <button class="btn plain danger" id="keyRemove" type="button">Remove Key from This Device</button>
       </div>
     </div>
@@ -508,7 +609,7 @@
           <div class="row"><span class="num">2</span><div class="row-main">In <b>Settings → Privacy &amp; Security → Location Services</b>, make sure Location Services is on and <b>Safari Websites</b> is set to <b>While Using the App</b>.</div></div>
           <div class="row"><span class="num">3</span><div class="row-main">Come back here and tap <b>Try Again</b>.</div></div>
         </div>
-        <p class="sec-f">Pages inside other apps, like the Claude app, can't use your location. Open the game's address in Safari.</p>
+        <p class="sec-f">Pages inside other apps, like the Claude app, can't use your location. Open the game's address in Safari, or use the iPhone app.</p>
         <button class="btn" id="locRetry" type="button">Try Again</button>
         <button class="btn plain" id="locSim" type="button">Use Simulated Walking</button>
       </div>
@@ -547,14 +648,16 @@
     try {
       if (v === null) localStorage.removeItem(k);
       else localStorage.setItem(k, v);
-    } catch (e) { /* storage unavailable (private mode): keep playing */ }
+    } catch (e) { /* storage unavailable (private mode) */ }
   };
 
   // ------------------------------------------------------------------ icons: emoji (Apple's on iPhone), plus iOS control glyphs
   const E = {
-    credits: '🪙', hexes: '🗺️', builders: '👷', hq: '🏰', generator: '⚡', storage: '🏦', building: '🏗️', up: '⬆️', top: '🏆',
-    neutral: '🏳️', flag: '🚩', mine: '🟩', border: '🟧', rival: '⚔️', here: '📍', ok: '✅', walk: '🚶', sim: '🕹️', fast: '🏃',
-    dir: '🧭', coin: '🪙', shop: '🛒', move: '🚚', box: '📦', timer: '⏱️', warn: '⚠️', stop: '🚫', good: '🟢', weak: '🟠', bad: '🔴', hello: '👋', skip: '⏩', restart: '🔄',
+    hq: '🏰', generator: '⚡', storage: '🏦', building: '🏗️', up: '⬆️', top: '🏆', neutral: '🏳️', flag: '🚩', mine: '🟩',
+    border: '🟧', rival: '⚔️', here: '📍', ok: '✅', walk: '🚶', sim: '🕹️', fast: '🏃', dir: '🧭', coin: '🪙', timer: '⏱️',
+    warn: '⚠️', stop: '🚫', good: '🟢', weak: '🟠', bad: '🔴', hello: '👋', skip: '⏩', shop: '🛒', move: '🚚', box: '📦',
+    wake: '😴', cloud: '🛰️', bye: '👋', person: '🧍', trophy: '🏆', user: '👤', star: '⭐', lock: '🔒', builder: '👷', reach: '📡',
+    spent: '💸', medal: ['🥇', '🥈', '🥉'], avatar: '🧑‍✈️', eye: '👁️',
   };
   const ICONS = { // SF Symbols-style glyphs for the location button, close button and chevrons
     arrow: '<path d="M20.4 3.6 4.1 10.4c-.8.3-.7 1.5.1 1.7l6.5 1.4 1.4 6.5c.2.8 1.4.9 1.7.1z" fill="currentColor"/>',
@@ -579,76 +682,10 @@
     $('fatal').hidden = false;
   }
   $('fatalRetry').addEventListener('click', () => location.reload());
-
   if (!window.h3) {
     fatal("Can't Load the Game", 'Check your internet connection and try again.');
     return;
   }
-
-  // Mirrors server/config/game.json. In the full game the server checks all of this.
-  const CFG = {
-    res: 12,
-    reach: 70,
-    claimCooldownMs: 5000,
-    startCredits: 750,
-    maxAccuracy: 65,
-    maxActionSpeed: 8,
-    maxFixAgeMs: 30000,
-    expansion: { base: 100, quadratic: 12.5, linear: 37.5, roundTo: 5 },
-    hq: [
-      { builders: 1, maxCells: 7, limits: { generator: 2, storage: 1 } },
-      { builders: 1, maxCells: 19, limits: { generator: 3, storage: 2 } },
-      { builders: 2, maxCells: 37, limits: { generator: 5, storage: 3 } },
-    ],
-    buildings: {
-      hq: {
-        name: 'Headquarters', buildable: false,
-        levels: [
-          { cost: 0, secs: 0, reqHq: 0, storage: 1000 },
-          { cost: 1200, secs: 900, reqHq: 0, storage: 2500 },
-          { cost: 4500, secs: 3600, reqHq: 0, storage: 6000 },
-        ],
-      },
-      generator: {
-        name: 'Generator', buildable: true,
-        levels: [
-          { cost: 150, secs: 60, reqHq: 1, rate: 120, buffer: 720 },
-          { cost: 600, secs: 600, reqHq: 2, rate: 200, buffer: 1200 },
-          { cost: 1800, secs: 2700, reqHq: 3, rate: 320, buffer: 1920 },
-        ],
-      },
-      storage: {
-        name: 'Vault', buildable: true,
-        levels: [
-          { cost: 300, secs: 120, reqHq: 1, storage: 1500 },
-          { cost: 1000, secs: 900, reqHq: 2, storage: 3500 },
-          { cost: 2800, secs: 3600, reqHq: 3, storage: 7000 },
-        ],
-      },
-    },
-  };
-  const EMOJI_FOR = { hq: E.hq, generator: E.generator, storage: E.storage };
-  const TINT_FOR = { hq: 'blue', generator: 'orange', storage: 'indigo' };
-
-  const SULTANAHMET = { lat: 41.0055, lng: 28.9768 };
-  const ISTANBUL = [28.6, 40.8, 29.4, 41.3]; // west, south, east, north: hand-placed rivals inside, generated ones elsewhere
-  const SPEED = { fast: 20, walk: 1.4 };
-  const ISTANBUL_RIVALS = [
-    { key: 'kartal', name: 'Kartal_1453', at: { lat: 41.0256, lng: 28.9741 }, hq: 2, ring: 2, build: ['generator', 'generator', 'generator', 'storage', 'storage'] },
-    { key: 'fox', name: 'BosphorusFox', at: { lat: 41.0265, lng: 29.0155 }, hq: 1, ring: 1, build: ['generator'] },
-    { key: 'selim', name: 'SelimTheBold', at: { lat: 41.0107, lng: 28.968 }, hq: 1, ring: 1, build: ['generator', 'generator', 'storage'] },
-  ];
-  const RIVAL_NAMES = ['NightOwl_7', 'Kartal_1453', 'SelimTheBold'];
-
-  // ------------------------------------------------------------------ mutable module state
-  let mode = null; // 'gps' (real location) | 'sim' (simulated walking)
-  let state = null;
-  let version = 0; // bumps whenever territory changes
-  let saveDue = false;
-  let selected = null;
-  let walkTarget = null;
-  let heading = 0;
-  let follow = true;
 
   // ------------------------------------------------------------------ geo
   const R = 6371008.8, RAD = Math.PI / 180, MLAT = R * RAD;
@@ -663,449 +700,7 @@
     return (Math.atan2(y, x) / RAD + 360) % 360;
   }
   const compass = (deg) => ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][Math.round(deg / 45) % 8];
-  function offsetLL(p, meters, brgDeg) {
-    const n = meters * Math.cos(brgDeg * RAD), e = meters * Math.sin(brgDeg * RAD);
-    return { lat: p.lat + n / MLAT, lng: p.lng + e / (MLAT * Math.cos(p.lat * RAD)) };
-  }
-
-  // ------------------------------------------------------------------ hex cells
-  const cellCache = new Map();
-  const cellAt = (lat, lng) => h3.latLngToCell(lat, lng, CFG.res);
-  function cell(id) {
-    let c = cellCache.get(id);
-    if (!c) {
-      if (cellCache.size > 30000) cellCache.clear();
-      const [lat, lng] = h3.cellToLatLng(id);
-      c = { id, lat, lng, path: h3.cellToBoundary(id).map(([la, ln]) => ({ lat: la, lng: ln })) };
-      cellCache.set(id, c);
-    }
-    return c;
-  }
-  function ringCells(center, k) {
-    const inner = new Set(h3.gridDisk(center, k - 1));
-    return h3.gridDisk(center, k).filter((c) => !inner.has(c));
-  }
-  let spacing = 53; // distance between neighbouring hex centres here (m)
-  let reachRings = 3; // hex rings that can contain a hex in reach
-  function measureGrid(p) {
-    const id = cellAt(p.lat, p.lng);
-    spacing = distM(cell(id), cell(ringCells(id, 1)[0]));
-    reachRings = Math.ceil(CFG.reach / spacing) + 1;
-  }
-  const hexAcross = () => Math.round((2 * spacing) / Math.sqrt(3));
-
-  // ------------------------------------------------------------------ saving
-  const SAVE_V = 4; // v4: H3 resolution 12, shop inventory
-  const keyFor = (m) => `clash-of-cities.web.${m}.v${SAVE_V}`;
-  const PREF = 'clash-of-cities.web.mode';
-  function load(m) {
-    try {
-      const s = JSON.parse(lsGet(keyFor(m)) || 'null');
-      return s && s.v === SAVE_V ? s : null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function save() {
-    saveDue = false;
-    if (state) lsSet(keyFor(mode), JSON.stringify(state));
-  }
-
-  // ------------------------------------------------------------------ world
-  function generatedRivals(o) {
-    const seed = Math.floor(Math.abs(o.lat * 1e4) * 7 + Math.abs(o.lng * 1e4) * 13) % 360;
-    const specs = [
-      { d: 420, hq: 1, ring: 1, build: ['generator', 'generator'] },
-      { d: 760, hq: 2, ring: 2, build: ['generator', 'generator', 'storage'] },
-      { d: 1100, hq: 1, ring: 1, build: ['generator'] },
-    ];
-    return specs.map((sp, i) => ({ key: 'r' + i, name: RIVAL_NAMES[i], at: offsetLL(o, sp.d, (seed + i * 127) % 360), ...sp }));
-  }
-  const inIstanbul = (p) => p.lng > ISTANBUL[0] && p.lng < ISTANBUL[2] && p.lat > ISTANBUL[1] && p.lat < ISTANBUL[3];
-  function newGame(m, origin) {
-    const s = { v: SAVE_V, mode: m, origin: { ...origin }, pos: { ...origin }, offset: 0, credits: CFG.startCredits, cells: {}, b: {}, lastClaim: 0, fast: true, seq: 1, rivals: {}, inv: {} };
-    const t = Date.now();
-    const keepClear = new Set(h3.gridDisk(cellAt(origin.lat, origin.lng), 10)); // the player's start area stays free
-    for (const r of inIstanbul(origin) ? ISTANBUL_RIVALS : generatedRivals(origin)) {
-      s.rivals[r.key] = { name: r.name };
-      const ids = h3.gridDisk(cellAt(r.at.lat, r.at.lng), r.ring).filter((id) => !keepClear.has(id) && !s.cells[id]);
-      for (const id of ids) s.cells[id] = { o: r.key, t };
-      ['hq', ...r.build].forEach((type, i) => {
-        const id = ids[i];
-        if (!id) return;
-        const bid = 'r' + s.seq++;
-        s.b[bid] = { id: bid, o: r.key, cell: id, type, lvl: type === 'hq' ? r.hq : 1, st: 'active', ends: null, stored: 0, at: t };
-      });
-    }
-    return s;
-  }
-  const now = () => Date.now() + state.offset;
-
-  // ------------------------------------------------------------------ rules (same as the server)
-  const def = (type, lvl) => CFG.buildings[type].levels[lvl - 1];
-  function settle(b, t) {
-    if (b.st !== 'active' && b.ends && b.ends <= t) {
-      const done = b.ends;
-      if (b.st === 'upgrading') b.lvl += 1;
-      b.st = 'active';
-      b.ends = null;
-      b.at = done; // production starts when construction finished
-    }
-    if (b.st === 'active') {
-      const d = def(b.type, b.lvl);
-      if (d.rate && t > b.at) b.stored = Math.max(b.stored, Math.min(d.buffer, b.stored + (d.rate * (t - b.at)) / 3.6e6));
-      if (t > b.at) b.at = t;
-    }
-  }
-  function settleAll() { if (state) { const t = now(); for (const b of Object.values(state.b)) settle(b, t); } }
-  const myBuildings = () => Object.values(state.b).filter((b) => b.o === 'me');
-  function hqLevel() {
-    for (const b of Object.values(state.b)) if (b.o === 'me' && b.type === 'hq') return b.lvl;
-    return 0;
-  }
-  const hqRules = () => CFG.hq[hqLevel() - 1] || null;
-  function capacity() {
-    let c = 0;
-    for (const b of myBuildings()) if (b.st !== 'constructing') c += def(b.type, b.lvl).storage || 0;
-    return c;
-  }
-  function builders() {
-    const total = hqRules() ? hqRules().builders : 0;
-    const busyCount = myBuildings().filter((b) => b.st !== 'active').length;
-    return { total, busy: busyCount };
-  }
-  const myCells = () => Object.keys(state.cells).filter((id) => state.cells[id].o === 'me');
-  function expansionCost(owned) {
-    const n = owned + 1;
-    if (n <= 1) return 0;
-    const k = n - 2, e = CFG.expansion;
-    return Math.round((e.base + e.quadratic * k * k + e.linear * k) / e.roundTo) * e.roundTo;
-  }
-  function buildingOn(id) {
-    for (const b of Object.values(state.b)) if (b.cell === id) return b;
-    return null;
-  }
-  const countType = (type) => myBuildings().filter((b) => b.type === type).length;
-  const invOf = (type) => (state.inv && state.inv[type]) || 0;
-  const invTotal = () => Object.values(state.inv || {}).reduce((a, n) => a + n, 0);
-  /** Why a building can't be bought right now (null = fine). Placed and inventory count toward the limit. */
-  function buyBlock(type) {
-    const bd = CFG.buildings[type];
-    if (!bd || !bd.buildable) return "That can't be bought.";
-    const hq = hqLevel();
-    if (!hq) return 'Found your Headquarters first.';
-    const l = bd.levels[0];
-    if (l.reqHq > hq) return `Requires Headquarters level ${l.reqHq}.`;
-    const max = hqRules().limits[type] || 0, n = countType(type) + invOf(type);
-    if (n >= max) return `Limit reached (${n} of ${max}). Upgrade your Headquarters.`;
-    if (state.credits < l.cost) return `Need ${fmtNum(l.cost)} credits.`;
-    return null;
-  }
-  const touchesMine = (id) => h3.gridDisk(id, 1).some((n) => n !== id && state.cells[n] && state.cells[n].o === 'me');
-  const rivalName = (key) => (state.rivals[key] && state.rivals[key].name) || 'Rival';
-
-  // ------------------------------------------------------------------ location (GPS or simulated)
-  const gps = { acc: null, speed: 0, at: 0, err: null, watch: null, ref: null };
-
-  /** Why physical actions are not possible right now (null = fine). Mirrors the server's location checks. */
-  function locationBlock() {
-    if (mode !== 'gps') return null;
-    if (!gps.at || Date.now() - gps.at > CFG.maxFixAgeMs) return 'Waiting for a fresh GPS position…';
-    if (gps.acc > CFG.maxAccuracy) return `GPS too weak here (±${Math.round(gps.acc)} m). Move to an open spot.`;
-    if (gps.speed > CFG.maxActionSpeed) return 'Actions pause while you travel fast. Stay safe!';
-    return null;
-  }
-  function startGps() {
-    if (!('geolocation' in navigator)) {
-      onGpsError({ code: 2 });
-      return;
-    }
-    gps.err = null;
-    if (gps.watch !== null) navigator.geolocation.clearWatch(gps.watch);
-    gps.watch = navigator.geolocation.watchPosition(onFix, onGpsError, { enableHighAccuracy: true, maximumAge: 2000, timeout: 30000 });
-    if (!state) busy('Finding your location…');
-  }
-  function stopGps() {
-    if (gps.watch !== null && navigator.geolocation) navigator.geolocation.clearWatch(gps.watch);
-    gps.watch = null;
-  }
-  function onFix(p) {
-    const c = p.coords;
-    const fix = { lat: c.latitude, lng: c.longitude };
-    const t = Date.now();
-    // Speed: device value if present, else measured over >= 3 s minus both accuracy radii (like the server).
-    let speed = typeof c.speed === 'number' && c.speed >= 0 ? c.speed : null;
-    if (gps.ref) {
-      const dt = (t - gps.ref.t) / 1000;
-      if (dt >= 3) {
-        const est = Math.max(0, distM(gps.ref, fix) - c.accuracy - gps.ref.acc) / dt;
-        speed = speed === null ? est : Math.max(speed, est);
-        gps.ref = { ...fix, t, acc: c.accuracy };
-      }
-    } else {
-      gps.ref = { ...fix, t, acc: c.accuracy };
-    }
-    if (speed !== null) gps.speed = speed;
-    gps.acc = c.accuracy;
-    gps.at = t;
-    gps.err = null;
-    closeModal('locHelp');
-    if (mode !== 'gps') return;
-    if (!state) {
-      startGame('gps', fix);
-      return;
-    }
-    state.pos = fix;
-    saveDue = true;
-    playerMoved(true);
-  }
-  function onGpsError(e) {
-    gps.err = e.code === 1 ? 'denied' : e.code === 3 ? 'timeout' : 'unavailable';
-    if (mode !== 'gps') return;
-    refreshStatus();
-    if (e.code === 3 && state) return; // keep playing; the status shows the stale fix
-    showLocHelp(e.code === 1
-      ? 'Location access is turned off for this page.'
-      : e.code === 3 ? 'Your phone did not report a position in time.' : 'Your phone could not determine a position.');
-  }
-
-  // ------------------------------------------------------------------ actions
-  class GameError extends Error {}
-  const fail = (msg) => { throw new GameError(msg); };
-  function requireReach(c) {
-    const blocked = locationBlock();
-    if (blocked) fail(blocked);
-    const d = distM(state.pos, c);
-    if (d > CFG.reach) fail(`Too far away (${Math.round(d)} m). Walk within ${CFG.reach} m.`);
-  }
-  function addBuilding(cellId, type, secs) {
-    const t = now(), id = 'b' + state.seq++;
-    state.b[id] = { id, o: 'me', cell: cellId, type, lvl: 1, st: secs > 0 ? 'constructing' : 'active', ends: secs > 0 ? t + secs * 1000 : null, stored: 0, at: t };
-    return state.b[id];
-  }
-  const actions = {
-    claim(id) {
-      const c = cell(id);
-      const owner = state.cells[id] && state.cells[id].o;
-      if (owner === 'me') fail('You already control this hex.');
-      if (owner) fail('Another commander controls this hex.');
-      const mine = myCells(), first = mine.length === 0;
-      if (!first) {
-        if (!touchesMine(id)) fail('You can only expand next to your own territory.');
-        if (mine.length >= hqRules().maxCells) fail('Upgrade your Headquarters to control more territory.');
-        const wait = CFG.claimCooldownMs - (now() - state.lastClaim);
-        if (wait > 0) fail(`Wait ${Math.ceil(wait / 1000)}s before claiming again.`);
-      }
-      requireReach(c);
-      const cost = expansionCost(mine.length);
-      if (state.credits < cost) fail(`Not enough credits (need ${cost}).`);
-      state.credits -= cost;
-      state.cells[id] = { o: 'me', t: now() };
-      state.lastClaim = now();
-      version++;
-      if (first) {
-        addBuilding(id, 'hq', 0);
-        return { e: E.hq, t: 'Headquarters founded' };
-      }
-      return { e: E.flag, t: `Hex claimed for ${fmtNum(cost)} credits` };
-    },
-    buy(type) {
-      const why = buyBlock(type);
-      if (why) fail(why);
-      const bd = CFG.buildings[type];
-      state.credits -= bd.levels[0].cost;
-      state.inv[type] = invOf(type) + 1;
-      return { e: E.shop, t: `${bd.name} added to your inventory` };
-    },
-    place(id, type) {
-      const bd = CFG.buildings[type];
-      if (!bd || !bd.buildable) fail("That can't be built.");
-      if (invOf(type) < 1) fail(`No ${bd.name} in your inventory. Buy one in the shop.`);
-      if (!state.cells[id] || state.cells[id].o !== 'me') fail('You can only build on your own territory.');
-      if (buildingOn(id)) fail('This hex already has a building.');
-      const l = bd.levels[0];
-      if (l.secs > 0) { const bs = builders(); if (bs.busy >= bs.total) fail('All builders are busy.'); }
-      requireReach(cell(id));
-      state.inv[type] -= 1;
-      addBuilding(id, type, l.secs);
-      return { e: E.building, t: `${bd.name} placed. Construction started.` };
-    },
-    move(bid, id) {
-      const b = state.b[bid];
-      if (!b || b.o !== 'me') fail('Building not found.');
-      if (!state.cells[id] || state.cells[id].o !== 'me') fail('Move it to a hex you own.');
-      if (id === b.cell) fail('It is already here.');
-      if (buildingOn(id)) fail('That hex already has a building.');
-      requireReach(cell(id));
-      b.cell = id;
-      return { e: E.move, t: `${CFG.buildings[b.type].name} moved` };
-    },
-    upgrade(bid) {
-      const b = state.b[bid];
-      if (!b || b.o !== 'me') fail('Building not found.');
-      if (b.st !== 'active') fail('This building is under construction.');
-      const next = CFG.buildings[b.type].levels[b.lvl];
-      if (!next) fail('Already at the maximum level.');
-      if (next.reqHq > hqLevel()) fail(`Requires Headquarters level ${next.reqHq}.`);
-      if (next.secs > 0) { const bs = builders(); if (bs.busy >= bs.total) fail('All builders are busy.'); }
-      requireReach(cell(b.cell));
-      if (state.credits < next.cost) fail(`Not enough credits (need ${next.cost}).`);
-      state.credits -= next.cost;
-      let auto = 0;
-      if (def(b.type, b.lvl).rate && b.stored >= 1) {
-        // Production pauses during upgrades, so collect what fits first.
-        auto = Math.max(0, Math.min(Math.floor(b.stored), Math.floor(capacity() - state.credits)));
-        b.stored -= auto;
-        state.credits += auto;
-      }
-      b.st = 'upgrading';
-      b.ends = now() + next.secs * 1000;
-      return { e: E.up, t: `Upgrade to level ${b.lvl + 1} started${auto ? ` (collected ${auto} first)` : ''}` };
-    },
-    collect(bid) {
-      const b = state.b[bid];
-      if (!b || b.o !== 'me') fail('Building not found.');
-      const d = def(b.type, b.lvl);
-      if (!d.rate) fail('This building does not produce credits.');
-      if (b.st !== 'active') fail('This building is under construction.');
-      const avail = Math.floor(b.stored);
-      if (avail < 1) fail('Nothing to collect yet.');
-      const free = Math.floor(capacity() - state.credits);
-      if (free <= 0) fail('Your storage is full. Build or upgrade a Vault.');
-      requireReach(cell(b.cell));
-      const take = Math.min(avail, free);
-      b.stored -= take;
-      state.credits += take;
-      return { e: E.coin, t: `Collected ${fmtNum(take)} credits` };
-    },
-  };
-  function run(kind, ...args) {
-    settleAll();
-    const before = version;
-    let ok = false;
-    try {
-      const r = actions[kind](...args);
-      toast(r.t, false, r.e);
-      save();
-      ok = true;
-    } catch (e) {
-      if (!(e instanceof GameError)) throw e;
-      toast(e.message, true);
-    }
-    if (version !== before) territoryChanged();
-    else restyleGrid();
-    refreshUi();
-    return ok;
-  }
-
-  // What the selected hex offers (port of the game client's CellActions rules).
-  function effect(type, l) {
-    if (l.rate) return `+${l.rate} per hour`;
-    if (type === 'hq') return 'more territory';
-    return `holds ${fmtNum(l.storage)}`;
-  }
-  function describe(id) {
-    const c = cell(id), d = distM(state.pos, c), inReach = d <= CFG.reach;
-    const blocked = locationBlock();
-    const reachWhy = blocked || (inReach ? null : `Walk closer: ${fmtDist(d)} away`);
-    const owner = state.cells[id] && state.cells[id].o;
-    const out = { title: '', sub: '', tile: { icon: E.neutral, tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' };
-    const act = (kind, label, icon, why, extra) => ({ key: kind, kind, label, icon, why, enabled: !why, reachOnly: !!why && why === reachWhy && !blocked, ...extra });
-    out.tags.push(cellAt(state.pos.lat, state.pos.lng) === id ? { tint: 'green', icon: E.here, text: 'You are here' }
-      : inReach ? { tint: 'green', icon: E.ok, text: `${fmtDist(d)} away · In reach` }
-      : { tint: 'orange', icon: E.walk, text: `${fmtDist(d)} ${compass(bearing(state.pos, c))} · Out of reach` });
-    const mine = myCells(), bs = builders();
-    if (!owner) {
-      out.title = 'Neutral Hex';
-      if (!mine.length) {
-        out.sub = 'Found your Headquarters here. Your first hex is free.';
-        out.tile = { icon: E.flag, tint: 'blue' };
-        out.primary.push(act('claim', 'Found Headquarters', E.flag, reachWhy));
-      } else {
-        const cost = expansionCost(mine.length), max = hqRules().maxCells, borders = touchesMine(id);
-        out.sub = `Your territory: ${mine.length} of ${max} hexes`;
-        out.tile = { icon: E.neutral, tint: borders ? 'orange' : 'gray' };
-        let why = null;
-        if (!borders) why = 'Must border your territory';
-        else if (mine.length >= max) why = 'Upgrade your Headquarters to claim more hexes';
-        else if (state.credits < cost) why = `Need ${fmtNum(cost)} credits`;
-        if (borders) out.tags.push({ tint: 'orange', icon: E.border, text: 'Borders your territory' });
-        out.primary.push(act('claim', `Claim for ${fmtNum(cost)} Credits`, E.flag, why || reachWhy));
-      }
-    } else if (owner !== 'me') {
-      const b = buildingOn(id);
-      out.title = rivalName(owner);
-      out.sub = b ? `${CFG.buildings[b.type].name} · Level ${b.lvl}` : 'Rival territory';
-      out.tile = { icon: b ? EMOJI_FOR[b.type] : E.rival, tint: 'red' };
-      out.tags.push({ tint: 'red', icon: E.rival, text: 'Rival territory' });
-      out.note = 'Scouting and raids arrive in a later update.';
-    } else {
-      const b = buildingOn(id);
-      out.tags.push({ tint: 'green', icon: E.mine, text: 'Your territory' });
-      if (!b) {
-        out.title = 'Your Hex';
-        out.sub = 'Empty. One building fits on each hex.';
-        out.tile = { icon: E.mine, tint: 'green' };
-        for (const [type, bd] of Object.entries(CFG.buildings)) {
-          const n = invOf(type);
-          if (!bd.buildable || n < 1) continue;
-          const l = bd.levels[0];
-          const why = (l.secs > 0 && bs.busy >= bs.total ? 'All builders are busy' : null) || reachWhy;
-          out.rows.push({ key: 'place-' + type, kind: 'place', type, icon: EMOJI_FOR[type], tint: TINT_FOR[type], title: bd.name,
-            sub: why || `${n} in inventory · builds in ${fmtDur(l.secs)}`, why: !!why, button: 'Place', enabled: !why });
-        }
-        if (!out.rows.length) out.note = 'Buy buildings in the shop, then place them on your empty hexes.';
-        out.primary.push({ key: 'shop', kind: 'shop', label: 'Open Shop', icon: E.shop, enabled: true });
-      } else {
-        const bd = CFG.buildings[b.type], l = def(b.type, b.lvl);
-        out.title = bd.name;
-        out.tile = { icon: EMOJI_FOR[b.type], tint: TINT_FOR[b.type] };
-        out.sub = `Level ${b.lvl} · ${l.rate ? `${l.rate} credits per hour` : `Holds ${fmtNum(l.storage)} credits`}`;
-        if (b.st !== 'active') {
-          const total = (b.st === 'constructing' ? l.secs : bd.levels[b.lvl].secs) * 1000;
-          const left = Math.max(0, b.ends - now());
-          out.progress = { label: b.st === 'constructing' ? 'Under construction' : `Upgrading to level ${b.lvl + 1}`, value: `${fmtLeft(left)} left`, frac: total ? 1 - left / total : 1, tint: 'orange' };
-        } else if (l.rate) {
-          out.progress = { label: 'Stored', value: `${fmtNum(b.stored)} of ${fmtNum(l.buffer)}`, frac: b.stored / l.buffer, tint: 'yellow' };
-        }
-        if (l.rate) {
-          const stored = Math.floor(b.stored);
-          let why = null;
-          if (b.st !== 'active') why = 'Available when construction finishes';
-          else if (stored < 1) why = 'Nothing to collect yet';
-          else if (state.credits >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
-          out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', E.coin, why || reachWhy, { id: b.id }));
-        }
-        const next = bd.levels[b.lvl];
-        if (next) {
-          let why = null;
-          if (b.st !== 'active') why = 'Under construction';
-          else if (next.reqHq > hqLevel()) why = `Requires Headquarters level ${next.reqHq}`;
-          else if (next.secs > 0 && bs.busy >= bs.total) why = 'All builders are busy';
-          else if (state.credits < next.cost) why = `Need ${fmtNum(next.cost)} credits`;
-          why = why || reachWhy;
-          out.rows.push({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: E.up, tint: 'blue', title: `Level ${b.lvl + 1}`,
-            sub: why || `${fmtNum(next.cost)} credits · ${fmtDur(next.secs)} · ${effect(b.type, next)}`, why: !!why, button: 'Upgrade', enabled: !why });
-        } else {
-          out.rows.push({ key: 'max', kind: 'none', icon: E.top, tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
-        }
-        out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: 'Move',
-          sub: 'To an empty hex you own, within reach', button: 'Move', enabled: true });
-        if (b.type === 'hq') {
-          const nx = CFG.hq[b.lvl];
-          out.note = nx
-            ? `Level ${b.lvl + 1} allows ${nx.maxCells} hexes, ${nx.limits.generator} Generators, ${nx.limits.storage} Vaults and ${nx.builders} builder${nx.builders === 1 ? '' : 's'}.`
-            : 'Your Headquarters is at the highest level in this test build.';
-        }
-      }
-    }
-    if (!inReach) {
-      out.primary.push(mode === 'gps'
-        ? { key: 'route', kind: 'route', label: 'Directions', icon: E.dir, enabled: true, lat: c.lat, lng: c.lng }
-        : { key: 'walk', kind: 'walk', label: 'Walk Here', icon: E.walk, enabled: true });
-    }
-    return out;
-  }
+  const SULTANAHMET = { lat: 41.0055, lng: 28.9768 };
 
   // ------------------------------------------------------------------ formatting
   function fmtDur(secs) {
@@ -1128,403 +723,1139 @@
   }
   const fmtNum = (n) => Math.floor(n).toLocaleString('en-US');
   const fmtDist = (m) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-  // ------------------------------------------------------------------ Google Maps
-  const KEY_STORE = 'clash-of-cities.gmaps.key';
-  const MAPID_STORE = 'clash-of-cities.gmaps.mapId';
-  const BUILD_KEY = ""; // filled in by build.py from GOOGLE_MAPS_API_KEY
-  const MAP = { zoom: 18, pinZoom: 18.5, gridMinZoom: 17, pinMinZoom: 16, maxGridRings: 24 };
-  const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
-
-  // A key can also arrive as ?key=… (it is saved on this device and removed from the address).
-  const keyInfo = (() => {
+  // ------------------------------------------------------------------ game server
+  // The server is the single source of truth, shared with the iPhone app.
+  const BUILD_API = "https://clash-of-cities-api.onrender.com"; // filled in by build.py
+  const API_STORE = 'coc.api';
+  const SESSION_STORE = 'coc.session.v1';
+  const PREF = 'coc.mode';
+  const API = (() => {
     try {
-      const u = new URL(location.href);
-      const k = u.searchParams.get('key');
-      if (k !== null) {
-        lsSet(KEY_STORE, k.trim() || null);
-        u.searchParams.delete('key');
+      const u = new URL(location.href), a = u.searchParams.get('api');
+      if (a !== null) {
+        lsSet(API_STORE, a.trim() || null);
+        u.searchParams.delete('api');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
       }
     } catch (e) { /* not a normal page URL */ }
-    const own = lsGet(KEY_STORE);
-    if (own) return { key: own, source: 'device' };
-    if (BUILD_KEY && !BUILD_KEY.startsWith('__')) return { key: BUILD_KEY, source: 'site' };
-    return { key: '', source: 'none' };
+    const v = lsGet(API_STORE) || (BUILD_API.startsWith('__') ? '' : BUILD_API) || 'https://clash-of-cities-api.onrender.com';
+    return v.replace(/\/$/, '');
   })();
+
+  class ApiError extends Error {
+    constructor(status, code, message, details) {
+      super(message);
+      this.status = status;
+      this.code = code;
+      this.details = details || {};
+    }
+  }
+  let serverOffset = 0; // server clock minus this device's clock (ms)
+  const serverNow = () => Date.now() + serverOffset;
+  let session = (() => { try { return JSON.parse(lsGet(SESSION_STORE) || 'null'); } catch (e) { return null; } })();
+  const saveSession = () => lsSet(SESSION_STORE, session ? JSON.stringify(session) : null);
+
+  async function http(method, path, body, headers = {}, timeoutMs = 20000) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), timeoutMs);
+    let res;
+    try {
+      res = await fetch(API + path, {
+        method, signal: ctl.signal,
+        headers: { ...(body === undefined ? {} : { 'content-type': 'application/json' }), ...headers },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    } catch (e) {
+      throw new ApiError(0, 'NETWORK', "Can't reach the game server. Check your connection.");
+    } finally {
+      clearTimeout(timer);
+    }
+    const text = await res.text();
+    let json = null;
+    try { json = text ? JSON.parse(text) : null; } catch (e) { /* not JSON */ }
+    const st = json && (json.serverTime || (json.state && json.state.serverTime));
+    if (st) serverOffset = Date.parse(st) - Date.now();
+    if (!res.ok) {
+      const e = json && json.error;
+      throw new ApiError(res.status, (e && e.code) || `HTTP_${res.status}`, (e && e.message) || `Server error ${res.status}`, e && e.details);
+    }
+    return json;
+  }
+  let refreshing = null;
+  async function ensureSession() {
+    if (session) return;
+    session = await http('POST', '/v1/auth/register');
+    saveSession();
+  }
+  function refreshSession() {
+    refreshing = refreshing || http('POST', '/v1/auth/refresh', { refreshToken: session.refreshToken })
+      .then((s) => { session = s; saveSession(); })
+      .catch((e) => {
+        if (e.status === 401 || e.status === 400) { session = null; saveSession(); } // account gone: start as a new commander
+        throw e;
+      })
+      .finally(() => { refreshing = null; });
+    return refreshing;
+  }
+  /** Authenticated call. Refreshes the access token when needed. */
+  async function api(method, path, body, opts = {}) {
+    await ensureSession();
+    if (Date.parse(session.accessTokenExpiresAt) - Date.now() < 30000) await refreshSession().catch(() => {});
+    await ensureSession();
+    const headers = () => ({ authorization: `Bearer ${session.accessToken}`, ...(opts.idem ? { 'idempotency-key': opts.idem } : {}) });
+    try {
+      return await http(method, path, body, headers(), opts.timeoutMs);
+    } catch (e) {
+      if (e.status !== 401) throw e;
+      await refreshSession().catch(() => {});
+      await ensureSession();
+      return http(method, path, body, headers(), opts.timeoutMs);
+    }
+  }
+  const newKey = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+
+  // ------------------------------------------------------------------ game state (from the server)
+  let cfg = null; // GET /v1/config
+  let me = null; // GET /v1/me (own state)
+  let meAt = 0; // local time me was received
+  const world = { cells: new Map(), owners: {}, players: [], center: null, at: 0 };
+  let version = 0; // bumps when territory or buildings change
+  let RES = 12, REACH = 70;
+  let mode = null; // 'gps' | 'sim'
+  let pos = null; // where the player is (GPS or simulated)
+  let selected = null, walkTarget = null, heading = 0, follow = true;
+
+  const bdef = (type) => cfg.buildings[type];
+  const lvl = (type, level) => bdef(type).levels[level - 1];
+  const costOf = (l) => (l && l.cost && l.cost.credits) || 0;
+  const rateOf = (l) => (l && l.productionPerHour && l.productionPerHour.credits) || 0;
+  const bufferOf = (l) => (l && l.bufferCapacity && l.bufferCapacity.credits) || 0;
+  const storageOf = (l) => (l && l.storageCapacity && l.storageCapacity.credits) || 0;
+  const TINT_FOR = { hq: 'blue', generator: 'orange', storage: 'indigo', builder_hut: 'blue', mine: 'yellow', watchtower: 'teal', park: 'green' };
+  /** Each building's emoji comes from the server config (Apple's emoji on iPhone). */
+  const emojiFor = (type) => (cfg && cfg.buildings[type] && cfg.buildings[type].emoji) || E.building;
+
+  // Avatars: head/face emoji. People take a skin tone (inserted after the first character).
+  const AV_PEOPLE = ('🧑 👩 👨 🧒 👧 👦 🧓 👵 👴 👱‍♀️ 👱‍♂️ 👩‍🦰 👨‍🦰 👩‍🦱 👨‍🦱 👩‍🦳 👨‍🦳 👩‍🦲 👨‍🦲 🧔 🧔‍♀️ 👲 👳‍♀️ 👳‍♂️ 🧕 👮‍♀️ 👮‍♂️ 💂‍♀️ 💂‍♂️ ' +
+    '🕵️‍♀️ 🕵️‍♂️ 👷‍♀️ 👷‍♂️ 🤴 👸 🥷 🦸‍♀️ 🦸‍♂️ 🦹‍♀️ 🦹‍♂️ 🧙‍♀️ 🧙‍♂️ 🧚‍♀️ 🧛‍♀️ 🧛‍♂️ 🧜‍♀️ 🧝‍♀️ 🧝‍♂️ 👩‍⚕️ 👨‍⚕️ 👩‍🍳 👨‍🍳 👩‍🏫 👨‍🏫 ' +
+    '👩‍🚒 👨‍🚒 👩‍✈️ 👨‍✈️ 👩‍🚀 👨‍🚀 👩‍🔬 👨‍🔬 👩‍💻 👨‍💻 👩‍🎤 👨‍🎤 👩‍🎨 👨‍🎨 👩‍🌾 👨‍🌾 👩‍🔧 👨‍🔧 👩‍⚖️ 👨‍⚖️ 🎅 🤶 👼').split(' ');
+  const AV_FACES = '😀 😎 🤠 🥸 🤓 😈 👻 💀 🤡 👹 🤖 👽 🧟‍♂️ 🧟‍♀️ 🧞‍♂️ 🐵 🐶 🐱 🦊 🐯 🦁 🐸 🐼 🐻 🐨 🐷 🦄 🐲'.split(' ');
+  const TONES = ['', '\u{1F3FB}', '\u{1F3FC}', '\u{1F3FD}', '\u{1F3FE}', '\u{1F3FF}'];
+  function withTone(e, tone) {
+    if (!tone) return e;
+    const cp = [...e];
+    const rest = cp[1] === '\uFE0F' ? cp.slice(2) : cp.slice(1);
+    return cp[0] + tone + rest.join('');
+  }
+  const avatarOf = (p) => (p && p.avatar) || E.person;
+
+  let myCellSet = new Set(), myByCell = new Map();
+  function indexMe() {
+    myCellSet = new Set(me.territory.cells);
+    myByCell = new Map(me.buildings.map((b) => [b.cell, b]));
+  }
+  function setMe(state) {
+    const before = me ? `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}` : '';
+    me = state;
+    meAt = Date.now();
+    indexMe();
+    if (me.reachMeters && me.reachMeters !== REACH) setReach(me.reachMeters);
+    const after = `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}`;
+    if (before !== after) {
+      version++;
+      territoryChanged();
+    }
+  }
+  const credits = () => (me ? me.resources.credits || 0 : 0);
+  const capacity = () => (me ? me.capacity.credits || 0 : 0);
+  const invOf = (type) => (me && me.inventory && me.inventory[type]) || 0;
+  const invTotal = () => Object.values((me && me.inventory) || {}).reduce((a, n) => a + n, 0);
+  const hqLevel = () => (me ? me.hqLevel : 0);
+  /** Owner of a hex: 'me', another player's id, or null. */
+  function ownerOf(id) {
+    if (myCellSet.has(id)) return 'me';
+    const c = world.cells.get(id);
+    return c && c.ownerId && (!me || c.ownerId !== me.player.id) ? c.ownerId : null;
+  }
+  function buildingOn(id) {
+    const mine = myByCell.get(id);
+    if (mine) return { ...mine, own: true };
+    const c = world.cells.get(id);
+    return c && c.building && ownerOf(id) ? { ...c.building, cell: id, own: false, owner: c.ownerId } : null;
+  }
+  const rivalName = (ownerId) => (world.owners[ownerId] && world.owners[ownerId].username) || 'Rival';
+  /** Live production of an own building: the server's value plus what it made since. */
+  function storedNow(b) {
+    if (!b.production || b.state !== 'active') return b.stored || 0;
+    const elapsed = Math.max(0, serverNow() - Date.parse(b.storedAt));
+    return Math.min(b.production.capacity, b.stored + (b.production.perHour * elapsed) / 3.6e6);
+  }
+  const endsIn = (b) => (b.constructionEndsAt ? Date.parse(b.constructionEndsAt) - serverNow() : 0);
+  function builders() {
+    if (!me) return { total: 0, busy: 0 };
+    const busyCount = me.buildings.filter((b) => b.state !== 'active' && endsIn(b) > 0).length;
+    return { total: me.builders.total, busy: busyCount };
+  }
+  const touchesMine = (id) => h3.gridDisk(id, 1).some((n) => n !== id && myCellSet.has(n));
+
+  /** Why a building can't be bought right now (null = fine). The server checks again. */
+  function buyBlock(type) {
+    const bd = bdef(type);
+    if (!bd || !bd.buildable) return "That can't be bought.";
+    if (!hqLevel()) return 'Found your Headquarters first.';
+    const l = bd.levels[0];
+    if (l.requiredHq > hqLevel()) return `Requires Headquarters level ${l.requiredHq}.`;
+    const lim = me.limits[type] || { built: 0, max: 0 }, n = lim.built + invOf(type);
+    if (n >= lim.max) return `Limit reached (${n} of ${lim.max}). Upgrade your Headquarters.`;
+    if (credits() < costOf(l)) return `Need ${fmtNum(costOf(l))} credits.`;
+    return null;
+  }
+
+  // ------------------------------------------------------------------ hex grid (local H3 for geometry; ownership from the server)
+  const cellCache = new Map();
+  const cellAt = (lat, lng) => h3.latLngToCell(lat, lng, RES);
+  function cell(id) {
+    let c = cellCache.get(id);
+    if (!c) {
+      if (cellCache.size > 40000) cellCache.clear();
+      const [lat, lng] = h3.cellToLatLng(id);
+      c = { id, lat, lng, path: h3.cellToBoundary(id).map(([la, ln]) => ({ lat: la, lng: ln })) };
+      cellCache.set(id, c);
+    }
+    return c;
+  }
+  function ringCells(center, k) {
+    const inner = new Set(h3.gridDisk(center, k - 1));
+    return h3.gridDisk(center, k).filter((c) => !inner.has(c));
+  }
+  let spacing = 20, reachRings = 5;
+  function measureGrid(p) {
+    const id = cellAt(p.lat, p.lng);
+    spacing = distM(cell(id), cell(ringCells(id, 1)[0]));
+    reachRings = Math.ceil(REACH / spacing) + 1;
+  }
+  const hexAcross = () => Math.round((2 * spacing) / Math.sqrt(3));
+  /** Reach grows with a Watchtower; the server sends the current value with the player state. */
+  function setReach(m) {
+    REACH = m;
+    for (const el of document.querySelectorAll('[data-reach]')) el.textContent = REACH;
+    if (pos) measureGrid(pos);
+    if (map && pos) { map.setReach(pos, true); updateReach(true); }
+  }
+
+  // ------------------------------------------------------------------ location (GPS or simulated)
+  const gps = { acc: null, speed: 0, at: 0, err: null, watch: null, ref: null };
+  let locInfo = null; // last POST /v1/location answer
+  let lastSent = { at: 0, pos: null };
+  const SERVER_REASON = {
+    LOCATION_MOCKED: 'Mock locations are not allowed.',
+    LOCATION_UNTRUSTED: 'Your location could not be verified right now. Try again later.',
+    LOCATION_STALE: 'Waiting for a fresh GPS position…',
+    LOCATION_INACCURATE: 'GPS too weak here. Move to an open spot.',
+    MOVING_TOO_FAST: 'Actions pause while you travel fast. Stay safe!',
+  };
+  /** Why physical actions are not possible right now (null = fine). The server has the final say. */
+  function locationBlock() {
+    if (mode === 'gps') {
+      if (!gps.at || Date.now() - gps.at > cfg.location.maxFixAgeSeconds * 1000) return 'Waiting for a fresh GPS position…';
+      if (gps.acc > cfg.location.maxAccuracyMeters) return `GPS too weak here (±${Math.round(gps.acc)} m). Move to an open spot.`;
+    }
+    if (locInfo && !locInfo.canAct && locInfo.blockedReason) return SERVER_REASON[locInfo.blockedReason] || 'Actions are paused right now.';
+    if (locInfo && locInfo.travelCooldownSeconds > 0) return `You travelled far. Wait ${fmtDur(locInfo.travelCooldownSeconds)}.`;
+    return null;
+  }
+  function fix() {
+    const acc = mode === 'gps' ? Math.max(1, gps.acc || 10) : 5;
+    const at = mode === 'gps' && gps.at ? gps.at : Date.now();
+    return { lat: pos.lat, lng: pos.lng, accuracy: Math.round(acc * 10) / 10, timestamp: Math.round(at + serverOffset) };
+  }
+  function startGps() {
+    if (!('geolocation' in navigator)) {
+      onGpsError({ code: 2 });
+      return;
+    }
+    gps.err = null;
+    if (gps.watch !== null) navigator.geolocation.clearWatch(gps.watch);
+    gps.watch = navigator.geolocation.watchPosition(onFix, onGpsError, { enableHighAccuracy: true, maximumAge: 2000, timeout: 30000 });
+    if (!pos) busy('Finding your location…');
+  }
+  function stopGps() {
+    if (gps.watch !== null && navigator.geolocation) navigator.geolocation.clearWatch(gps.watch);
+    gps.watch = null;
+  }
+  function onFix(p) {
+    const c = p.coords, f = { lat: c.latitude, lng: c.longitude }, t = Date.now();
+    let speed = typeof c.speed === 'number' && c.speed >= 0 ? c.speed : null;
+    if (gps.ref) {
+      const dt = (t - gps.ref.t) / 1000;
+      if (dt >= 3) {
+        const est = Math.max(0, distM(gps.ref, f) - c.accuracy - gps.ref.acc) / dt;
+        speed = speed === null ? est : Math.max(speed, est);
+        gps.ref = { ...f, t, acc: c.accuracy };
+      }
+    } else gps.ref = { ...f, t, acc: c.accuracy };
+    if (speed !== null) gps.speed = speed;
+    gps.acc = c.accuracy;
+    gps.at = t;
+    gps.err = null;
+    closeModal('locHelp');
+    if (mode !== 'gps') return;
+    const first = !pos;
+    pos = f;
+    if (first) startGame();
+    else playerMoved(true);
+  }
+  function onGpsError(e) {
+    gps.err = e.code === 1 ? 'denied' : e.code === 3 ? 'timeout' : 'unavailable';
+    if (mode !== 'gps') return;
+    refreshStatus();
+    if (e.code === 3 && pos) return;
+    showLocHelp(e.code === 1 ? 'Location access is turned off for this page.'
+      : e.code === 3 ? 'Your phone did not report a position in time.' : 'Your phone could not determine a position.');
+  }
+  /** Sends the position to the server: when it moved, and as a heartbeat. */
+  async function syncLocation(force) {
+    if (!pos || !me) return;
+    const c = cfg.client, now = Date.now();
+    const moved = lastSent.pos ? distM(lastSent.pos, pos) : Infinity;
+    const due = force || now - lastSent.at > c.locationHeartbeatSeconds * 1000 || (moved > c.locationSendMinMeters && now - lastSent.at > c.locationSendMinSeconds * 1000);
+    if (!due || syncLocation.busy) return;
+    if (mode === 'gps' && (!gps.at || now - gps.at > 20000)) return;
+    syncLocation.busy = true;
+    lastSent = { at: now, pos: { ...pos } };
+    try {
+      locInfo = await api('POST', '/v1/location', fix());
+    } catch (e) {
+      if (e.code === 'RATE_LIMITED') lastSent.at = now + 3000;
+    } finally {
+      syncLocation.busy = false;
+      refreshStatus();
+    }
+  }
+
+  // ------------------------------------------------------------------ world data around the player / the view
+  async function loadWorld(center) {
+    if (loadWorld.busy) return;
+    loadWorld.busy = true;
+    try {
+      // Sparse: only owned/built cells; the page draws the hex grid itself with h3-js.
+      const w = await api('GET', `/v1/world?lat=${center.lat.toFixed(6)}&lng=${center.lng.toFixed(6)}&rings=${Math.min(MAP.worldRings, cfg.grid.maxWorldRings)}&sparse=1`);
+      world.cells = new Map(w.cells.filter((c) => c.ownerId).map((c) => [c.id, c]));
+      world.owners = w.owners || {};
+      world.players = w.players || [];
+      world.center = { ...center };
+      world.at = Date.now();
+      version++;
+      territoryChanged();
+    } catch (e) {
+      /* keep the last world; the status line shows server problems */
+    } finally {
+      loadWorld.busy = false;
+    }
+  }
+  async function loadMe() {
+    try {
+      setMe(await api('GET', '/v1/me'));
+    } catch (e) { /* retried on the next tick */ }
+  }
+  function maybeReloadWorld() {
+    if (!me || !pos) return;
+    const view = map ? map.center() : pos, farView = mapScale() <= MAP.gridMpp && world.center && distM(world.center, view) > 250;
+    const stale = Date.now() - world.at > cfg.client.worldRefreshSeconds * 1000;
+    const moved = world.center && distM(world.center, pos) > 180;
+    if (!world.center || stale || moved || farView) loadWorld(farView ? view : pos);
+  }
+
+  // ------------------------------------------------------------------ commands (the server decides)
+  let inFlight = false;
+  async function command(run, onOk) {
+    if (inFlight) return false;
+    inFlight = true;
+    try {
+      const res = await run();
+      if (res && res.state) setMe(res.state);
+      if (onOk) onOk(res);
+      return true;
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      toast(e.message, true);
+      if (e.code === 'LOCATION_STALE') syncLocation(true);
+      return false;
+    } finally {
+      inFlight = false;
+      refreshUi();
+    }
+  }
+  const post = (path, body) => api('POST', path, body, { idem: newKey() });
+  const doClaim = (id) => command(() => post('/v1/territory/claim', { cell: id, location: fix() }),
+    (r) => toast(r.result.foundedHq ? 'Headquarters founded' : `Hex claimed for ${fmtNum(r.result.cost.credits || 0)} credits`, false, r.result.foundedHq ? E.hq : E.flag));
+  const doBuy = (type) => command(() => post('/v1/shop/buy', { type }), () => toast(`${bdef(type).name} added to your inventory`, false, E.shop));
+  const doPlace = (id, type) => command(() => post('/v1/buildings', { cell: id, type, location: fix() }), () => toast(`${bdef(type).name} placed. Construction started.`, false, E.building));
+  const doMove = (bid, id) => command(() => post(`/v1/buildings/${bid}/move`, { cell: id, location: fix() }), (r) => toast(`${bdef(r.result.building.type).name} moved`, false, E.move));
+  const doUpgrade = (bid) => command(() => post(`/v1/buildings/${bid}/upgrade`, { location: fix() }), (r) => toast(`Upgrade to level ${r.result.building.level + 1} started`, false, E.up));
+  const doCollect = (bid) => command(() => post(`/v1/buildings/${bid}/collect`, { location: fix() }), (r) => toast(`Collected ${fmtNum(r.result.collected.credits || 0)} credits`, false, E.coin));
+  let devTools = true;
+  async function doSkip(minutes) {
+    closeModal('settings');
+    try {
+      setMe(await api('POST', '/v1/dev/skip-time', { minutes }));
+      const h = minutes / 60;
+      toast(`Skipped ${minutes >= 60 ? `${h} hour${h === 1 ? '' : 's'}` : `${minutes} minutes`}`, false, E.skip);
+    } catch (e) {
+      if (e.status === 404) devTools = false;
+      toast(e.status === 404 ? 'Skipping time is turned off on this server.' : e.message, true);
+    }
+    refreshUi();
+  }
+
+  // ------------------------------------------------------------------ what a hex offers
+  /** What a building level does, in words: "+120 per hour", "+15 m reach", … */
+  function effect(type, l) {
+    const out = [];
+    if (rateOf(l)) out.push(`+${fmtNum(rateOf(l))} per hour`);
+    if (type === 'hq') out.push('more territory');
+    else if (storageOf(l)) out.push(`holds ${fmtNum(storageOf(l))}`);
+    if (l.builders) out.push(`+${l.builders} builder${l.builders === 1 ? '' : 's'}`);
+    if (l.reachBonusMeters) out.push(`+${l.reachBonusMeters} m reach`);
+    if (l.prestige) out.push(`+${l.prestige} score`);
+    return out.join(' · ');
+  }
+  const cap1 = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+  /** Compact fact chips for shop cards. */
+  function facts(type, l) {
+    const f = [];
+    if (rateOf(l)) f.push(`${E.coin} +${fmtNum(rateOf(l))}/h`, `${E.box} ${fmtNum(bufferOf(l))}`);
+    if (storageOf(l) && type !== 'hq') f.push(`${E.storage} +${fmtNum(storageOf(l))}`);
+    if (l.builders) f.push(`${E.builder} +${l.builders}`);
+    if (l.reachBonusMeters) f.push(`${E.reach} +${l.reachBonusMeters} m`);
+    if (l.prestige) f.push(`${E.star} +${l.prestige}`);
+    f.push(`${E.timer} ${fmtDur(l.buildSeconds)}`);
+    return f.map((x) => `<span>${esc(x)}</span>`).join('');
+  }
+  function describe(id) {
+    const c = cell(id), d = distM(pos, c), inReach = d <= REACH;
+    const blocked = locationBlock();
+    const reachWhy = blocked || (inReach ? null : `Walk closer: ${fmtDist(d)} away`);
+    const owner = ownerOf(id);
+    const out = { title: '', sub: '', tile: { icon: E.neutral, tint: 'gray' }, tags: [], progress: null, primary: [], rows: [], note: '' };
+    const act = (kind, label, icon, why, extra) => ({ key: kind, kind, label, icon, why, enabled: !why, reachOnly: !!why && why === reachWhy && !blocked, ...extra });
+    out.tags.push(cellAt(pos.lat, pos.lng) === id ? { tint: 'green', icon: E.here, text: 'You are here' }
+      : inReach ? { tint: 'green', icon: E.ok, text: `${fmtDist(d)} away · In reach` }
+      : { tint: 'orange', icon: E.walk, text: `${fmtDist(d)} ${compass(bearing(pos, c))} · Out of reach` });
+    const bs = builders();
+    if (!owner) {
+      out.title = 'Neutral Hex';
+      if (!me.territory.count) {
+        out.sub = 'Found your Headquarters here. Your first hex is free.';
+        out.tile = { icon: E.flag, tint: 'blue' };
+        out.primary.push(act('claim', 'Found Headquarters', E.flag, reachWhy));
+      } else {
+        const cost = me.territory.nextClaimCost.amount, max = me.territory.max, n = me.territory.count, borders = touchesMine(id);
+        out.sub = `Your territory: ${n} of ${max} hexes`;
+        out.tile = { icon: E.neutral, tint: borders ? 'orange' : 'gray' };
+        let why = null;
+        if (!borders) why = 'Must border your territory';
+        else if (n >= max) why = 'Upgrade your Headquarters to claim more hexes';
+        else if (credits() < cost) why = `Need ${fmtNum(cost)} credits`;
+        if (borders) out.tags.push({ tint: 'orange', icon: E.border, text: 'Borders your territory' });
+        out.primary.push(act('claim', `Claim for ${fmtNum(cost)} Credits`, E.flag, why || reachWhy));
+      }
+    } else if (owner !== 'me') {
+      const b = buildingOn(id);
+      out.title = rivalName(owner);
+      out.sub = b ? `${bdef(b.type).name} · Level ${b.level}` : 'Rival territory';
+      out.tile = { icon: b ? emojiFor(b.type) : (world.owners[owner] && world.owners[owner].avatar) || E.rival, tint: 'red' };
+      out.tags.push({ tint: 'red', icon: E.rival, text: 'Rival territory' });
+      const ow = world.owners[owner];
+      out.rows.push({ key: 'profile', kind: 'profile', owner, icon: (ow && ow.avatar) || E.user, tint: 'blue', title: 'View Profile',
+        sub: ow && ow.hqLevel ? `Headquarters level ${ow.hqLevel}` : 'Commander', button: 'View', enabled: true });
+      out.note = 'Scouting and raids arrive in a later update.';
+    } else {
+      const b = myByCell.get(id);
+      out.tags.push({ tint: 'green', icon: E.mine, text: 'Your territory' });
+      if (!b) {
+        out.title = 'Your Hex';
+        out.sub = 'Empty. One building fits on each hex.';
+        out.tile = { icon: E.mine, tint: 'green' };
+        for (const [type, bd] of Object.entries(cfg.buildings)) {
+          const n = invOf(type);
+          if (!bd.buildable || n < 1) continue;
+          const l = bd.levels[0];
+          const why = (l.buildSeconds > 0 && bs.busy >= bs.total ? 'All builders are busy' : null) || reachWhy;
+          out.rows.push({ key: 'place-' + type, kind: 'place', type, icon: emojiFor(type), tint: TINT_FOR[type] || 'gray', title: bd.name,
+            sub: why || `${n} in inventory · builds in ${fmtDur(l.buildSeconds)}`, why: !!why, button: 'Place', enabled: !why });
+        }
+        if (!out.rows.length) out.note = 'Buy buildings in the shop, then place them on your empty hexes.';
+        out.primary.push({ key: 'shop', kind: 'shop', label: 'Open Shop', icon: E.shop, enabled: true });
+      } else {
+        const bd = bdef(b.type), l = lvl(b.type, b.level), left = endsIn(b), busyNow = b.state !== 'active' && left > 0;
+        out.title = bd.name;
+        out.tile = { icon: emojiFor(b.type), tint: TINT_FOR[b.type] || 'gray' };
+        out.sub = `Level ${b.level} · ${b.type === 'hq' ? `Holds ${fmtNum(storageOf(l))} credits` : cap1(effect(b.type, l) || bd.description)}`;
+        if (b.state !== 'active') {
+          const total = Date.parse(b.constructionEndsAt) - Date.parse(b.constructionStartedAt);
+          out.progress = { label: b.state === 'constructing' ? 'Under construction' : `Upgrading to level ${b.level + 1}`,
+            value: left > 0 ? `${fmtLeft(left)} left` : 'Finishing…', frac: total ? 1 - Math.max(0, left) / total : 1, tint: 'orange' };
+        } else if (b.production) {
+          out.progress = { label: 'Stored', value: `${fmtNum(storedNow(b))} of ${fmtNum(b.production.capacity)}`, frac: storedNow(b) / b.production.capacity, tint: 'yellow' };
+        }
+        if (rateOf(l)) {
+          const stored = Math.floor(storedNow(b));
+          let why = null;
+          if (b.state !== 'active') why = 'Available when construction finishes';
+          else if (stored < 1) why = 'Nothing to collect yet';
+          else if (credits() >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
+          out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', E.coin, why || reachWhy, { id: b.id }));
+        }
+        const next = bd.levels[b.level];
+        if (next) {
+          let why = null;
+          if (b.state !== 'active') why = 'Under construction';
+          else if (next.requiredHq > hqLevel()) why = `Requires Headquarters level ${next.requiredHq}`;
+          else if (next.buildSeconds > 0 && bs.busy >= bs.total) why = 'All builders are busy';
+          else if (credits() < costOf(next)) why = `Need ${fmtNum(costOf(next))} credits`;
+          why = why || reachWhy;
+          out.rows.push({ key: 'upgrade', kind: 'upgrade', id: b.id, icon: E.up, tint: 'blue', title: `Level ${b.level + 1}`,
+            sub: why || `${fmtNum(costOf(next))} credits · ${fmtDur(next.buildSeconds)} · ${effect(b.type, next)}`, why: !!why, button: 'Upgrade', enabled: !why });
+        } else {
+          out.rows.push({ key: 'max', kind: 'none', icon: E.top, tint: 'gray', title: 'Highest Level', sub: 'More levels arrive in a later update.', button: '', enabled: false });
+        }
+        out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: 'Move',
+          sub: 'To an empty hex you own, within reach', button: 'Move', enabled: true });
+        if (b.type === 'hq') {
+          const nx = cfg.hq.levels[b.level];
+          out.note = nx
+            ? `Level ${b.level + 1} allows ${nx.maxTerritoryCells} hexes, ${nx.builders} builder${nx.builders === 1 ? '' : 's'} and up to ` +
+              Object.entries(nx.buildingLimits).filter(([, n]) => n > 0).map(([t, n]) => `${n} ${emojiFor(t)}`).join(' · ') + '.'
+            : 'Your Headquarters is at the highest level in this test build.';
+        }
+        if (busyNow) void 0;
+      }
+    }
+    if (!inReach) {
+      out.primary.push(mode === 'gps'
+        ? { key: 'route', kind: 'route', label: 'Directions', icon: E.dir, enabled: true, lat: c.lat, lng: c.lng }
+        : { key: 'walk', kind: 'walk', label: 'Walk Here', icon: E.walk, enabled: true });
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------------ map: one interface, two engines
+  // Apple Maps (MapKit JS) when the server can sign a MapKit token; Google Maps until then.
+  // Camera and layers, tuned for ~9 m hexes (H3 res 13): the default view shows the 70 m reach circle.
+  const MAP = { mpp: 0.4, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 2.4, maxGridRings: 40, worldRings: 45 };
+  const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
+  const dark = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+  function hexStyles(darkMap) {
+    const grid = darkMap ? '#ffffff' : '#3c3c43';
+    return {
+      own: { fill: COL.own, fillOpacity: 0.3, stroke: COL.own, strokeOpacity: 0.6, width: 1, z: 4 },
+      rival: { fill: COL.rival, fillOpacity: 0.22, stroke: COL.rival, strokeOpacity: 0.55, width: 1, z: 3 },
+      claimR: { fill: COL.claim, fillOpacity: 0.2, stroke: COL.claim, strokeOpacity: 1, width: 2, z: 2 },
+      claim: { fill: COL.claim, fillOpacity: 0.07, stroke: COL.claim, strokeOpacity: 0.75, width: 1.5, z: 2 },
+      nR: { fill: COL.blue, fillOpacity: 0.07, stroke: grid, strokeOpacity: 0.6, width: 1, z: 1 },
+      n: { fill: grid, fillOpacity: 0, stroke: grid, strokeOpacity: 0.3, width: 1, z: 1 },
+      oMe: { fill: COL.own, fillOpacity: 0, stroke: COL.own, strokeOpacity: 1, width: 3, z: 5 },
+      oRival: { fill: COL.rival, fillOpacity: 0, stroke: COL.rival, strokeOpacity: 1, width: 2.5, z: 5 },
+      lot: { fill: COL.own, fillOpacity: 0.6, stroke: '#ffffff', strokeOpacity: 1, width: 2.5, z: 6 },
+      sel: { fill: COL.blue, fillOpacity: 0.12, stroke: COL.blue, strokeOpacity: 1, width: 3.5, z: 20 },
+      reach: { fill: COL.blue, fillOpacity: 0.04, stroke: COL.blue, strokeOpacity: 0.75, width: 2, z: 10 },
+      acc: { fill: COL.blue, fillOpacity: 0.1, stroke: COL.blue, strokeOpacity: 0.25, width: 1, z: 11 },
+    };
+  }
+  let map = null; // the active engine
+  const mapScale = () => (map ? map.metersPerPixel() : MAP.mpp);
+
+  const KEY_STORE = 'clash-of-cities.gmaps.key';
+  const BUILD_GKEY = "";
+  const gKey = lsGet(KEY_STORE) || (BUILD_GKEY.startsWith('__') ? '' : BUILD_GKEY);
   const siteOrigin = () => (/^https?:$/.test(location.protocol) ? location.origin : 'https://mibo132.github.io');
-
-  let gm = null, map = null, overlay = null, puckEl = null;
-  let authFailed = false;
-  const layers = { sel: null, reach: null, acc: null };
-  const gridFeats = new Map(); // hex id -> google.maps.Data.Feature
-  let outlineFeats = [];
-  let frontier = new Set();
-  let reachSet = new Set();
-  let playerCell = null;
-  const pins = new Map(); // building id -> pin
-
-  function loadMapsScript(key) {
+  function loadScript(src, attrs = {}) {
     return new Promise((resolve, reject) => {
-      const cb = '__cocMapsReady';
-      window[cb] = () => resolve();
-      const q = new URLSearchParams({ v: 'weekly', loading: 'async', callback: cb });
-      if (key) q.set('key', key);
       const s = document.createElement('script');
-      s.src = `https://maps.googleapis.com/maps/api/js?${q}`;
+      s.src = src;
       s.async = true;
-      s.onerror = () => reject(new Error('Google Maps did not load'));
+      for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error(`${src} did not load`));
       document.head.appendChild(s);
+    });
+  }
+
+  /** Apple Maps via MapKit JS. */
+  async function appleEngine(el, center) {
+    let tokenOk = false;
+    const fetchToken = async () => {
+      const r = await http('GET', '/v1/mapkit/token', undefined, {}, 60000);
+      tokenOk = true;
+      return r.token;
+    };
+    const first = await fetchToken(); // throws when the server has no Apple Maps key: caller falls back to Google
+    await loadScript('https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.core.js', { 'data-libraries': 'map,annotations,overlays', crossorigin: 'anonymous' });
+    const mk = window.mapkit;
+    if (!mk) throw new Error('MapKit JS missing');
+    if (mk.loadedLibraries === undefined || !mk.Map) await new Promise((r) => mk.addEventListener('load', r, { once: true }));
+    let pending = first;
+    mk.init({ authorizationCallback: (done) => { if (pending) { done(pending); pending = null; } else fetchToken().then(done).catch(() => {}); } });
+    const m = new mk.Map(el, {
+      center: new mk.Coordinate(center.lat, center.lng),
+      showsCompass: mk.FeatureVisibility.Hidden, showsMapTypeControl: false, showsZoomControl: false, showsUserLocationControl: false,
+      showsScale: mk.FeatureVisibility.Hidden, isRotationEnabled: false, showsPointsOfInterest: true,
+      colorScheme: dark ? mk.Map.ColorSchemes.Dark : mk.Map.ColorSchemes.Light,
+    });
+    const S = hexStyles(dark);
+    const style = (k) => { const s = S[k] || S.n; return new mk.Style({ fillColor: s.fill, fillOpacity: s.fillOpacity, strokeColor: s.stroke, strokeOpacity: s.strokeOpacity, lineWidth: s.width }); };
+    const styleCache = {};
+    const st = (k) => (styleCache[k] = styleCache[k] || style(k));
+    const coord = (p) => new mk.Coordinate(p.lat, p.lng);
+    const hexes = new Map(), outlines = [];
+    let sel = null;
+    const reach = new mk.CircleOverlay(coord(center), REACH, { style: st('reach') });
+    const acc = new mk.CircleOverlay(coord(center), 1, { style: st('acc') });
+    let reachShown = false, accShown = false;
+    const handlers = { tap: [], userMove: [], idle: [], zoom: [] };
+    const fire = (k, ...a) => handlers[k].forEach((f) => f(...a));
+    m.addEventListener('single-tap', (e) => { const c = m.convertPointOnPageToCoordinate(e.pointOnPage); fire('tap', c.latitude, c.longitude); });
+    m.addEventListener('scroll-start', () => fire('userMove'));
+    m.addEventListener('region-change-end', () => { fire('zoom'); fire('idle'); });
+    m.addEventListener('zoom-end', () => fire('zoom'));
+    const pageOff = () => { const r = el.getBoundingClientRect(); return { x: r.left + window.scrollX, y: r.top + window.scrollY }; };
+    return {
+      kind: 'apple',
+      on(k, f) { handlers[k].push(f); },
+      center() { return { lat: m.center.latitude, lng: m.center.longitude }; },
+      metersPerPixel() { return (m.region.span.latitudeDelta * 111320) / Math.max(1, el.clientHeight); },
+      setView(p, mpp, animate) {
+        const h = el.clientHeight, w = el.clientWidth, s = mpp || this.metersPerPixel();
+        const span = new mk.CoordinateSpan((s * h) / 111320, (s * w) / (111320 * Math.cos(p.lat * RAD)));
+        m.setRegionAnimated(new mk.CoordinateRegion(coord(p), span), !!animate);
+      },
+      setCenter(p, animate) { m.setCenterAnimated(coord(p), !!animate); },
+      panBy(dx, dy) { const c = this.toPx(this.center()); const t = this.fromPx(c.x + dx, c.y + dy); if (t) this.setCenter(t, true); },
+      toPx(p) { const o = pageOff(), q = m.convertCoordinateToPointOnPage(coord(p)); return { x: q.x - o.x, y: q.y - o.y }; },
+      fromPx(x, y) { const o = pageOff(), c = m.convertPointOnPageToCoordinate(new DOMPoint(x + o.x, y + o.y)); return { lat: c.latitude, lng: c.longitude }; },
+      setHex(id, path, key) {
+        let o = hexes.get(id);
+        if (o) { if (o._k !== key) { o._k = key; o.style = st(key); } return; }
+        o = new mk.PolygonOverlay(path.map(coord), { style: st(key) });
+        o._k = key;
+        o.enabled = false;
+        hexes.set(id, o);
+        m.addOverlay(o);
+      },
+      hexIds() { return hexes.keys(); },
+      removeHex(id) { const o = hexes.get(id); if (o) { m.removeOverlay(o); hexes.delete(id); } },
+      setOutlines(list) {
+        if (outlines.length) m.removeOverlays(outlines.splice(0));
+        for (const { key, polygons } of list) {
+          for (const poly of polygons) {
+            const o = new mk.PolygonOverlay(poly.map((ring) => ring.map(([lng, lat]) => new mk.Coordinate(lat, lng))), { style: st(key) });
+            o.enabled = false;
+            outlines.push(o);
+          }
+        }
+        if (outlines.length) m.addOverlays(outlines);
+      },
+      setSelection(path) {
+        if (sel) { m.removeOverlay(sel); sel = null; }
+        if (path) { sel = new mk.PolygonOverlay(path.map(coord), { style: st('sel') }); sel.enabled = false; m.addOverlay(sel); }
+      },
+      setReach(p, show) { reach.coordinate = coord(p); reach.radius = REACH; if (show !== reachShown) { reachShown = show; show ? m.addOverlay(reach) : m.removeOverlay(reach); } },
+      setAccuracy(p, r) {
+        const show = r > 0;
+        if (show) { acc.coordinate = coord(p); acc.radius = r; }
+        if (show !== accShown) { accShown = show; show ? m.addOverlay(acc) : m.removeOverlay(acc); }
+      },
+      addMarker(elm, p, z) {
+        const a = new mk.Annotation(coord(p), () => elm, { calloutEnabled: false, enabled: false, animates: false, displayPriority: 1000, anchorOffset: new DOMPoint(0, 0), size: { width: 0, height: 0 } });
+        if (z) a.zIndex = z;
+        m.addAnnotation(a);
+        return { move(q) { a.coordinate = coord(q); }, remove() { m.removeAnnotation(a); } };
+      },
+      tokenOk: () => tokenOk,
+      attribution: 'Apple Maps',
+    };
+  }
+
+  /** Google Maps (Maps JavaScript API). */
+  async function googleEngine(el, center, mpp) {
+    await new Promise((resolve, reject) => {
+      window.__cocMapsReady = () => resolve();
+      window.gm_authFailure = () => { gAuthFailed = true; updateKeyChip(); };
+      const q = new URLSearchParams({ v: 'weekly', loading: 'async', callback: '__cocMapsReady' });
+      if (gKey) q.set('key', gKey);
+      loadScript(`https://maps.googleapis.com/maps/api/js?${q}`).catch(reject);
       setTimeout(() => reject(new Error('Google Maps timed out')), 25000);
     });
-  }
-
-  async function initMap(center, zoom) {
-    window.gm_authFailure = onMapsAuthFailure;
-    await loadMapsScript(keyInfo.key);
     const { Map: GMap } = await google.maps.importLibrary('maps');
-    gm = google.maps;
+    const gm = google.maps;
+    const zoomFor = (s, lat) => Math.log2((156543.03392 * Math.cos(lat * RAD)) / s);
     const opts = {
-      center, zoom, minZoom: 3, maxZoom: 21,
-      disableDefaultUI: true, clickableIcons: false, keyboardShortcuts: false, gestureHandling: 'greedy',
-      headingInteractionEnabled: false, tiltInteractionEnabled: false,
+      center, zoom: Math.round(zoomFor(mpp, center.lat)), minZoom: 3, maxZoom: 21, disableDefaultUI: true, clickableIcons: false,
+      keyboardShortcuts: false, gestureHandling: 'greedy', headingInteractionEnabled: false, tiltInteractionEnabled: false,
     };
-    if (keyInfo.key) {
-      // Vector map (needs a map ID); it can follow the phone's light/dark mode.
-      opts.mapId = lsGet(MAPID_STORE) || 'DEMO_MAP_ID';
+    if (gKey) {
+      opts.mapId = 'DEMO_MAP_ID';
       if (gm.ColorScheme) opts.colorScheme = gm.ColorScheme.FOLLOW_SYSTEM;
     } else {
-      dismissDevDialog();
+      // Without a key Google shows a dialog under our controls; the game explains the missing key itself.
+      const mo = new MutationObserver(() => { const b = el.querySelector('.dismissButton'); if (b) b.click(); });
+      mo.observe(el, { childList: true, subtree: true });
+      setTimeout(() => mo.disconnect(), 20000);
     }
-    map = new GMap($('map'), opts);
-    const dark = !!opts.colorScheme && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
-    const grid = dark ? '#ffffff' : '#3c3c43';
-    const base = { clickable: false };
-    const STYLES = {
-      own: { ...base, fillColor: COL.own, fillOpacity: 0.3, strokeColor: COL.own, strokeOpacity: 0.6, strokeWeight: 1, zIndex: 4 },
-      rival: { ...base, fillColor: COL.rival, fillOpacity: 0.22, strokeColor: COL.rival, strokeOpacity: 0.55, strokeWeight: 1, zIndex: 3 },
-      claimR: { ...base, fillColor: COL.claim, fillOpacity: 0.2, strokeColor: COL.claim, strokeOpacity: 1, strokeWeight: 2, zIndex: 2 },
-      claim: { ...base, fillColor: COL.claim, fillOpacity: 0.07, strokeColor: COL.claim, strokeOpacity: 0.75, strokeWeight: 1.5, zIndex: 2 },
-      nR: { ...base, fillColor: COL.blue, fillOpacity: 0.07, strokeColor: grid, strokeOpacity: 0.6, strokeWeight: 1, zIndex: 1 },
-      n: { ...base, fillOpacity: 0, strokeColor: grid, strokeOpacity: 0.3, strokeWeight: 1, zIndex: 1 },
-      oMe: { ...base, fillOpacity: 0, strokeColor: COL.own, strokeOpacity: 1, strokeWeight: 3, zIndex: 5 },
-      oRival: { ...base, fillOpacity: 0, strokeColor: COL.rival, strokeOpacity: 1, strokeWeight: 2.5, zIndex: 5 },
-      lot: { ...base, fillColor: COL.own, fillOpacity: 0.6, strokeColor: '#ffffff', strokeOpacity: 1, strokeWeight: 2.5, zIndex: 6 },
-    };
-    map.data.setStyle((f) => STYLES[f.getProperty('s')] || STYLES.n);
-    layers.sel = new gm.Polygon({ map, paths: [], visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 1, strokeWeight: 3.5, fillColor: COL.blue, fillOpacity: 0.12, zIndex: 20 });
-    layers.reach = new gm.Circle({ map, center, radius: CFG.reach, visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 0.75, strokeWeight: 2, fillColor: COL.blue, fillOpacity: 0.04, zIndex: 10 });
-    layers.acc = new gm.Circle({ map, center, radius: 1, visible: false, clickable: false, strokeColor: COL.blue, strokeOpacity: 0.25, strokeWeight: 1, fillColor: COL.blue, fillOpacity: 0.1, zIndex: 11 });
-
-    class GameOverlay extends gm.OverlayView {
-      constructor() {
-        super();
-        this.root = document.createElement('div');
-        this.root.className = 'ov';
-      }
+    const m = new GMap(el, opts);
+    const S = hexStyles(!!opts.colorScheme && dark);
+    const gs = (k) => { const s = S[k] || S.n; return { clickable: false, fillColor: s.fill, fillOpacity: s.fillOpacity, strokeColor: s.stroke, strokeOpacity: s.strokeOpacity, strokeWeight: s.width, zIndex: s.z }; };
+    m.data.setStyle((f) => gs(f.getProperty('s')));
+    const hexes = new Map();
+    let outlines = [];
+    const sel = new gm.Polygon({ map: m, paths: [], visible: false, ...gs('sel') });
+    const reach = new gm.Circle({ map: m, center, radius: REACH, visible: false, ...gs('reach') });
+    const acc = new gm.Circle({ map: m, center, radius: 1, visible: false, ...gs('acc') });
+    const markers = new Set();
+    class Overlay extends gm.OverlayView {
+      constructor() { super(); this.root = document.createElement('div'); this.root.className = 'ov'; }
       onAdd() { this.getPanes().markerLayer.appendChild(this.root); }
-      draw() { placeAll(); }
+      draw() { for (const mk of markers) mk.place(); }
       onRemove() { this.root.remove(); }
     }
-    overlay = new GameOverlay();
-    puckEl = document.createElement('div');
-    puckEl.className = 'puck';
-    puckEl.hidden = true;
-    puckEl.innerHTML = '<div class="cone"></div><div class="halo"></div><div class="dot"></div>';
-    overlay.root.appendChild(puckEl);
-    overlay.setMap(map);
+    const ov = new Overlay();
+    ov.setMap(m);
+    const handlers = { tap: [], userMove: [], idle: [], zoom: [] };
+    const fire = (k, ...a) => handlers[k].forEach((f) => f(...a));
+    m.addListener('click', (e) => e.latLng && fire('tap', e.latLng.lat(), e.latLng.lng()));
+    m.addListener('dragstart', () => fire('userMove'));
+    m.addListener('zoom_changed', () => fire('zoom'));
+    m.addListener('idle', () => fire('idle'));
+    await new Promise((r) => { gm.event.addListenerOnce(m, 'idle', r); setTimeout(r, 4000); });
+    const engine = {
+      kind: 'google',
+      on(k, f) { handlers[k].push(f); },
+      center() { const c = m.getCenter(); return { lat: c.lat(), lng: c.lng() }; },
+      metersPerPixel() { const c = m.getCenter(); return (156543.03392 * Math.cos(c.lat() * RAD)) / 2 ** m.getZoom(); },
+      setView(p, s, animate) { if (s) m.setZoom(Math.round(zoomFor(s, p.lat))); animate ? m.panTo(p) : m.setCenter(p); },
+      setCenter(p, animate) { animate ? m.panTo(p) : m.setCenter(p); },
+      panBy(dx, dy) { m.panBy(dx, dy); },
+      toPx(p) {
+        const proj = m.getProjection(), c = m.getCenter();
+        if (!proj || !c) return null;
+        const s = 2 ** m.getZoom(), a = proj.fromLatLngToPoint(new gm.LatLng(p.lat, p.lng)), o = proj.fromLatLngToPoint(c);
+        return { x: (a.x - o.x) * s + el.clientWidth / 2, y: (a.y - o.y) * s + el.clientHeight / 2 };
+      },
+      fromPx(x, y) {
+        const proj = m.getProjection(), c = m.getCenter();
+        if (!proj || !c) return null;
+        const s = 2 ** m.getZoom(), o = proj.fromLatLngToPoint(c);
+        const ll = proj.fromPointToLatLng(new gm.Point(o.x + (x - el.clientWidth / 2) / s, o.y + (y - el.clientHeight / 2) / s));
+        return { lat: ll.lat(), lng: ll.lng() };
+      },
+      setHex(id, path, key) {
+        const f = hexes.get(id);
+        if (f) { if (f.getProperty('s') !== key) f.setProperty('s', key); return; }
+        hexes.set(id, m.data.add({ id, geometry: new gm.Data.Polygon([path]), properties: { s: key } }));
+      },
+      hexIds() { return hexes.keys(); },
+      removeHex(id) { const f = hexes.get(id); if (f) { m.data.remove(f); hexes.delete(id); } },
+      setOutlines(list) {
+        for (const f of outlines) m.data.remove(f);
+        outlines = [];
+        list.forEach(({ key, polygons }, i) => {
+          outlines.push(...m.data.addGeoJson({ type: 'Feature', id: `o:${i}`, properties: { s: key }, geometry: { type: 'MultiPolygon', coordinates: polygons } }));
+        });
+      },
+      setSelection(path) { if (path) sel.setPaths([path]); sel.setVisible(!!path); },
+      setReach(p, show) { reach.setCenter(p); if (reach.getRadius() !== REACH) reach.setRadius(REACH); reach.setVisible(show); },
+      setAccuracy(p, r) { acc.setVisible(r > 0); if (r > 0) { acc.setCenter(p); acc.setRadius(r); } },
+      addMarker(elm, p) {
+        let ll = new gm.LatLng(p.lat, p.lng);
+        const mk = {
+          place() { const proj = ov.getProjection(); const q = proj && proj.fromLatLngToDivPixel(ll); if (q) elm.style.transform = `translate(${q.x.toFixed(1)}px, ${q.y.toFixed(1)}px)`; },
+          move(q) { ll = new gm.LatLng(q.lat, q.lng); mk.place(); },
+          remove() { markers.delete(mk); elm.remove(); },
+        };
+        elm.style.position = 'absolute';
+        ov.root.appendChild(elm);
+        markers.add(mk);
+        mk.place();
+        return mk;
+      },
+      attribution: 'Google Maps',
+    };
+    return engine;
+  }
+  let gAuthFailed = false;
 
-    map.addListener('click', (e) => {
-      if (!state || !e.latLng) return;
-      const id = cellAt(e.latLng.lat(), e.latLng.lng());
-      if (placing) placeAt(id);
-      else select(id);
+  /** OpenStreetMap via Leaflet: free, no key. Used when the server has no Apple Maps key and no Google key is set. */
+  async function osmEngine(el, center, mpp) {
+    const V = '1.9.4', base = `https://cdnjs.cloudflare.com/ajax/libs/leaflet/${V}`;
+    if (!document.querySelector('link[data-leaflet]')) {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = `${base}/leaflet.min.css`;
+      css.dataset.leaflet = '1';
+      document.head.appendChild(css);
+    }
+    if (!window.L) await loadScript(`${base}/leaflet.min.js`);
+    const L = window.L;
+    const C = 40075016.686;
+    const zoomFor = (s, lat) => Math.log2((C * Math.cos(lat * RAD)) / (256 * s));
+    const m = L.map(el, {
+      center: [center.lat, center.lng], zoom: zoomFor(mpp, center.lat), minZoom: 3, maxZoom: 21, zoomSnap: 0, zoomDelta: 0.5, wheelPxPerZoomLevel: 90,
+      zoomControl: false, attributionControl: true, preferCanvas: true, inertia: true,
     });
-    map.addListener('dragstart', () => setFollow(false));
-    let recenterOnIdle = false;
-    map.addListener('zoom_changed', () => { onZoom(); recenterOnIdle = follow; });
-    map.addListener('idle', () => {
+    m.attributionControl.setPrefix(false);
+    L.tileLayer(cfg.map.tileUrlTemplate, { attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: false }).addTo(m);
+    if (dark) el.classList.add('osm-dark');
+    const S = hexStyles(dark);
+    const ls = (k) => { const s = S[k] || S.n; return { color: s.stroke, opacity: s.strokeOpacity, weight: s.width, fillColor: s.fill, fillOpacity: s.fillOpacity, interactive: false }; };
+    const pane = (name, z) => { m.createPane(name).style.zIndex = z; return L.canvas({ pane: name, padding: 0.3 }); };
+    const rHex = pane('cocHex', 401), rOut = pane('cocOut', 402), rReach = pane('cocReach', 403), rSel = pane('cocSel', 404);
+    const hexes = new Map();
+    let outlines = [];
+    const sel = L.polygon([], { ...ls('sel'), renderer: rSel }).addTo(m);
+    const reach = L.circle([center.lat, center.lng], { radius: REACH, ...ls('reach'), renderer: rReach });
+    const acc = L.circle([center.lat, center.lng], { radius: 1, ...ls('acc'), renderer: rReach });
+    let reachShown = false, accShown = false;
+    const handlers = { tap: [], userMove: [], idle: [], zoom: [] };
+    const fire = (k, ...a) => handlers[k].forEach((f) => f(...a));
+    m.on('click', (e) => fire('tap', e.latlng.lat, e.latlng.lng));
+    m.on('dragstart', () => fire('userMove'));
+    m.on('zoomend', () => fire('zoom'));
+    m.on('moveend', () => fire('idle'));
+    return {
+      kind: 'osm',
+      on(k, f) { handlers[k].push(f); },
+      center() { const c = m.getCenter(); return { lat: c.lat, lng: c.lng }; },
+      metersPerPixel() { const c = m.getCenter(); return (C * Math.cos(c.lat * RAD)) / (256 * 2 ** m.getZoom()); },
+      setView(p, s, animate) { m.setView([p.lat, p.lng], s ? zoomFor(s, p.lat) : m.getZoom(), { animate: !!animate }); },
+      setCenter(p, animate) { m.panTo([p.lat, p.lng], { animate: !!animate }); },
+      panBy(dx, dy) { m.panBy([dx, dy]); },
+      toPx(p) { const q = m.latLngToContainerPoint([p.lat, p.lng]); return { x: q.x, y: q.y }; },
+      fromPx(x, y) { const c = m.containerPointToLatLng([x, y]); return { lat: c.lat, lng: c.lng }; },
+      setHex(id, path, key) {
+        const o = hexes.get(id);
+        if (o) { if (o._k !== key) { o._k = key; o.setStyle(ls(key)); } return; }
+        const poly = L.polygon(path, { ...ls(key), renderer: rHex });
+        poly._k = key;
+        hexes.set(id, poly.addTo(m));
+      },
+      hexIds() { return hexes.keys(); },
+      removeHex(id) { const o = hexes.get(id); if (o) { o.remove(); hexes.delete(id); } },
+      setOutlines(list) {
+        for (const o of outlines) o.remove();
+        outlines = [];
+        for (const { key, polygons } of list) {
+          for (const poly of polygons) {
+            outlines.push(L.polygon(poly.map((ring) => ring.map(([lng, lat]) => [lat, lng])), { ...ls(key), renderer: rOut }).addTo(m));
+          }
+        }
+      },
+      setSelection(path) { sel.setLatLngs(path || []); },
+      setReach(p, show) {
+        reach.setLatLng([p.lat, p.lng]);
+        if (reach.getRadius() !== REACH) reach.setRadius(REACH);
+        if (show !== reachShown) { reachShown = show; show ? reach.addTo(m) : reach.remove(); }
+      },
+      setAccuracy(p, r) {
+        const show = r > 0;
+        if (show) { acc.setLatLng([p.lat, p.lng]); acc.setRadius(r); }
+        if (show !== accShown) { accShown = show; show ? acc.addTo(m) : acc.remove(); }
+      },
+      addMarker(elm, p, z) {
+        const icon = L.divIcon({ html: elm, className: 'osm-mk', iconSize: [0, 0], iconAnchor: [0, 0] });
+        const mk = L.marker([p.lat, p.lng], { icon, interactive: false, keyboard: false, zIndexOffset: (z || 0) * 1000 }).addTo(m);
+        return { move(q) { mk.setLatLng([q.lat, q.lng]); }, remove() { mk.remove(); } };
+      },
+      attribution: 'OpenStreetMap',
+    };
+  }
+
+  async function initMap(center) {
+    const el = $('map');
+    try {
+      map = await appleEngine(el, center);
+    } catch (e) {
+      el.innerHTML = '';
+      // No Apple Maps key on the server: Google if this device has a Google key, else the free OpenStreetMap.
+      if (gKey) map = await googleEngine(el, center, MAP.mpp * 4);
+      else {
+        try {
+          map = await osmEngine(el, center, MAP.mpp * 4);
+        } catch (err) {
+          el.innerHTML = '';
+          map = await googleEngine(el, center, MAP.mpp * 4);
+        }
+      }
+    }
+    map.on('tap', (lat, lng) => {
+      if (!me || !pos) return;
+      const id = cellAt(lat, lng);
+      if (placing) return placeAt(id);
+      const hit = playerAt(lat, lng);
+      if (hit) return openProfile(hit);
+      select(id);
+    });
+    map.on('userMove', () => setFollow(false));
+    let recenter = false;
+    map.on('zoom', () => { onZoom(); recenter = follow; });
+    map.on('idle', () => {
       scheduleGridSync();
-      if (recenterOnIdle && follow) followCamera(true);
-      recenterOnIdle = false;
+      if (recenter && follow) followCamera(true);
+      recenter = false;
     });
     onZoom();
-    // Wait for the first render so screen positions (sheet, follow offset) can be computed.
-    await new Promise((resolve) => {
-      gm.event.addListenerOnce(map, 'idle', resolve);
-      setTimeout(resolve, 4000);
-    });
   }
 
-  // Without an API key Google shows a "can't load Google Maps correctly" dialog under our controls.
-  // The game explains the missing key itself (the chip under the resources), so the dialog is closed.
-  function dismissDevDialog() {
-    const mo = new MutationObserver(() => {
-      const b = $('map').querySelector('.dismissButton');
-      if (b) b.click();
-    });
-    mo.observe($('map'), { childList: true, subtree: true });
-    setTimeout(() => mo.disconnect(), 20000);
-  }
-  function onMapsAuthFailure() {
-    authFailed = true;
-    updateKeyChip();
-    showAlert('Google Maps Key Not Accepted',
-      `Google rejected the API key for this site. Check that the Maps JavaScript API is enabled and that the key allows ${siteOrigin()}/*.`,
-      [{ label: 'OK' }, { label: 'Change Key', style: 'strong', onTap: openKeySheet }]);
-  }
-
-  // ------------------------------------------------------------------ map layers: hex grid, territory, reach
-  let gridTimer = 0;
-  function scheduleGridSync() {
-    if (!gridTimer) gridTimer = setTimeout(() => { gridTimer = 0; syncGrid(); }, 120);
-  }
+  // ------------------------------------------------------------------ map layers
+  let frontier = new Set(), reachSet = new Set(), playerCell = null;
+  const shownHexes = new Set();
   function styleKey(id) {
-    const c = state.cells[id];
-    if (c) return c.o !== 'me' ? 'rival' : placing && reachSet.has(id) && !buildingOn(id) ? 'lot' : 'own';
+    const o = ownerOf(id);
+    if (o) return o !== 'me' ? 'rival' : placing && reachSet.has(id) && !myByCell.has(id) ? 'lot' : 'own';
     const r = reachSet.has(id);
     if (frontier.has(id)) return r ? 'claimR' : 'claim';
     return r ? 'nR' : 'n';
   }
-  /** Hexes drawn: the grid around the view (when zoomed in), the player's surroundings and all territory. */
+  let gridTimer = 0;
+  function scheduleGridSync() { if (!gridTimer) gridTimer = setTimeout(() => { gridTimer = 0; syncGrid(); }, 120); }
+  /** Hexes drawn: the grid around the view (when zoomed in), the player's surroundings and all known territory. */
   function syncGrid() {
-    if (!map || !state) return;
-    const want = new Set();
-    const center = map.getCenter(), bounds = map.getBounds();
-    if (map.getZoom() >= MAP.gridMinZoom && center && bounds) {
-      const ne = bounds.getNorthEast(), sw = bounds.getSouthWest();
-      const halfW = distM({ lat: center.lat(), lng: sw.lng() }, { lat: center.lat(), lng: ne.lng() }) / 2;
-      const halfH = distM({ lat: sw.lat(), lng: center.lng() }, { lat: ne.lat(), lng: center.lng() }) / 2;
-      const rings = Math.min(MAP.maxGridRings, Math.ceil(Math.hypot(halfW, halfH) / spacing) + 1);
-      for (const id of h3.gridDisk(cellAt(center.lat(), center.lng()), rings)) want.add(id);
+    if (!map || !me || !pos) return;
+    const want = new Set(), s = mapScale();
+    if (s <= MAP.gridMpp) {
+      const el = $('map'), half = (Math.hypot(el.clientWidth, el.clientHeight) / 2) * s;
+      const c = map.center(), rings = Math.min(MAP.maxGridRings, Math.ceil(half / spacing) + 1);
+      for (const id of h3.gridDisk(cellAt(c.lat, c.lng), rings)) want.add(id);
     }
-    for (const id of h3.gridDisk(cellAt(state.pos.lat, state.pos.lng), reachRings + 1)) want.add(id);
-    for (const id of Object.keys(state.cells)) want.add(id);
-    for (const [id, f] of gridFeats) {
-      if (!want.has(id)) {
-        map.data.remove(f);
-        gridFeats.delete(id);
-      }
+    for (const id of h3.gridDisk(cellAt(pos.lat, pos.lng), reachRings + 1)) want.add(id);
+    for (const id of myCellSet) want.add(id);
+    for (const id of world.cells.keys()) want.add(id);
+    for (const id of [...shownHexes]) {
+      if (!want.has(id)) { map.removeHex(id); shownHexes.delete(id); }
     }
     for (const id of want) {
-      if (gridFeats.has(id)) continue;
-      gridFeats.set(id, map.data.add({ id, geometry: new gm.Data.Polygon([cell(id).path]), properties: { s: styleKey(id) } }));
+      map.setHex(id, cell(id).path, styleKey(id));
+      shownHexes.add(id);
     }
   }
-  function restyleGrid() {
-    for (const [id, f] of gridFeats) {
-      const k = styleKey(id);
-      if (f.getProperty('s') !== k) f.setProperty('s', k);
-    }
-  }
+  function restyleGrid() { for (const id of shownHexes) map.setHex(id, cell(id).path, styleKey(id)); }
   function syncOutlines() {
-    for (const f of outlineFeats) map.data.remove(f);
-    outlineFeats = [];
-    const byOwner = {};
-    for (const [id, c] of Object.entries(state.cells)) (byOwner[c.o] = byOwner[c.o] || []).push(id);
-    for (const [owner, ids] of Object.entries(byOwner)) {
-      const geometry = { type: 'MultiPolygon', coordinates: h3.cellsToMultiPolygon(ids, true) };
-      outlineFeats.push(...map.data.addGeoJson({ type: 'Feature', id: 'o:' + owner, properties: { s: owner === 'me' ? 'oMe' : 'oRival' }, geometry }));
+    const byOwner = new Map();
+    for (const id of myCellSet) (byOwner.get('me') || byOwner.set('me', []).get('me')).push(id);
+    for (const [id, c] of world.cells) {
+      const o = ownerOf(id);
+      if (o && o !== 'me') (byOwner.get(o) || byOwner.set(o, []).get(o)).push(id);
     }
+    const list = [];
+    for (const [o, ids] of byOwner) list.push({ key: o === 'me' ? 'oMe' : 'oRival', polygons: h3.cellsToMultiPolygon(ids, true) });
+    map.setOutlines(list);
   }
   function computeFrontier() {
-    const f = new Set(), mine = myCells(), rules = hqRules();
-    if (!rules || mine.length >= rules.maxCells) return f;
-    for (const id of mine) for (const n of h3.gridDisk(id, 1)) if (!state.cells[n]) f.add(n);
+    const f = new Set();
+    if (!me.territory.count || me.territory.count >= me.territory.max) return f;
+    for (const id of myCellSet) for (const n of h3.gridDisk(id, 1)) if (!ownerOf(n)) f.add(n);
     return f;
   }
   function territoryChanged() {
+    if (!map || !me || !pos) return;
     frontier = computeFrontier();
     syncGrid();
     syncOutlines();
     restyleGrid();
     syncPins();
+    syncPlayers();
   }
-  /** Recomputes which hexes are in reach; restyles only when that set changes. */
   function updateReach(force) {
-    if (!state || !map) return;
-    const pc = cellAt(state.pos.lat, state.pos.lng);
-    const next = new Set();
-    for (const id of h3.gridDisk(pc, reachRings)) if (distM(state.pos, cell(id)) <= CFG.reach) next.add(id);
+    if (!me || !map || !pos) return;
+    const pc = cellAt(pos.lat, pos.lng), next = new Set();
+    for (const id of h3.gridDisk(pc, reachRings)) if (distM(pos, cell(id)) <= REACH) next.add(id);
     const changed = force || next.size !== reachSet.size || [...next].some((id) => !reachSet.has(id));
     reachSet = next;
-    if (pc !== playerCell) {
-      playerCell = pc;
-      syncGrid();
-    }
-    if (changed) {
-      restyleGrid();
-      syncPins();
-      if (selected) renderSheet();
-    }
-  }
-  function resetLayers() {
-    for (const f of gridFeats.values()) map.data.remove(f);
-    gridFeats.clear();
-    for (const f of outlineFeats) map.data.remove(f);
-    outlineFeats = [];
-    for (const pin of pins.values()) pin.el.remove();
-    pins.clear();
-    frontier = new Set();
-    reachSet = new Set();
-    playerCell = null;
+    if (pc !== playerCell) { playerCell = pc; syncGrid(); }
+    if (changed) { restyleGrid(); syncPins(); if (selected) renderSheet(); }
   }
 
-  // ------------------------------------------------------------------ map overlay: building pins and the location puck
-  const place = (el, p) => { if (p) el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px)`; };
-  function placeAll() {
-    const proj = overlay && overlay.getProjection();
-    if (!proj) return;
-    for (const pin of pins.values()) place(pin.el, proj.fromLatLngToDivPixel(pin.ll));
-    placePuck();
-  }
-  function placePuck() {
-    const proj = overlay && overlay.getProjection();
-    if (!proj || !state) return;
-    place(puckEl, proj.fromLatLngToDivPixel(new gm.LatLng(state.pos.lat, state.pos.lng)));
-  }
+  // ------------------------------------------------------------------ building pins (bare emoji) and the location puck
+  const pins = new Map(); // key -> pin
+  let puck = null;
+  const puckEl = document.createElement('div');
+  puckEl.className = 'puck';
+  puckEl.innerHTML = '<div class="cone"></div><div class="halo"></div><div class="dot"></div>';
   function onZoom() {
-    const z = map.getZoom();
-    overlay.root.style.setProperty('--pz', Math.max(0.5, Math.min(1.2, Math.pow(2, (z - MAP.pinZoom) * 0.5))).toFixed(3));
-    overlay.root.classList.toggle('hide-pins', z < MAP.pinMinZoom);
+    const s = mapScale();
+    document.documentElement.style.setProperty('--pz', Math.max(0.5, Math.min(1.2, Math.pow(MAP.pinMpp / s, 0.5))).toFixed(3));
+    document.documentElement.classList.toggle('hide-pins', s > MAP.pinMaxMpp);
     scheduleGridSync();
   }
+  function allBuildings() {
+    const list = me.buildings.map((b) => ({ ...b, own: true }));
+    for (const [id, c] of world.cells) if (c.building && ownerOf(id) && ownerOf(id) !== 'me') list.push({ ...c.building, cell: id, own: false, owner: c.ownerId });
+    return list;
+  }
   function syncPins() {
-    if (!overlay || !state) return;
-    const t = now(), seen = new Set();
-    for (const b of Object.values(state.b)) {
-      seen.add(b.id);
-      let pin = pins.get(b.id);
+    if (!map || !me) return;
+    const seen = new Set(), now = serverNow();
+    for (const b of allBuildings()) {
+      const key = b.id;
+      seen.add(key);
+      let pin = pins.get(key);
       if (!pin) {
-        const c = cell(b.cell);
         const el = document.createElement('div');
         el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="lvl"></div><div class="nm"></div></div>';
-        pin = { el, cellId: b.cell, ll: new gm.LatLng(c.lat, c.lng), cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '' };
-        pins.set(b.id, pin);
-        overlay.root.insertBefore(el, puckEl);
-        const proj = overlay.getProjection();
-        if (proj) place(el, proj.fromLatLngToDivPixel(pin.ll));
+        const c = cell(b.cell);
+        pin = { el, cellId: b.cell, cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '' };
+        pin.handle = map.addMarker(el, { lat: c.lat, lng: c.lng }, 5);
+        pins.set(key, pin);
       }
       if (pin.cellId !== b.cell) {
-        const c = cell(b.cell), proj = overlay.getProjection();
+        const c = cell(b.cell);
         pin.cellId = b.cell;
-        pin.ll = new gm.LatLng(c.lat, c.lng);
-        if (proj) place(pin.el, proj.fromLatLngToDivPixel(pin.ll));
+        pin.handle.move({ lat: c.lat, lng: c.lng });
       }
-      const own = b.o === 'me', active = b.st === 'active', d = def(b.type, b.lvl);
-      pin.el.className = `pin t-${b.type} ${own ? 'own' : 'rival'}${active ? '' : ' busy'}${own && !reachSet.has(b.cell) ? ' far' : ''}`;
-      const glyph = active ? EMOJI_FOR[b.type] : E.building;
-      if (pin.glyph !== glyph) {
-        pin.glyph = glyph;
-        pin.pb.textContent = glyph;
-      }
-      pin.lvl.textContent = b.lvl;
+      const active = b.state === 'active' || (b.own && endsIn(b) <= 0);
+      pin.el.className = `pin t-${b.type} ${b.own ? 'own' : 'rival'}${b.own && !reachSet.has(b.cell) ? ' far' : ''}`;
+      const glyph = active ? emojiFor(b.type) : E.building;
+      if (pin.glyph !== glyph) { pin.glyph = glyph; pin.pb.textContent = glyph; }
+      pin.lvl.textContent = b.level;
       let cap = '', capCls = 'cap';
-      if (!active) {
-        if (own) cap = `${E.timer} ${fmtClock(b.ends - t)}`;
-      } else if (own && d.rate && b.stored >= 1) {
-        const full = b.stored >= d.buffer;
-        cap = `${E.coin} ${full ? 'Full' : `+${fmtNum(b.stored)}`}`;
+      if (b.own && b.state !== 'active') cap = endsIn(b) > 0 ? `${E.timer} ${fmtClock(endsIn(b))}` : '';
+      else if (b.own && b.production) {
+        const s = storedNow(b), full = s >= b.production.capacity;
+        if (s >= 1) cap = `${E.coin} ${full ? 'Full' : `+${fmtNum(s)}`}`;
         if (full) capCls = 'cap full';
       }
       if (pin.cap.textContent !== cap) pin.cap.textContent = cap;
       pin.cap.className = capCls;
-      pin.nm.textContent = !own && b.type === 'hq' ? rivalName(b.o) : '';
+      pin.nm.textContent = !b.own && b.type === 'hq' ? rivalName(b.owner) : '';
     }
-    for (const [id, pin] of pins) {
-      if (!seen.has(id)) {
-        pin.el.remove();
-        pins.delete(id);
-      }
-    }
+    for (const [key, pin] of pins) if (!seen.has(key)) { pin.handle.remove(); pins.delete(key); }
+    void now;
   }
-  function updatePlayerVisuals() {
-    if (!map || !state) return;
-    puckEl.hidden = false;
-    puckEl.style.setProperty('--hd', `${heading.toFixed(1)}deg`);
-    layers.reach.setCenter(state.pos);
-    layers.reach.setVisible(true);
-    const showAcc = mode === 'gps' && gps.acc > 0;
-    layers.acc.setVisible(showAcc);
-    if (showAcc) {
-      layers.acc.setCenter(state.pos);
-      layers.acc.setRadius(Math.min(gps.acc, 2000));
+  // Online players nearby (from the world view): a 🧍 with their name. Several in one cell fan out around its center.
+  const playerPins = new Map(); // player id -> { handle, el, at }
+  function playerSpots() {
+    const groups = new Map();
+    for (const p of world.players) {
+      const k = p.cell;
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(p);
     }
-    placePuck();
+    const out = [];
+    for (const list of groups.values()) {
+      list.forEach((p, i) => {
+        const [lat, lng] = p.center;
+        if (list.length === 1) return out.push({ p, at: { lat, lng } });
+        const a = (2 * Math.PI * i) / list.length, r = 28; // meters
+        out.push({ p, at: { lat: lat + (r * Math.cos(a)) / 111320, lng: lng + (r * Math.sin(a)) / (111320 * Math.cos(lat * RAD)) } });
+      });
+    }
+    return out;
+  }
+  function syncPlayers() {
+    if (!map) return;
+    const seen = new Set();
+    for (const { p, at } of playerSpots()) {
+      seen.add(p.id);
+      let pin = playerPins.get(p.id);
+      if (!pin) {
+        const el = document.createElement('div');
+        el.className = 'op';
+        el.innerHTML = '<div class="pi"><div class="pe"></div><div class="on"></div></div>';
+        pin = { el, handle: map.addMarker(el, at, 6), at, face: '' };
+        playerPins.set(p.id, pin);
+      } else if (pin.at.lat !== at.lat || pin.at.lng !== at.lng) {
+        pin.handle.move(at);
+        pin.at = at;
+      }
+      const name = pin.el.querySelector('.on'), face = avatarOf(p);
+      if (name.textContent !== p.username) name.textContent = p.username;
+      if (pin.face !== face) { pin.face = face; pin.el.querySelector('.pe').textContent = face; }
+    }
+    for (const [id, pin] of playerPins) if (!seen.has(id)) { pin.handle.remove(); playerPins.delete(id); }
+  }
+  /** The online player whose marker is under a tap, if any. */
+  function playerAt(lat, lng) {
+    if (!playerPins.size || document.documentElement.classList.contains('hide-pins')) return null;
+    const t = map.toPx({ lat, lng });
+    let best = null, bestD = 26;
+    for (const [id, pin] of playerPins) {
+      const q = map.toPx(pin.at);
+      const d = Math.hypot(q.x - t.x, q.y + 17 - t.y); // the avatar stands above its point
+      if (d < bestD) { bestD = d; best = id; }
+    }
+    return best;
+  }
+  const meEl = document.createElement('div');
+  meEl.className = 'op me';
+  meEl.innerHTML = '<div class="pi"><div class="pe"></div><div class="on"></div></div>';
+  let meMarker = null;
+  function updatePlayerVisuals() {
+    if (!map || !pos) return;
+    if (!puck) puck = map.addMarker(puckEl, pos, 10);
+    else puck.move(pos);
+    if (!meMarker) meMarker = map.addMarker(meEl, pos, 11);
+    else meMarker.move(pos);
+    const face = avatarOf(me && me.player);
+    if (meEl.firstChild.firstChild.textContent !== face) meEl.firstChild.firstChild.textContent = face;
+    puckEl.style.setProperty('--hd', `${heading.toFixed(1)}deg`);
+    map.setReach(pos, true);
+    map.setAccuracy(pos, mode === 'gps' && gps.acc > 0 ? Math.min(gps.acc, 2000) : 0);
   }
 
   // ------------------------------------------------------------------ camera: follow the player in the visible part of the map
   const sheetBottomPx = () => parseFloat(getComputedStyle(sheetEl).bottom) || 0;
   let sheetOpen = false;
   function visibleBand() {
-    const H = appEl.clientHeight;
-    const top = topEl.getBoundingClientRect().bottom;
+    const H = appEl.clientHeight, top = topEl.getBoundingClientRect().bottom;
     const bottom = sheetOpen ? H - sheetBottomPx() - sheetEl.offsetHeight : H;
     return { top, bottom, center: (top + bottom) / 2 };
   }
-  // Screen maths from the map's own projection and camera: unlike the overlay's projection it is
-  // already up to date right after setCenter/setZoom (the map fills the screen, north up).
-  function toPx(p) {
-    const proj = map && map.getProjection(), c = map && map.getCenter();
-    if (!proj || !c) return null;
-    const s = 2 ** map.getZoom(), a = proj.fromLatLngToPoint(new gm.LatLng(p.lat, p.lng)), o = proj.fromLatLngToPoint(c);
-    return { x: (a.x - o.x) * s + appEl.clientWidth / 2, y: (a.y - o.y) * s + appEl.clientHeight / 2 };
-  }
-  function fromPx(x, y) {
-    const proj = map && map.getProjection(), c = map && map.getCenter();
-    if (!proj || !c) return null;
-    const s = 2 ** map.getZoom(), o = proj.fromLatLngToPoint(c);
-    const ll = proj.fromPointToLatLng(new gm.Point(o.x + (x - appEl.clientWidth / 2) / s, o.y + (y - appEl.clientHeight / 2) / s));
-    return { lat: ll.lat(), lng: ll.lng() };
-  }
-  /** The map centre that shows `pos` in the middle of the area not covered by the controls and the sheet. */
-  function centerFor(pos) {
-    const p = toPx(pos);
-    if (!p) return pos;
-    return fromPx(p.x, p.y - (visibleBand().center - appEl.clientHeight / 2)) || pos;
+  function centerFor(p) {
+    const q = map && map.toPx(p);
+    if (!q) return p;
+    return map.fromPx(q.x, q.y - (visibleBand().center - appEl.clientHeight / 2)) || p;
   }
   function followCamera(animate) {
-    if (!follow || !map || !state) return;
-    const target = centerFor(state.pos);
-    if (animate) map.panTo(target);
-    else map.setCenter(target);
+    if (!follow || !map || !pos) return;
+    map.setCenter(centerFor(pos), animate);
   }
   function setFollow(on) {
     follow = on;
     $('locateBtn').innerHTML = svg(on ? 'arrow' : 'arrowo');
     $('locateBtn').setAttribute('aria-pressed', String(on));
   }
+  let reachDirty = false;
   function playerMoved(animate) {
     updatePlayerVisuals();
     if (follow) followCamera(animate);
     reachDirty = true;
   }
-  /** After selecting a hex: keep it visible above the sheet, following the player if that already does it. */
   function revealSelection() {
-    const at = selected && state && toPx(cell(selected));
+    const at = selected && pos && map.toPx(cell(selected));
     if (!at) return;
     const W = appEl.clientWidth, band = visibleBand();
     const inside = (p) => p.x >= 28 && p.x <= W - 28 && p.y >= band.top + 20 && p.y <= band.bottom - 20;
     if (follow) {
-      const me = toPx(state.pos);
-      const after = { x: at.x + (W / 2 - me.x), y: at.y + (band.center - me.y) };
-      if (inside(after)) {
-        followCamera(true);
-        return;
-      }
+      const mp = map.toPx(pos);
+      const after = { x: at.x + (W / 2 - mp.x), y: at.y + (band.center - mp.y) };
+      if (inside(after)) { followCamera(true); return; }
       setFollow(false);
     }
     if (!inside(at)) map.panBy(at.x - W / 2, at.y - band.center);
   }
 
   // ------------------------------------------------------------------ simulated walking
+  const SIM_SPEED = { walk: 1.4, fast: 7 }; // the server pauses actions above 8 m/s
+  const SIM_FAST = 'coc.simfast';
+  let simFast = lsGet(SIM_FAST) !== '0';
   const joy = { x: 0, y: 0 };
   const keys = new Set();
   let walking = false;
-  /** Moves the simulated player; returns whether it moved. */
   function step(dt) {
-    if (!state || mode !== 'sim') return false;
-    const speed = state.fast ? SPEED.fast : SPEED.walk;
+    if (!pos || mode !== 'sim') return false;
+    const speed = simFast ? SIM_SPEED.fast : SIM_SPEED.walk;
     let jx = joy.x, jy = joy.y;
     if (keys.size) {
       jx = (keys.has('ArrowRight') || keys.has('d') ? 1 : 0) - (keys.has('ArrowLeft') || keys.has('a') ? 1 : 0);
@@ -1539,29 +1870,30 @@
       vn = -jy * speed;
       walkTarget = null;
     } else if (walkTarget) {
-      const d = distM(state.pos, walkTarget);
+      const d = distM(pos, walkTarget);
       if (d < 0.5) walkTarget = null;
       else {
-        const b = bearing(state.pos, walkTarget) * RAD, v = Math.min(speed, d / dt);
+        const b = bearing(pos, walkTarget) * RAD, v = Math.min(speed, d / dt);
         ve = Math.sin(b) * v;
         vn = Math.cos(b) * v;
       }
     }
     if (!ve && !vn) return false;
     heading = Math.atan2(ve, vn) / RAD;
-    state.pos = { lat: state.pos.lat + (vn * dt) / MLAT, lng: state.pos.lng + (ve * dt) / (MLAT * Math.cos(state.pos.lat * RAD)) };
+    pos = { lat: pos.lat + (vn * dt) / MLAT, lng: pos.lng + (ve * dt) / (MLAT * Math.cos(pos.lat * RAD)) };
     return true;
   }
 
   // ------------------------------------------------------------------ UI: resources and status
+  let serverState = 'ok'; // 'ok' | 'waking' | 'down'
   function refreshHud() {
-    if (!state) return;
-    const hq = hqLevel(), cap = capacity(), rules = hqRules(), bs = builders();
-    $('credits').textContent = fmtNum(state.credits);
+    if (!me) return;
+    const hq = hqLevel(), cap = capacity(), bs = builders();
+    $('credits').textContent = fmtNum(credits());
     $('creditsCap').textContent = hq ? `/${fmtNum(cap)}` : '';
-    $('creditsBar').style.width = `${cap ? Math.min(100, (state.credits / cap) * 100) : 0}%`;
-    $('hexes').textContent = myCells().length;
-    $('hexesMax').textContent = `/${rules ? rules.maxCells : 1}`;
+    $('creditsBar').style.width = `${cap ? Math.min(100, (credits() / cap) * 100) : 0}%`;
+    $('hexes').textContent = me.territory.count;
+    $('hexesMax').textContent = `/${me.territory.max}`;
     $('hexesK').textContent = hq ? `Hexes · HQ ${hq}` : 'Hexes';
     $('builders').textContent = hq ? bs.total - bs.busy : '–';
     $('buildersMax').textContent = hq ? `/${bs.total}` : '';
@@ -1571,41 +1903,30 @@
   }
   function refreshStatus() {
     let emoji, text;
-    if (!mode) {
-      emoji = E.hello;
-      text = 'Welcome';
-    } else if (mode === 'sim') {
+    if (serverState === 'waking') { emoji = E.wake; text = 'Waking up the game server…'; }
+    else if (serverState === 'down') { emoji = E.bad; text = "Can't reach the game server"; }
+    else if (!mode) { emoji = E.hello; text = 'Welcome'; }
+    else if (mode === 'sim') {
       emoji = walking ? E.walk : E.sim;
-      text = walking ? `Walking · ${state && state.fast ? SPEED.fast : SPEED.walk} m/s` : `Simulated walking · Reach ${CFG.reach} m`;
-    } else if (gps.err === 'denied') {
-      emoji = E.bad;
-      text = 'Location blocked';
-    } else if (!gps.at || Date.now() - gps.at > CFG.maxFixAgeMs) {
-      emoji = E.weak;
-      text = 'Waiting for GPS…';
-    } else if (gps.acc > CFG.maxAccuracy) {
-      emoji = E.weak;
-      text = `GPS weak · ±${Math.round(gps.acc)} m`;
-    } else if (gps.speed > CFG.maxActionSpeed) {
-      emoji = E.fast;
-      text = 'Moving fast · Actions paused';
-    } else {
-      emoji = E.good;
-      text = `GPS ±${Math.round(gps.acc)} m · Reach ${CFG.reach} m`;
-    }
+      text = walking ? `Walking · ${simFast ? SIM_SPEED.fast : SIM_SPEED.walk} m/s` : `Simulated walking · Reach ${REACH} m`;
+    } else if (gps.err === 'denied') { emoji = E.bad; text = 'Location blocked'; }
+    else if (!gps.at || Date.now() - gps.at > 30000) { emoji = E.weak; text = 'Waiting for GPS…'; }
+    else if (gps.acc > cfg.location.maxAccuracyMeters) { emoji = E.weak; text = `GPS weak · ±${Math.round(gps.acc)} m`; }
+    else if (locInfo && locInfo.blockedReason === 'MOVING_TOO_FAST') { emoji = E.fast; text = 'Moving fast · Actions paused'; }
+    else { emoji = E.good; text = `GPS ±${Math.round(gps.acc)} m · Reach ${REACH} m`; }
     $('statusEmo').textContent = emoji;
     $('statusText').textContent = text;
   }
   function updateKeyChip() {
     const chip = $('keyChip');
-    chip.hidden = !!keyInfo.key && !authFailed;
-    $('keyChipEmo').textContent = authFailed ? E.stop : E.warn;
-    $('keyChipText').textContent = authFailed ? 'Google Maps key rejected' : 'Map without API key';
+    const show = map && map.kind === 'google' && (!gKey || gAuthFailed);
+    chip.hidden = !show;
+    $('keyChipEmo').textContent = gAuthFailed ? E.stop : E.warn;
+    $('keyChipText').textContent = gAuthFailed ? 'Google Maps key rejected' : 'Map without API key';
   }
   function refreshUi() {
     refreshStatus();
-    if (!state) return;
-    settleAll();
+    if (!me) return;
     refreshHud();
     if (selected) renderSheet();
     syncPins();
@@ -1617,7 +1938,6 @@
     if (el.className !== cls) el.className = cls;
     if (el.textContent !== icon) el.textContent = icon;
   }
-  /** Updates a list of keyed elements in place, so a tap is never lost while the sheet refreshes. */
   function reconcile(box, items, make, update) {
     const old = new Map();
     for (const el of box.children) old.set(el.dataset.key, el);
@@ -1625,10 +1945,7 @@
     for (const it of items) {
       let el = old.get(it.key);
       if (el) old.delete(it.key);
-      else {
-        el = make();
-        el.dataset.key = it.key;
-      }
+      else { el = make(); el.dataset.key = it.key; }
       update(el, it);
       const want = prev ? prev.nextElementSibling : box.firstElementChild;
       if (el !== want) box.insertBefore(el, want);
@@ -1673,12 +1990,12 @@
     pill.disabled = !r.enabled;
   }
   function renderSheet() {
-    if (!selected || !state) return;
+    if (!selected || !me || !pos) return;
     const info = describe(selected);
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
     setTile($('sheetTile'), info.tile.icon, info.tile.tint, 'lg');
-    const tags = info.tags.map((t) => `<span class="tag ${t.tint}"><span class="emo">${t.icon}</span>${t.text}</span>`).join('');
+    const tags = info.tags.map((t) => `<span class="tag ${t.tint}"><span class="emo">${t.icon}</span>${esc(t.text)}</span>`).join('');
     if ($('sheetTags').innerHTML !== tags) $('sheetTags').innerHTML = tags;
     $('sheetTags').hidden = !info.tags.length;
     const pr = info.progress;
@@ -1696,35 +2013,41 @@
   }
   function onAction(a) {
     if (!a || !a.enabled || !selected) return;
+    const id = selected;
     if (a.kind === 'walk') {
-      const c = cell(selected);
+      const c = cell(id);
       walkTarget = { lat: c.lat, lng: c.lng };
       setFollow(true);
       followCamera(true);
       return;
     }
     if (a.kind === 'route') {
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${a.lat.toFixed(6)},${a.lng.toFixed(6)}&travelmode=walking`;
+      // Apple Maps on iPhone, Google Maps elsewhere.
+      const apple = /iPhone|iPad|Macintosh/.test(navigator.userAgent);
+      const url = apple ? `https://maps.apple.com/?daddr=${a.lat.toFixed(6)},${a.lng.toFixed(6)}&dirflg=w`
+        : `https://www.google.com/maps/dir/?api=1&destination=${a.lat.toFixed(6)},${a.lng.toFixed(6)}&travelmode=walking`;
       const w = window.open(url, '_blank');
       if (w) w.opener = null;
       else location.href = url;
       return;
     }
-    if (a.kind === 'claim') run('claim', selected);
-    else if (a.kind === 'place') run('place', selected, a.type);
+    if (a.kind === 'claim') doClaim(id);
+    else if (a.kind === 'place') doPlace(id, a.type);
+    else if (a.kind === 'upgrade') doUpgrade(a.id);
+    else if (a.kind === 'collect') doCollect(a.id);
     else if (a.kind === 'move') startPlacing({ kind: 'move', id: a.id });
     else if (a.kind === 'shop') openShop();
-    else if (a.kind === 'upgrade') run('upgrade', a.id);
-    else if (a.kind === 'collect') run('collect', a.id);
+    else if (a.kind === 'profile') openProfile(a.owner);
   }
+
   // Placing a building from the inventory, or moving one (Clash of Clans style): tap a highlighted hex.
   let placing = null; // { kind: 'place', type } | { kind: 'move', id }
   function startPlacing(p) {
     closeModal('shop');
     select(null);
     placing = p;
-    const type = p.kind === 'place' ? p.type : state.b[p.id].type, bd = CFG.buildings[type];
-    setTile($('placeTile'), EMOJI_FOR[type], TINT_FOR[type], 'lg');
+    const type = p.kind === 'place' ? p.type : me.buildings.find((b) => b.id === p.id).type, bd = bdef(type);
+    setTile($('placeTile'), emojiFor(type), TINT_FOR[type] || 'gray', 'lg');
     $('placeTitle').textContent = p.kind === 'place' ? `Place ${bd.name}` : `Move ${bd.name}`;
     $('placeSub').textContent = 'Tap a bright green hex: empty, yours and within reach.';
     $('placeBar').hidden = false;
@@ -1735,48 +2058,79 @@
     placing = null;
     $('placeBar').hidden = true;
     layoutControls();
-    restyleGrid();
+    if (map) restyleGrid();
   }
-  function placeAt(id) {
+  async function placeAt(id) {
     const p = placing;
-    const ok = p.kind === 'place' ? run('place', id, p.type) : run('move', p.id, id);
-    if (!ok) return;
+    const ok = p.kind === 'place' ? await doPlace(id, p.type) : await doMove(p.id, id);
+    if (!ok || placing !== p) return;
     stopPlacing();
     select(id);
   }
   $('placeCancel').addEventListener('click', stopPlacing);
 
+  const CATEGORIES = [['resource', 'Resources'], ['storage', 'Storage'], ['utility', 'Utility'], ['decoration', 'Decoration'], ['defense', 'Defense'], ['military', 'Military']];
   function renderShop() {
     const hq = hqLevel();
-    $('shopLead').textContent = hq ? `You have ${fmtNum(state.credits)} credits.` : 'Found your Headquarters first: tap the hex you stand on.';
-    const rows = [], inv = [];
-    for (const [type, bd] of Object.entries(CFG.buildings)) {
-      if (!bd.buildable) continue;
-      const l = bd.levels[0], why = buyBlock(type), max = hq ? hqRules().limits[type] || 0 : 0;
-      rows.push(`<div class="row t"><div class="tile sm tint-${TINT_FOR[type]}">${EMOJI_FOR[type]}</div><div class="row-main"><div class="row-title">${bd.name} <small style="color: var(--label2)">${countType(type) + invOf(type)} of ${max}</small></div>` +
-        `<div class="row-sub${why ? ' warn' : ''}">${why || `${effect(type, l)} · builds in ${fmtDur(l.secs)}`}</div></div>` +
-        `<button class="pill" type="button" data-buy="${type}"${why ? ' disabled' : ''}>${E.coin} ${fmtNum(l.cost)}</button></div>`);
-      if (invOf(type)) {
-        inv.push(`<div class="row t"><div class="tile sm tint-${TINT_FOR[type]}">${EMOJI_FOR[type]}</div><div class="row-main"><div class="row-title">${bd.name} × ${invOf(type)}</div>` +
-          `<div class="row-sub">Ready to place</div></div><button class="pill" type="button" data-place="${type}">Place</button></div>`);
+    $('shopLead').textContent = hq ? `${E.coin} ${fmtNum(credits())} of ${fmtNum(capacity())} credits · Headquarters level ${hq}` : 'Found your Headquarters first: tap the hex you stand on.';
+    const inv = [], sections = [];
+    for (const [cat, label] of CATEGORIES) {
+      const cards = [];
+      for (const [type, bd] of Object.entries(cfg.buildings)) {
+        if (!bd.buildable || bd.category !== cat) continue;
+        const l = bd.levels[0], why = buyBlock(type), lim = me.limits[type] || { built: 0, max: 0 }, tint = TINT_FOR[type] || 'gray';
+        const locked = l.requiredHq > hq;
+        const count = locked ? `<small>${E.lock} HQ ${l.requiredHq}</small>` : `<small>${lim.built + invOf(type)} of ${lim.max}</small>`;
+        cards.push(`<div class="row t card${locked ? ' locked' : ''}"><div class="tile lg tint-${tint}">${emojiFor(type)}</div><div class="row-main">` +
+          `<div class="row-title">${esc(bd.name)} ${count}</div><div class="row-sub">${esc(bd.description)}</div><div class="facts">${facts(type, l)}</div>` +
+          (why && !locked ? `<div class="row-sub warn">${esc(why)}</div>` : '') +
+          `</div><button class="pill" type="button" data-buy="${type}"${why ? ' disabled' : ''}>${E.coin} ${fmtNum(costOf(l))}</button></div>`);
+        if (invOf(type)) {
+          inv.push(`<div class="row t"><div class="tile sm tint-${tint}">${emojiFor(type)}</div><div class="row-main"><div class="row-title">${esc(bd.name)} × ${invOf(type)}</div>` +
+            `<div class="row-sub">Ready to place</div></div><button class="pill" type="button" data-place="${type}">Place</button></div>`);
+        }
       }
+      if (cards.length) sections.push(`<h4 class="sec-h">${label}</h4><div class="group">${cards.join('')}</div>`);
     }
-    $('shopRows').innerHTML = rows.join('');
+    $('shopRows').innerHTML = sections.join('');
     $('invRows').innerHTML = inv.join('');
     $('invRows').hidden = !inv.length;
-    $('invFoot').textContent = inv.length ? 'Place moves you to the map: tap an empty hex you own, within reach.' : `${E.box} Your inventory is empty.`;
+    $('invHead').hidden = !inv.length;
+    $('invFoot').textContent = inv.length ? 'Place moves you to the map: tap an empty hex you own, within reach.' : '';
+    $('invFoot').hidden = !inv.length;
+    $('shopNext').innerHTML = nextHqUnlocks(hq);
+  }
+  /** "Headquarters level N unlocks …": more hexes and builders, new buildings, higher limits and levels. */
+  function nextHqUnlocks(hq) {
+    const cur = cfg.hq.levels[hq - 1], nx = cfg.hq.levels[hq];
+    if (!hq || !cur || !nx) return '';
+    const rows = [];
+    const row = (icon, tint, title, sub) => rows.push(`<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div>${sub ? `<div class="row-sub">${esc(sub)}</div>` : ''}</div></div>`);
+    row(E.neutral, 'green', `${nx.maxTerritoryCells} hexes`, `now ${cur.maxTerritoryCells}`);
+    if (nx.builders > cur.builders) row(E.builder, 'orange', `${nx.builders} builders`, `now ${cur.builders}`);
+    for (const [type, bd] of Object.entries(cfg.buildings)) {
+      if (!bd.buildable) continue;
+      const a = cur.buildingLimits[type] || 0, b = nx.buildingLimits[type] || 0;
+      const newLevels = bd.levels.filter((l) => l.requiredHq === hq + 1).map((l) => l.level);
+      const parts = [];
+      if (b > a) parts.push(a ? `up to ${b} (now ${a})` : `new: up to ${b}`);
+      if (newLevels.length) parts.push(`level ${newLevels.join(', ')}`);
+      if (parts.length) row(emojiFor(type), TINT_FOR[type] || 'gray', bd.name, cap1(parts.join(' · ')));
+    }
+    const up = cfg.buildings[cfg.hq.buildingType].levels[hq];
+    return `<h4 class="sec-h">Headquarters Level ${hq + 1} Unlocks</h4><div class="group">${rows.join('')}</div>` +
+      `<p class="sec-f">Upgrade your Headquarters on the map: ${E.coin} ${fmtNum(costOf(up))} credits, ${fmtDur(up.buildSeconds)}.</p>`;
   }
   function openShop() {
-    if (!state) return;
-    settleAll();
+    if (!me) return;
     renderShop();
     openModal('shop');
   }
   $('shopBtn').addEventListener('click', openShop);
-  $('shop').addEventListener('click', (e) => {
+  $('shop').addEventListener('click', async (e) => {
     const buy = e.target.closest('[data-buy]'), put = e.target.closest('[data-place]');
     if (buy && !buy.disabled) {
-      run('buy', buy.dataset.buy);
+      await doBuy(buy.dataset.buy);
       renderShop();
     } else if (put) startPlacing({ kind: 'place', type: put.dataset.place });
   });
@@ -1790,7 +2144,7 @@
     if (id && placing) stopPlacing();
     selected = id || null;
     if (!selected) {
-      if (layers.sel) layers.sel.setVisible(false);
+      if (map) map.setSelection(null);
       if (sheetOpen) {
         sheetOpen = false;
         sheetEl.style.transform = '';
@@ -1800,9 +2154,7 @@
       }
       return;
     }
-    const c = cell(selected);
-    layers.sel.setPaths([c.path]);
-    layers.sel.setVisible(true);
+    map.setSelection(cell(selected).path);
     renderSheet();
     sheetOpen = true;
     sheetEl.classList.remove('off');
@@ -1856,7 +2208,7 @@
   function openModal(id) {
     const m = $(id);
     m.hidden = false;
-    m.getBoundingClientRect(); // start from the closed position so the page slides up
+    m.getBoundingClientRect();
     m.classList.add('open');
   }
   function closeModal(id) {
@@ -1878,10 +2230,7 @@
       el.type = 'button';
       el.textContent = b.label;
       if (b.style) el.className = b.style;
-      el.addEventListener('click', () => {
-        hideAlert();
-        if (b.onTap) b.onTap();
-      });
+      el.addEventListener('click', () => { hideAlert(); if (b.onTap) b.onTap(); });
       box.appendChild(el);
     }
     const a = $('alert');
@@ -1899,101 +2248,229 @@
     $('locHelpWhy').textContent = why;
     openModal('locHelp');
   }
+  // ------------------------------------------------------------------ UI: profiles and the leaderboard
+  let profileSeq = 0;
+  async function openProfile(id, fromLeaders) {
+    const seq = ++profileSeq;
+    select(null);
+    closeModal('leaders');
+    $('profileBack').style.visibility = fromLeaders ? 'visible' : 'hidden';
+    $('profileNav').textContent = me && id === me.player.id ? 'My Profile' : 'Profile';
+    $('profileBody').innerHTML = `<p class="loading">Loading…</p>`;
+    openModal('profile');
+    try {
+      const p = await api('GET', `/v1/players/${id}`);
+      if (seq === profileSeq) $('profileBody').innerHTML = profileHtml(p);
+    } catch (e) {
+      if (seq === profileSeq) $('profileBody').innerHTML = `<p class="loading">${E.warn} ${esc(e.message || "Couldn't load the profile")}</p>`;
+    }
+  }
+  function profileHtml(p) {
+    const mine = me && p.id === me.player.id;
+    const since = new Date(p.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const status = mine ? (me.player.showOnMap ? 'Visible on the map' : 'Hidden from the map') : p.online ? 'Online now' : 'Offline';
+    const on = mine ? me.player.showOnMap : p.online;
+    const s = p.stats, row = (icon, tint, title, value) =>
+      `<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div></div><span class="row-value">${esc(value)}</span></div>`;
+    const buildings = p.buildings.map((b) => row(emojiFor(b.type), TINT_FOR[b.type] || 'gray', `${bdef(b.type) ? bdef(b.type).name : b.type}${b.count > 1 ? ` × ${b.count}` : ''}`, `Level ${b.maxLevel}`));
+    const medal = p.rank && p.rank <= 3 ? ` ${E.medal[p.rank - 1]}` : '';
+    return `<div class="prof"><div class="tile xl tint-blue">${esc(avatarOf(p))}</div><h2>${esc(p.username)}${medal}</h2>` +
+      `<p><span class="dot${on ? ' on' : ''}"></span>${status}</p><p>Commander since ${esc(since)}</p></div>` +
+      `<div class="kpis"><div><b>${fmtNum(p.score)}</b><span>Score</span></div><div><b>${p.rank ? `#${p.rank}` : '–'}</b><span>Rank</span></div><div><b>${p.hqLevel || '–'}</b><span>Headquarters</span></div></div>` +
+      `<h4 class="sec-h">Empire</h4><div class="group">${row(E.neutral, 'green', 'Territory', `${p.territory} hex${p.territory === 1 ? '' : 'es'}`)}${buildings.join('')}</div>` +
+      `<h4 class="sec-h">Stats</h4><div class="group">` +
+      row(E.walk, 'blue', 'Distance Walked', fmtDist(s.distanceMeters)) +
+      row(E.flag, 'green', 'Hexes Claimed', fmtNum(s.hexesClaimed)) +
+      row(E.shop, 'orange', 'Buildings Bought', fmtNum(s.buildingsBought)) +
+      row(E.building, 'orange', 'Buildings Placed', fmtNum(s.buildingsPlaced)) +
+      row(E.up, 'blue', 'Upgrades', fmtNum(s.upgradesStarted)) +
+      row(E.move, 'gray', 'Buildings Moved', fmtNum(s.buildingsMoved)) +
+      row(E.coin, 'yellow', 'Credits Collected', fmtNum(s.creditsCollected)) +
+      row(E.spent, 'gray', 'Credits Spent', fmtNum(s.creditsSpent)) + `</div>` +
+      `<p class="sec-f">Score: ${cfg.score.perCell} per hex, ${cfg.score.perBuildingLevel} per building level, plus decorations like the ${emojiFor('park')} Park.</p>`;
+  }
+  async function openLeaders() {
+    select(null);
+    closeModal('profile');
+    $('leadersBody').innerHTML = `<p class="loading">Loading…</p>`;
+    openModal('leaders');
+    try {
+      const lb = await api('GET', '/v1/leaderboard?limit=50');
+      const rows = lb.entries.map((e) => {
+        const mine = me && e.id === me.player.id;
+        const badge = e.rank <= 3 ? `<div class="rank">${E.medal[e.rank - 1]}</div>` : `<div class="rank">${e.rank}</div>`;
+        return `<button class="row t${mine ? ' me' : ''}" type="button" data-player="${esc(e.id)}">${badge}<div class="tile sm tint-blue">${esc(avatarOf(e))}</div><div class="row-main"><div class="row-title">${esc(e.username)}${mine ? ' (You)' : ''}</div>` +
+          `<div class="row-sub">HQ ${e.hqLevel} · ${e.territory} hex${e.territory === 1 ? '' : 'es'}</div></div><span class="row-value">${fmtNum(e.score)}</span><span class="row-chev">${svg('chev')}</span></button>`;
+      });
+      const you = lb.me && lb.me.rank ? `You are #${lb.me.rank} with ${fmtNum(lb.me.score)} points.` : 'Found your Headquarters to join the leaderboard.';
+      $('leadersBody').innerHTML = `<p class="lead">${esc(you)}</p>` + (rows.length ? `<div class="group">${rows.join('')}</div>` : '') +
+        `<p class="sec-f">Score grows with every hex, every building level and every decoration.</p>`;
+    } catch (e) {
+      $('leadersBody').innerHTML = `<p class="loading">${E.warn} ${esc(e.message || "Couldn't load the leaderboard")}</p>`;
+    }
+  }
+  $('leadersBtn').addEventListener('click', openLeaders);
+  $('profileBtn').addEventListener('click', () => { if (me) openProfile(me.player.id); });
+  $('profileBack').addEventListener('click', openLeaders);
+  $('leadersBody').addEventListener('click', (e) => {
+    const r = e.target.closest('[data-player]');
+    if (r) openProfile(r.dataset.player, true);
+  });
+
+  // ------------------------------------------------------------------ UI: create / edit profile (name + avatar)
+  const setup = { tone: '', avatar: '', done: null };
+  function renderSetup() {
+    const cell = (e) => `<button type="button" data-av="${e}" class="${e === setup.avatar ? 'on' : ''}" aria-label="${e}">${e}</button>`;
+    $('setupTones').innerHTML = TONES.map((t, i) => `<button type="button" data-tone="${i}" class="${t === setup.tone ? 'on' : ''}" aria-label="Skin tone ${i}">${withTone('✋', t)}</button>`).join('');
+    $('setupPeople').innerHTML = AV_PEOPLE.map((e) => cell(withTone(e, setup.tone))).join('');
+    $('setupFaces').innerHTML = AV_FACES.map(cell).join('');
+    $('setupPreview').textContent = setup.avatar || E.user;
+    $('setupPreviewName').textContent = $('setupName').value.trim() || $('setupName').placeholder;
+  }
+  /** Opens the profile screen; `first` = joining the game (no way around it). Resolves when saved. */
+  function editProfile(first) {
+    const p = me.player;
+    setup.avatar = p.avatar || withTone(AV_PEOPLE[0], '');
+    setup.tone = TONES.find((t) => t && setup.avatar.includes(t)) || '';
+    $('setupName').value = first ? '' : p.username;
+    $('setupName').placeholder = p.username;
+    $('setupNameErr').textContent = $('setupErr').textContent = '';
+    $('setupNav').textContent = first ? 'Create Your Profile' : 'Edit Profile';
+    $('setupGo').textContent = first ? 'Create Profile' : 'Save';
+    $('setupCancel').style.visibility = first ? 'hidden' : 'visible';
+    renderSetup();
+    openModal('setup');
+    return new Promise((resolve) => { setup.done = resolve; });
+  }
+  $('setupTones').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tone]');
+    if (!b) return;
+    const was = setup.tone;
+    setup.tone = TONES[+b.dataset.tone];
+    // Keep the chosen person, in the new tone.
+    const base = AV_PEOPLE.find((x) => withTone(x, was) === setup.avatar);
+    if (base) setup.avatar = withTone(base, setup.tone);
+    renderSetup();
+  });
+  for (const id of ['setupPeople', 'setupFaces']) {
+    $(id).addEventListener('click', (e) => {
+      const b = e.target.closest('[data-av]');
+      if (!b) return;
+      setup.avatar = b.dataset.av;
+      renderSetup();
+    });
+  }
+  $('setupName').addEventListener('input', () => { $('setupNameErr').textContent = ''; $('setupPreviewName').textContent = $('setupName').value.trim() || $('setupName').placeholder; });
+  $('setupCancel').addEventListener('click', () => closeModal('setup'));
+  $('setupGo').addEventListener('click', async () => {
+    const name = $('setupName').value.trim() || me.player.username;
+    if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) { $('setupNameErr').textContent = 'Use 3 to 20 letters, digits or _ (no spaces).'; return; }
+    $('setupGo').disabled = true;
+    try {
+      const body = { avatar: setup.avatar };
+      if (name !== me.player.username) body.username = name;
+      setMe(await api('PATCH', '/v1/me', body));
+      closeModal('setup');
+      updatePlayerVisuals();
+      if (setup.done) { setup.done(); setup.done = null; }
+      toast(`Welcome, ${me.player.username}`, false, me.player.avatar);
+    } catch (err) {
+      if (err.code === 'USERNAME_TAKEN') $('setupNameErr').textContent = 'That name is already taken. Try another one.';
+      else if (err.code === 'BAD_REQUEST') $('setupNameErr').textContent = 'Use 3 to 20 letters, digits or _ (no spaces).';
+      else $('setupErr').textContent = err.message || "Couldn't save your profile. Try again.";
+    } finally {
+      $('setupGo').disabled = false;
+    }
+  });
 
   function openSettings() {
+    $('nameText').textContent = me ? me.player.username : '–';
+    $('nameAvatar').textContent = avatarOf(me && me.player);
+    $('mapSwitch').checked = !!(me && me.player.showOnMap);
     $('simSwitch').checked = mode === 'sim';
     $('speedRow').hidden = mode !== 'sim';
-    for (const b of $('speedSeg').children) b.classList.toggle('on', (b.dataset.speed === 'fast') === !!(state && state.fast));
+    for (const b of $('speedSeg').children) b.classList.toggle('on', (b.dataset.speed === 'fast') === simFast);
     $('locFoot').textContent = mode === 'sim'
-      ? 'Walk with the joystick or with Walk Here on a hex. Arrow keys and WASD work too.'
-      : `With real GPS you can act on hexes within ${CFG.reach} m of where you are. Turn on simulated walking to test without moving.`;
-    $('keyValue').textContent = authFailed ? 'Rejected' : keyInfo.source === 'device' ? 'On This Device' : keyInfo.source === 'site' ? 'Built In' : 'Not Set';
-    $('mapFoot').textContent = `Hexes use H3 resolution ${CFG.res}, about ${hexAcross()} m across here.`;
+      ? 'Walk with the joystick or with Walk Here on a hex. Arrow keys and WASD work too. The server pauses actions above 8 m/s.'
+      : `With real GPS you can act on hexes within ${REACH} m of where you are. Turn on simulated walking to test without moving.`;
+    $('testingBox').hidden = !devTools;
+    $('mapValue').textContent = map ? map.attribution : '–';
+    $('keyRow').hidden = !map || map.kind === 'apple';
+    $('keyValue').textContent = gAuthFailed ? 'Rejected' : gKey ? 'Set' : 'Not Set';
+    $('mapFoot').textContent = `${map && map.kind === 'apple' ? 'Apple Maps, the same map as the iPhone app.' : map && map.kind === 'osm' ? 'OpenStreetMap: free, no key needed. Apple Maps is used once the game server has an Apple Maps key; a Google Maps key on this device switches to Google.' : 'Google Maps, with the key on this device, until the game server has an Apple Maps key.'} Hexes use H3 resolution ${RES}, about ${hexAcross()} m across.`;
+    $('serverText').textContent = `${API.replace(/^https?:\/\//, '')} · ${serverState === 'ok' ? 'connected' : serverState === 'waking' ? 'waking up' : 'unreachable'}`;
     openModal('settings');
   }
   function openKeySheet() {
     closeModal('settings');
     $('keyInput').value = lsGet(KEY_STORE) || '';
-    $('keyInput').placeholder = keyInfo.source === 'site' ? 'Using the key built into this site' : 'AIza…';
-    $('mapIdInput').value = lsGet(MAPID_STORE) || '';
     $('keyRemove').hidden = !lsGet(KEY_STORE);
     $('originText').textContent = `${siteOrigin()}/*`;
-    $('keyFoot').textContent = authFailed ? 'Google rejected the current key for this website.'
-      : keyInfo.source === 'device' ? 'Saved on this device. The page reloads to apply changes.'
-      : keyInfo.source === 'site' ? 'This site has a built-in key. A key entered here replaces it on this device.'
-      : 'No key yet. The map works, but Google marks it as a development map.';
+    $('keyFoot').textContent = gAuthFailed ? 'Google rejected the current key for this website.' : gKey ? 'Saved. The page reloads to apply changes.' : 'No key yet. The map works, but Google marks it as a development map.';
     openModal('keySheet');
   }
-  function skip(minutes) {
-    if (!state) return;
-    state.offset += minutes * 60000;
-    save();
-    closeModal('settings');
-    refreshUi();
-    const h = minutes / 60;
-    toast(`Skipped ${minutes >= 60 ? `${h} hour${h === 1 ? '' : 's'}` : `${minutes} minutes`}`, false, E.skip);
-  }
-
   $('settingsBtn').addEventListener('click', openSettings);
+  $('mapSwitch').addEventListener('change', async (e) => {
+    const on = e.target.checked;
+    try {
+      setMe(await api('PATCH', '/v1/me', { showOnMap: on }));
+      toast(on ? 'Players nearby can see you on the map' : 'You are hidden from the map', false, on ? E.person : E.eye);
+    } catch (err) {
+      e.target.checked = !on;
+      toast(err.message, true);
+    }
+  });
+  $('nameRow').addEventListener('click', () => { closeModal('settings'); editProfile(false); });
   $('keyChip').addEventListener('click', openKeySheet);
   $('keyRow').addEventListener('click', openKeySheet);
-  $('skip10').addEventListener('click', () => skip(10));
-  $('skip60').addEventListener('click', () => skip(60));
-  $('skip600').addEventListener('click', () => skip(600));
-  $('simSwitch').addEventListener('change', (e) => {
-    closeModal('settings');
-    if (e.target.checked) enterSim();
-    else enterGps();
-  });
+  $('skip10').addEventListener('click', () => doSkip(10));
+  $('skip60').addEventListener('click', () => doSkip(60));
+  $('skip600').addEventListener('click', () => doSkip(600));
+  $('simSwitch').addEventListener('change', (e) => { closeModal('settings'); if (e.target.checked) enterSim(); else enterGps(); });
   $('speedSeg').addEventListener('click', (e) => {
     const b = e.target.closest('button');
-    if (!b || !state) return;
-    state.fast = b.dataset.speed === 'fast';
-    save();
+    if (!b) return;
+    simFast = b.dataset.speed === 'fast';
+    lsSet(SIM_FAST, simFast ? '1' : '0');
     for (const x of $('speedSeg').children) x.classList.toggle('on', x === b);
   });
-  $('resetRow').addEventListener('click', () => {
-    showAlert('Start Over?', 'This deletes your progress in this game on this device.', [
+  $('deleteRow').addEventListener('click', () => {
+    showAlert('Delete Account?', 'This deletes your commander, territory and buildings from the game server. This cannot be undone.', [
       { label: 'Cancel' },
       {
-        label: 'Start Over', style: 'destructive', onTap: () => {
-          lsSet(keyFor(mode), null);
-          const origin = mode === 'gps' && state ? { ...state.pos } : { ...SULTANAHMET };
-          state = null;
+        label: 'Delete', style: 'destructive', onTap: async () => {
+          try {
+            await api('DELETE', '/v1/me');
+          } catch (e) {
+            toast(e.message, true);
+            return;
+          }
+          session = null;
+          saveSession();
           closeModal('settings');
-          startGame(mode, origin);
-          toast('New game started', false, E.restart);
+          location.reload();
         },
       },
     ]);
   });
   $('keySave').addEventListener('click', () => {
-    const k = $('keyInput').value.trim(), id = $('mapIdInput').value.trim();
+    const k = $('keyInput').value.trim();
     if (k && !/^[A-Za-z0-9_-]{20,}$/.test(k)) {
       showAlert('Check the Key', 'A Google Maps API key is one word of letters, numbers, dashes and underscores, usually starting with “AIza”.', [{ label: 'OK', style: 'strong' }]);
       return;
     }
     lsSet(KEY_STORE, k || null);
-    lsSet(MAPID_STORE, id || null);
-    save();
     location.reload();
   });
-  $('keyRemove').addEventListener('click', () => {
-    lsSet(KEY_STORE, null);
-    save();
-    location.reload();
-  });
+  $('keyRemove').addEventListener('click', () => { lsSet(KEY_STORE, null); location.reload(); });
   $('status').addEventListener('click', () => {
     if (!mode) return;
-    if (mode === 'gps' && gps.err === 'denied') {
-      showLocHelp('Location access is turned off for this page.');
-      return;
-    }
-    showAlert('Your Reach', `You can claim, build, upgrade and collect on hexes whose center is within ${CFG.reach} m of you, inside the blue circle. For hexes further away, walk there.`, [{ label: 'OK', style: 'strong' }]);
+    if (mode === 'gps' && gps.err === 'denied') { showLocHelp('Location access is turned off for this page.'); return; }
+    showAlert('Your Reach', `You can claim, place, move, upgrade and collect on hexes whose center is within ${REACH} m of you, inside the blue circle. For hexes further away, walk there.`, [{ label: 'OK', style: 'strong' }]);
   });
   $('locateBtn').addEventListener('click', () => {
-    if (!state || !map) return;
-    if (follow && map.getZoom() !== MAP.zoom) map.setZoom(MAP.zoom);
+    if (!pos || !map) return;
+    if (follow) map.setView(centerFor(pos), MAP.mpp, true);
     setFollow(true);
     followCamera(true);
   });
@@ -2009,20 +2486,12 @@
     const r = stick.getBoundingClientRect();
     let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
     const max = r.width / 2 - 14, d = Math.hypot(dx, dy);
-    if (d > max) {
-      dx = (dx / d) * max;
-      dy = (dy / d) * max;
-    }
+    if (d > max) { dx = (dx / d) * max; dy = (dy / d) * max; }
     knob.style.transform = `translate(${dx}px, ${dy}px)`;
     joy.x = dx / max;
     joy.y = dy / max;
   }
-  stick.addEventListener('pointerdown', (e) => {
-    stickId = e.pointerId;
-    stick.setPointerCapture(e.pointerId);
-    setFollow(true);
-    stickMove(e);
-  });
+  stick.addEventListener('pointerdown', (e) => { stickId = e.pointerId; stick.setPointerCapture(e.pointerId); setFollow(true); stickMove(e); });
   stick.addEventListener('pointermove', (e) => { if (e.pointerId === stickId) stickMove(e); });
   const stickEnd = (e) => {
     if (e.pointerId !== stickId) return;
@@ -2034,89 +2503,76 @@
   stick.addEventListener('pointercancel', stickEnd);
   window.addEventListener('keydown', (e) => {
     if (e.target instanceof HTMLInputElement) return;
-    if (e.key === 'Escape') {
-      if (placing) stopPlacing();
-      select(null);
-      return;
-    }
+    if (e.key === 'Escape') { if (placing) stopPlacing(); select(null); return; }
     if (mode !== 'sim') return;
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(k)) {
-      keys.add(k);
-      setFollow(true);
-      e.preventDefault();
-    }
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(k)) { keys.add(k); setFollow(true); e.preventDefault(); }
   });
   window.addEventListener('keyup', (e) => keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
   window.addEventListener('blur', () => keys.clear());
 
   // ------------------------------------------------------------------ modes
+  const SIM_POS = 'coc.simpos';
   function enterGps() {
-    save();
     mode = 'gps';
     lsSet(PREF, 'gps');
-    state = null;
     walkTarget = null;
     select(null);
     $('stick').hidden = true;
+    const hadPos = !!pos;
+    if (hadPos) pos = null; // wait for a real fix
     refreshStatus();
-    startGps(); // the first GPS fix starts (or resumes) the game where you are
+    startGps();
   }
   function enterSim() {
-    save();
     stopGps();
+    mode = 'sim';
     lsSet(PREF, 'sim');
-    state = null;
-    startGame('sim', { ...SULTANAHMET });
+    let start = null;
+    try { start = JSON.parse(lsGet(SIM_POS) || 'null'); } catch (e) { /* ignore */ }
+    const hq = me && me.buildings.find((b) => b.type === 'hq');
+    const first = !pos;
+    pos = pos || start || (hq ? { lat: hq.center[0], lng: hq.center[1] } : { ...SULTANAHMET });
+    $('stick').hidden = false;
+    if (first) startGame();
+    else { refreshStatus(); playerMoved(true); }
   }
-  function startGame(m, origin) {
-    mode = m;
-    walkTarget = null;
-    select(null);
-    resetLayers();
-    state = load(m) || newGame(m, origin);
-    if (m === 'gps') state.pos = { ...origin };
-    version++;
-    save();
+  /** First position known: show the world around it. */
+  function startGame() {
     busy(null);
-    measureGrid(state.pos);
-    $('stick').hidden = m !== 'sim';
+    measureGrid(pos);
     $('shopBtn').hidden = false;
-    state.inv = state.inv || {};
-    if (placing) stopPlacing();
     setFollow(true);
-    map.setZoom(MAP.zoom);
-    map.setCenter(state.pos);
-    territoryChanged();
+    map.setView(centerFor(pos), MAP.mpp, false);
     updatePlayerVisuals();
+    lastSent = { at: 0, pos: null };
+    syncLocation(true);
+    loadWorld(pos);
+    territoryChanged();
     updateReach(true);
     refreshUi();
-    followCamera(false);
-    if (!myCells().length) {
-      select(cellAt(state.pos.lat, state.pos.lng));
-      toast(m === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false, m === 'gps' ? E.here : E.sim);
+    setTimeout(() => followCamera(false), 50);
+    if (!me.territory.count) {
+      select(cellAt(pos.lat, pos.lng));
+      toast(mode === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false, mode === 'gps' ? E.here : E.sim);
     }
   }
 
   // ------------------------------------------------------------------ loop
-  let reachDirty = false;
   let last = performance.now(), lastFollow = 0;
   function frame(t) {
     const dt = Math.min(0.1, (t - last) / 1000);
     last = t;
     const moved = step(dt);
     if (moved) {
-      saveDue = true;
       reachDirty = true;
       updatePlayerVisuals();
-      if (follow && t - lastFollow > 30) {
-        lastFollow = t;
-        followCamera(false);
-      }
+      if (follow && t - lastFollow > 30) { lastFollow = t; followCamera(false); }
     }
     if (moved !== walking) {
       walking = moved;
       puckEl.classList.toggle('moving', moved);
+      if (!moved && mode === 'sim' && pos) lsSet(SIM_POS, JSON.stringify(pos));
       refreshStatus();
     }
     requestAnimationFrame(frame);
@@ -2124,122 +2580,76 @@
   let tickN = 0;
   function tick() {
     tickN++;
-    if (reachDirty) {
-      reachDirty = false;
-      updateReach(false);
-    }
+    if (reachDirty) { reachDirty = false; updateReach(false); }
     if (tickN % 2 === 0) {
       refreshUi();
-      if (saveDue) save();
+      syncLocation(false);
+      maybeReloadWorld();
+      // Construction that just finished: the server settles it when asked.
+      if (me && me.buildings.some((b) => b.state !== 'active' && endsIn(b) <= 0) && Date.now() - meAt > 1500) { meAt = Date.now(); loadMe(); }
     }
+    if (tickN % 120 === 0 && me) loadMe(); // every 30 s
   }
 
   // ------------------------------------------------------------------ boot
-  async function boot() {
-    for (const m of ['gps', 'sim']) lsSet(`clash-of-cities.web.${m}.v2`, null); // saves from the ~150 m hex version
-    for (const el of document.querySelectorAll('[data-reach]')) el.textContent = CFG.reach;
-    setFollow(true);
-    busy('Loading Google Maps…');
-    const pref = lsGet(PREF);
+  async function connect() {
+    // A sleeping free server can take ~30-60 s to wake up.
+    const t = setTimeout(() => { serverState = 'waking'; busy('Waking up the game server…'); refreshStatus(); }, 2500);
     try {
-      await initMap(SULTANAHMET, pref ? 16 : 14);
+      cfg = await http('GET', '/v1/config', undefined, {}, 90000);
+      await http('GET', '/health', undefined, {}, 30000);
+      serverState = 'ok';
+    } finally {
+      clearTimeout(t);
+    }
+    RES = cfg.grid.claimResolution;
+    REACH = cfg.reach.meters;
+    for (const el of document.querySelectorAll('[data-reach]')) el.textContent = REACH;
+    setMe(await api('GET', '/v1/me'));
+  }
+  async function boot() {
+    setFollow(true);
+    busy('Connecting…');
+    try {
+      await connect();
     } catch (e) {
-      fatal("Can't Load Google Maps", 'Check your internet connection and try again.');
+      serverState = 'down';
+      fatal("Can't Reach the Game Server", e instanceof ApiError && e.status ? e.message : 'The game server is not available right now. Check your connection and try again in a minute.');
+      return;
+    }
+    busy('Loading the map…');
+    try {
+      await initMap(cfg.client.defaultCenter);
+    } catch (e) {
+      fatal("Can't Load the Map", 'Check your internet connection and try again.');
       return;
     }
     busy(null);
     updateKeyChip();
     layoutControls();
+    if (!me.player.avatar) await editProfile(true); // new players create their profile first
+    const pref = lsGet(PREF);
     if (pref === 'gps') enterGps();
     else if (pref === 'sim') enterSim();
-    else {
-      refreshStatus();
-      openModal('welcome');
-    }
+    else { refreshStatus(); openModal('welcome'); }
     requestAnimationFrame(frame);
     setInterval(tick, 250);
-    window.addEventListener('resize', () => {
-      layoutControls();
-      followCamera(false);
-    });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+    window.addEventListener('resize', () => { layoutControls(); followCamera(false); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && me) { loadMe(); syncLocation(true); } });
   }
 
-  // Hooks used to capture screenshots of fixed scenarios.
+  // Hooks used by the automated browser tests.
   window.__coc = {
-    get state() { return state; },
-    map: () => map,
+    get me() { return me; },
+    get world() { return world; },
+    get pos() { return pos; },
+    get engine() { return map && map.kind; },
+    toPx: (lat, lng) => map.toPx({ lat, lng }),
+    withTone: (e, t) => withTone(e, t),
     select: (id) => select(id),
-    fakeFix(lat, lng, acc) {
-      gps.acc = acc || 8;
-      gps.at = Date.now();
-      gps.speed = 0;
-      gps.err = null;
-      if (!state) return;
-      state.pos = { lat, lng };
-      playerMoved(false);
-      updateReach(true);
-      refreshUi();
-    },
-    scenario(name, m) {
-      m = m || 'gps';
-      for (const id of ['welcome', 'locHelp', 'settings', 'keySheet', 'shop']) {
-        $(id).classList.remove('open');
-        $(id).hidden = true;
-      }
-      stopGps();
-      lsSet(keyFor(m), null);
-      gps.acc = 8;
-      gps.at = Date.now();
-      gps.speed = 0;
-      gps.err = null;
-      startGame(m, SULTANAHMET);
-      $('toast').classList.remove('show');
-      const home = cellAt(SULTANAHMET.lat, SULTANAHMET.lng);
-      const ring = ringCells(home, 1);
-      if (name !== 'fresh') {
-        state.cells[home] = { o: 'me', t: now() };
-        addBuilding(home, 'hq', 0);
-      }
-      if (name === 'build') {
-        ring.slice(0, 3).forEach((id) => (state.cells[id] = { o: 'me', t: now() }));
-        const g = addBuilding(ring[0], 'generator', 0);
-        g.stored = 64;
-        g.at = now();
-        state.credits = 370;
-        state.inv = { generator: 1, storage: 1 };
-      }
-      if (['midgame', 'overview'].includes(name)) {
-        ring.slice(0, 5).forEach((id) => (state.cells[id] = { o: 'me', t: now() }));
-        const [g1, g2, v1] = ring, t0 = now();
-        const a = addBuilding(g1, 'generator', 0);
-        a.stored = 118;
-        a.at = t0;
-        const b = addBuilding(g2, 'generator', 0);
-        b.stored = 36;
-        b.at = t0;
-        addBuilding(v1, 'storage', 120).ends = t0 + 83000;
-        state.credits = 485;
-        const c1 = cell(g1);
-        state.pos = offsetLL(c1, 22, 200);
-      }
-      territoryChanged();
-      updatePlayerVisuals();
-      updateReach(true);
-      refreshUi();
-      select(null);
-      followCamera(false);
-      if (name === 'fresh') select(home);
-      if (name === 'founded') select(ringCells(home, 5).filter((id) => !state.cells[id])[7]);
-      if (name === 'midgame') select(ring[0]);
-      if (name === 'build') select(ring[1]);
-      if (name === 'rival') select(Object.values(state.b).find((b) => b.o === 'selim' && b.type === 'hq').cell);
-      if (name === 'overview') {
-        setFollow(false);
-        map.setZoom(16.5);
-        map.setCenter({ lat: 41.0085, lng: 28.9745 });
-      }
-    },
+    reloadWorld: () => { world.at = 0; return loadWorld(pos); },
+    cellAt: (lat, lng) => cellAt(lat, lng),
+    teleport(lat, lng) { pos = { lat, lng }; playerMoved(false); updateReach(true); syncLocation(true); refreshUi(); },
   };
 
   boot();
