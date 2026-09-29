@@ -78,7 +78,57 @@
 
   /* ---------------------------------------------------------------- top: resources, status, map buttons */
   .top { position: absolute; z-index: 5; top: calc(var(--st) + 8px); left: 10px; right: 10px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-  .hud { pointer-events: auto; display: grid; grid-template-columns: 1.35fr 1fr 1fr; padding: 9px 2px 10px; border-radius: 22px; }
+  /* Map controls sit on a dark map, so they use dark glass whatever the system theme. */
+  .mglass {
+    background: rgba(28, 28, 30, .62); color: #fff;
+    -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .35), inset 0 0 0 .5px rgba(255, 255, 255, .12);
+  }
+  .stats {
+    pointer-events: auto; flex: none; display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 4px;
+    color: #fff; font: 700 15px var(--round); font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); white-space: nowrap;
+  }
+  .stats .st { display: inline-flex; align-items: center; gap: 3px; }
+  .stats .emo { font-size: 15px; text-shadow: none; }
+  .stats small { font: 600 12px var(--round); opacity: .75; }
+  .rail {
+    position: absolute; z-index: 5; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column;
+    border-radius: 18px; overflow: visible;
+  }
+  .rail, .talk { transition: opacity .25s, transform .3s var(--spring); }
+  .rail.away { opacity: 0; pointer-events: none; transform: translate(70px, -50%); }
+  .talk.away { opacity: 0; pointer-events: none; transform: translateX(80px); }
+  .rbtn { position: relative; display: grid; place-items: center; width: 50px; height: 52px; padding: 0; border: 0; background: none; }
+  .rbtn + .rbtn { border-top: .5px solid rgba(255, 255, 255, .14); }
+  .rbtn .emo { font-size: 25px; }
+  .rbtn:active { transform: scale(.92); }
+  .rbtn[aria-pressed="false"] .emo { opacity: .55; }
+  .rbtn .badge { top: 4px; right: 2px; }
+  .talk {
+    position: absolute; z-index: 5; right: 10px; top: calc(50% + 130px); width: 58px; height: 46px; padding: 0; border: 0; border-radius: 23px 23px 6px 23px;
+    background: #fff; color: #1c1c1e; font: 900 18px/1 var(--round); letter-spacing: 1px; box-shadow: 0 4px 16px rgba(0, 0, 0, .35);
+  }
+  .talk:active { transform: scale(.94); }
+  .talk-pop {
+    position: absolute; z-index: 7; right: 76px; top: calc(50% - 40px); width: min(280px, calc(100vw - 96px)); padding: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px; border-radius: 20px; background: #fff; box-shadow: 0 8px 30px rgba(0, 0, 0, .4);
+  }
+  .talk-pop button { padding: 8px 12px; border: 0; border-radius: 16px; background: #f2f2f7; color: #1c1c1e; font: 600 15px var(--font); }
+  .talk-pop button:active { background: #e5e5ea; }
+  .lvlbar {
+    position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px calc(var(--sb) + 14px); border: 0; border-radius: 26px 26px 0 0; background: #fff; color: #1c1c1e; text-align: left;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, .35);
+  }
+  .lvlbar::before { content: ''; position: absolute; top: 6px; left: 50%; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px; background: #d1d1d6; }
+  .lv-av { flex: none; width: 52px; height: 52px; display: grid; place-items: center; font: 44px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .lv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .lv-name { display: flex; align-items: center; gap: 6px; min-width: 0; font: 800 22px/1.1 var(--round); }
+  .lv-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lv-badge { flex: none; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 12px; background: #0a84ff; color: #fff; font: 800 14px/24px var(--round); font-style: normal; text-align: center; }
+  .lv-sub { font: 600 15px var(--round); color: #3a3a3c; }
+  .lv-bar { position: absolute; left: 18px; right: 18px; bottom: calc(var(--sb) + 6px); height: 3px; border-radius: 2px; background: #e5e5ea; overflow: hidden; }
+  .lv-bar i { display: block; height: 100%; width: 0; background: #ffcc00; transition: width .4s; }
   .stat { min-width: 0; padding: 0 12px; }
   .stat + .stat { border-left: .5px solid var(--sep); }
   .stat-k { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--label2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -114,11 +164,6 @@
   }
   .knob { font-size: 22px; }
 
-  .shop-btn {
-    position: absolute; z-index: 4; right: 16px; bottom: var(--ctl-bottom); width: 62px; height: 62px; padding: 0; border: 0; border-radius: 50%;
-    display: grid; place-items: center; font-size: 30px; transition: bottom .42s var(--spring);
-  }
-  .shop-btn:active { transform: scale(.94); }
   .badge {
     position: absolute; top: -2px; right: -2px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; border: 2px solid #fff;
     background: var(--red); color: #fff; font: 700 12px/18px var(--round); text-align: center;
@@ -345,7 +390,9 @@
   #map { isolation: isolate; } /* keeps map-library layers (Leaflet uses z-index 400+) below the game UI */
   .osm-mk { background: none; border: 0; }
   .osm-dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.92) contrast(.9) saturate(.7); }
-  #map.leaflet-container { background: var(--bg, #f2f2f7); font: 11px var(--font); }
+  #map.leaflet-container { background: #1c1c1e; font: 11px var(--font); }
+  .leaflet-container .leaflet-control-attribution { background: rgba(0, 0, 0, .45); color: rgba(255, 255, 255, .7); }
+  .leaflet-container .leaflet-control-attribution a { color: rgba(255, 255, 255, .85); }
   .leaflet-control-attribution { margin-bottom: calc(env(safe-area-inset-bottom) + 2px) !important; }
   .pin, .puck { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .pi { position: absolute; left: 0; top: 0; transform: scale(var(--pz)); transform-origin: 0 0; }
@@ -371,18 +418,31 @@
   .cap.full { background: #ff9500; color: #fff; }
   .nm { position: absolute; left: 0; bottom: 23px; transform: translateX(-50%); font: 600 12px var(--font); color: #d70015; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
   .nm:empty { display: none; }
-  /* Online players: a person emoji with their name, at the center of their ~150 m cell. */
+  /* Players: a big avatar emoji with their name, and a speech bubble when they say something. */
   .op { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
-  /* Avatars are a little bigger than building emoji. */
-  .op .pe { position: absolute; left: -19px; top: -36px; width: 38px; height: 38px; display: grid; place-items: center; font-size: 31px; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .4)); }
-  .op.me .pe { top: -50px; }
-  .op.me .on { top: -13px; color: #007aff; }
-  .op.me .on::before { display: none; }
-  .op .on { position: absolute; left: 0; top: 1px; transform: translateX(-50%); font: 600 12px var(--font); color: #0040dd; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
-  .op .on::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 4px; border: 1px solid #fff; border-radius: 50%; background: #34c759; vertical-align: 0; }
+  .op .pe { position: absolute; left: -22px; top: -44px; width: 44px; height: 44px; display: grid; place-items: center; font-size: 40px; line-height: 1; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
+  .op .on { position: absolute; left: 0; top: 1px; transform: translateX(-50%); font: 700 12px var(--font); color: #fff; white-space: nowrap; text-shadow: 0 1px 3px #000, 0 0 2px #000; }
+  .op.me .pe { left: -27px; top: -52px; width: 54px; height: 54px; font-size: 48px; }
+  .op.me .ring { position: absolute; left: -46px; top: -46px; width: 92px; height: 92px; border: 1.5px solid rgba(255, 255, 255, .55); border-radius: 50%; }
+  .op.me .spark { position: absolute; left: -40px; top: -44px; font-size: 16px; }
+  .op.me .on { display: none; }
+  .bubble {
+    position: absolute; left: 0; bottom: 48px; transform: translateX(-50%); padding: 7px 13px; border-radius: 16px; background: rgba(255, 255, 255, .96);
+    color: #1c1c1e; font: 800 15px var(--round); white-space: nowrap; box-shadow: 0 3px 10px rgba(0, 0, 0, .35);
+    animation: pop .25s var(--spring);
+  }
+  .bubble::after { content: ''; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: rgba(255, 255, 255, .96); }
+  .bubble:empty { display: none; }
+  .op.me .bubble { bottom: 58px; }
+  @keyframes pop { from { transform: translateX(-50%) scale(.6); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
   .hide-pins .op .on { display: none; }
-  .puck .halo { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 122, 255, .24); animation: puck 2.4s ease-out infinite; }
-  .puck .dot { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border: 3.5px solid #fff; border-radius: 50%; background: #007aff; box-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
+  /* Territory: each owned hex shows its owner's emoji. */
+  .tt { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .tt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .45)); }
+  .tt.far i { opacity: .8; }
+  .hide-pins .tt { display: none; }
+  .puck .halo { display: none; }
+  .puck .dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border: 2px solid #fff; border-radius: 50%; background: #0a84ff; box-shadow: 0 1px 4px rgba(0, 0, 0, .5); }
   .puck .cone {
     position: absolute; left: -26px; top: -52px; width: 52px; height: 52px; opacity: 0; transform-origin: 50% 100%; transform: rotate(var(--hd, 0deg));
     background: radial-gradient(circle at 50% 100%, rgba(0, 122, 255, .55), rgba(0, 122, 255, 0) 72%); clip-path: polygon(50% 100%, 10% 0, 90% 0); transition: opacity .3s;
@@ -399,37 +459,38 @@
   <div id="map" role="application" aria-label="Map"></div>
 
   <div class="top" id="top">
-    <header class="hud glass" id="hud">
-      <div class="stat">
-        <div class="stat-k">Credits</div>
-        <div class="stat-v"><span class="emo">🪙</span><span id="credits">–</span><small id="creditsCap"></small></div>
-        <div class="meter"><i id="creditsBar"></i></div>
-      </div>
-      <div class="stat">
-        <div class="stat-k" id="hexesK">Hexes</div>
-        <div class="stat-v"><span class="emo">🗺️</span><span id="hexes">–</span><small id="hexesMax"></small></div>
-      </div>
-      <div class="stat">
-        <div class="stat-k">Builders</div>
-        <div class="stat-v"><span class="emo">👷</span><span id="builders">–</span><small id="buildersMax"></small></div>
-      </div>
-    </header>
     <div class="top-row">
       <div class="chips">
-        <button class="capsule glass" id="status" type="button"><span class="emo" id="statusEmo">⏳</span><span id="statusText">Loading…</span></button>
-        <button class="capsule glass keychip" id="keyChip" type="button" hidden><span class="emo" id="keyChipEmo">⚠️</span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
+        <button class="capsule mglass" id="status" type="button"><span class="emo" id="statusEmo">⏳</span><span id="statusText">Loading…</span></button>
+        <button class="capsule mglass keychip" id="keyChip" type="button" hidden><span class="emo" id="keyChipEmo">⚠️</span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
       </div>
-      <div class="fabs glass">
-        <button class="fab" id="leadersBtn" type="button" aria-label="Leaderboard"><span class="emo">🏆</span></button>
-        <button class="fab" id="profileBtn" type="button" aria-label="My profile"><span class="emo">👤</span></button>
-        <button class="fab" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
-        <button class="fab" id="locateBtn" type="button" aria-label="Follow my location" aria-pressed="true"></button>
-      </div>
+      <!-- Compact stats, top right (hexes, credits, builders). -->
+      <header class="stats" id="hud" aria-label="Your resources">
+        <span class="st"><span class="emo">🗺️</span><b id="hexes">–</b><small id="hexesMax"></small></span>
+        <span class="st"><span class="emo">🪙</span><b id="credits">–</b></span>
+        <span class="st"><span class="emo">👷</span><b id="builders">–</b><small id="buildersMax"></small></span>
+      </header>
     </div>
   </div>
 
-  <div class="stick glass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
-  <button class="shop-btn glass" id="shopBtn" type="button" aria-label="Shop" hidden><span class="emo">🛒</span><span class="badge" id="invBadge" hidden></span></button>
+  <!-- Tool bar on the right edge. -->
+  <nav class="rail mglass" id="rail">
+    <button class="rbtn" id="locateBtn" type="button" aria-label="Find me" aria-pressed="true"><span class="emo">🔍</span></button>
+    <button class="rbtn" id="shopBtn" type="button" aria-label="Shop and inventory" hidden><span class="emo">📦</span><span class="badge" id="invBadge" hidden></span></button>
+    <button class="rbtn" id="leadersBtn" type="button" aria-label="Leaderboard"><span class="emo">🏆</span></button>
+    <button class="rbtn" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
+  </nav>
+  <button class="talk" id="talkBtn" type="button" aria-label="Say something" hidden><span>•••</span></button>
+  <div class="talk-pop" id="talkPop" hidden></div>
+
+  <div class="stick mglass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
+
+  <!-- Bottom card: you, your level and how far to the next one. Tap for your profile. -->
+  <button class="lvlbar" id="lvlBar" type="button" hidden>
+    <span class="lv-av" id="lvAvatar"></span>
+    <span class="lv-main"><span class="lv-name"><b id="lvName"></b><i class="lv-badge" id="lvBadge">1</i></span><span class="lv-sub" id="lvSub"></span></span>
+    <span class="lv-bar"><i id="lvFill"></i></span>
+  </button>
 
   <section class="placebar glass" id="placeBar" hidden>
     <div class="tile lg" id="placeTile"></div>
@@ -474,6 +535,9 @@
         <h4 class="sec-h">Faces and Animals</h4>
         <div class="group"><div class="av-grid" id="setupFaces"></div></div>
         <p class="sec-f">Your avatar stands on the map where other players nearby can see it.</p>
+        <h4 class="sec-h">Territory</h4>
+        <div class="group"><div class="av-grid" id="setupLand"></div></div>
+        <p class="sec-f">Your hexes on the map are covered with this emoji.</p>
         <p class="field-err" id="setupErr"></p>
         <button class="btn" id="setupGo" type="button">Create Profile</button>
       </div>
@@ -1247,22 +1311,25 @@
   // Camera and layers, tuned for ~9 m hexes (H3 res 13): the default view shows the 70 m reach circle.
   const MAP = { mpp: 0.4, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 2.4, maxGridRings: 40, worldRings: 45 };
   const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
-  const dark = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
-  function hexStyles(darkMap) {
-    const grid = darkMap ? '#ffffff' : '#3c3c43';
+  // The map is always dark and calm, so emoji territory and avatars stand out (whatever the system theme).
+  const dark = true;
+  // Territory is shown with emoji, so hexes are nearly invisible: no grid, no fills, faint borders,
+  // and a light outline only where you can claim next (within reach) and around the selection.
+  function hexStyles() {
+    const W = '#ffffff';
     return {
-      own: { fill: COL.own, fillOpacity: 0.3, stroke: COL.own, strokeOpacity: 0.6, width: 1, z: 4 },
-      rival: { fill: COL.rival, fillOpacity: 0.22, stroke: COL.rival, strokeOpacity: 0.55, width: 1, z: 3 },
-      claimR: { fill: COL.claim, fillOpacity: 0.2, stroke: COL.claim, strokeOpacity: 1, width: 2, z: 2 },
-      claim: { fill: COL.claim, fillOpacity: 0.07, stroke: COL.claim, strokeOpacity: 0.75, width: 1.5, z: 2 },
-      nR: { fill: COL.blue, fillOpacity: 0.07, stroke: grid, strokeOpacity: 0.6, width: 1, z: 1 },
-      n: { fill: grid, fillOpacity: 0, stroke: grid, strokeOpacity: 0.3, width: 1, z: 1 },
-      oMe: { fill: COL.own, fillOpacity: 0, stroke: COL.own, strokeOpacity: 1, width: 3, z: 5 },
-      oRival: { fill: COL.rival, fillOpacity: 0, stroke: COL.rival, strokeOpacity: 1, width: 2.5, z: 5 },
-      lot: { fill: COL.own, fillOpacity: 0.6, stroke: '#ffffff', strokeOpacity: 1, width: 2.5, z: 6 },
-      sel: { fill: COL.blue, fillOpacity: 0.12, stroke: COL.blue, strokeOpacity: 1, width: 3.5, z: 20 },
-      reach: { fill: COL.blue, fillOpacity: 0.04, stroke: COL.blue, strokeOpacity: 0.75, width: 2, z: 10 },
-      acc: { fill: COL.blue, fillOpacity: 0.1, stroke: COL.blue, strokeOpacity: 0.25, width: 1, z: 11 },
+      own: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 4 },
+      rival: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 3 },
+      claimR: { fill: W, fillOpacity: 0.06, stroke: W, strokeOpacity: 0.45, width: 1, z: 2 },
+      claim: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0.12, width: 1, z: 2 },
+      nR: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 1 },
+      n: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 1 },
+      oMe: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0.28, width: 1, z: 5 },
+      oRival: { fill: COL.rival, fillOpacity: 0, stroke: COL.rival, strokeOpacity: 0.4, width: 1, z: 5 },
+      lot: { fill: COL.own, fillOpacity: 0.45, stroke: W, strokeOpacity: 0.9, width: 1.5, z: 6 },
+      sel: { fill: W, fillOpacity: 0.12, stroke: W, strokeOpacity: 0.95, width: 2.5, z: 20 },
+      reach: { fill: '#8e8e93', fillOpacity: 0.2, stroke: W, strokeOpacity: 0.08, width: 1, z: 10 },
+      acc: { fill: W, fillOpacity: 0.05, stroke: W, strokeOpacity: 0.12, width: 1, z: 11 },
     };
   }
   let map = null; // the active engine
@@ -1305,7 +1372,7 @@
       showsScale: mk.FeatureVisibility.Hidden, isRotationEnabled: false, showsPointsOfInterest: true,
       colorScheme: dark ? mk.Map.ColorSchemes.Dark : mk.Map.ColorSchemes.Light,
     });
-    const S = hexStyles(dark);
+    const S = hexStyles();
     const style = (k) => { const s = S[k] || S.n; return new mk.Style({ fillColor: s.fill, fillOpacity: s.fillOpacity, strokeColor: s.stroke, strokeOpacity: s.strokeOpacity, lineWidth: s.width }); };
     const styleCache = {};
     const st = (k) => (styleCache[k] = styleCache[k] || style(k));
@@ -1398,7 +1465,7 @@
     };
     if (gKey) {
       opts.mapId = 'DEMO_MAP_ID';
-      if (gm.ColorScheme) opts.colorScheme = gm.ColorScheme.FOLLOW_SYSTEM;
+      if (gm.ColorScheme) opts.colorScheme = gm.ColorScheme.DARK;
     } else {
       // Without a key Google shows a dialog under our controls; the game explains the missing key itself.
       const mo = new MutationObserver(() => { const b = el.querySelector('.dismissButton'); if (b) b.click(); });
@@ -1406,7 +1473,7 @@
       setTimeout(() => mo.disconnect(), 20000);
     }
     const m = new GMap(el, opts);
-    const S = hexStyles(!!opts.colorScheme && dark);
+    const S = hexStyles();
     const gs = (k) => { const s = S[k] || S.n; return { clickable: false, fillColor: s.fill, fillOpacity: s.fillOpacity, strokeColor: s.stroke, strokeOpacity: s.strokeOpacity, strokeWeight: s.width, zIndex: s.z }; };
     m.data.setStyle((f) => gs(f.getProperty('s')));
     const hexes = new Map();
@@ -1508,7 +1575,7 @@
     m.attributionControl.setPrefix(false);
     L.tileLayer(cfg.map.tileUrlTemplate, { attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: false }).addTo(m);
     if (dark) el.classList.add('osm-dark');
-    const S = hexStyles(dark);
+    const S = hexStyles();
     const ls = (k) => { const s = S[k] || S.n; return { color: s.stroke, opacity: s.strokeOpacity, weight: s.width, fillColor: s.fill, fillOpacity: s.fillOpacity, interactive: false }; };
     const pane = (name, z) => { m.createPane(name).style.zIndex = z; return L.canvas({ pane: name, padding: 0.3 }); };
     const rHex = pane('cocHex', 401), rOut = pane('cocOut', 402), rReach = pane('cocReach', 403), rSel = pane('cocSel', 404);
@@ -1665,6 +1732,7 @@
     syncOutlines();
     restyleGrid();
     syncPins();
+    syncTiles();
     syncPlayers();
   }
   function updateReach(force) {
@@ -1719,6 +1787,7 @@
       const glyph = active ? emojiFor(b.type) : E.building;
       if (pin.glyph !== glyph) { pin.glyph = glyph; pin.pb.textContent = glyph; }
       pin.lvl.textContent = b.level;
+      pin.lvl.hidden = b.level < 2;
       let cap = '', capCls = 'cap';
       if (b.own && b.state !== 'active') cap = endsIn(b) > 0 ? `${E.timer} ${fmtClock(endsIn(b))}` : '';
       else if (b.own && b.production) {
@@ -1728,11 +1797,37 @@
       }
       if (pin.cap.textContent !== cap) pin.cap.textContent = cap;
       pin.cap.className = capCls;
-      pin.nm.textContent = !b.own && b.type === 'hq' ? rivalName(b.owner) : '';
+      pin.nm.textContent = ''; // names stand under the avatars now
     }
     for (const [key, pin] of pins) if (!seen.has(key)) { pin.handle.remove(); pins.delete(key); }
     void now;
   }
+  // Territory: every owned hex without a building shows its owner's territory emoji.
+  const tiles = new Map(); // cell -> { handle, el, glyph }
+  const territoryEmojiOf = (owner) => (owner === 'me' ? me.player.territoryEmoji : world.owners[owner] && world.owners[owner].territoryEmoji) || '🌱';
+  function syncTiles() {
+    if (!map || !me) return;
+    const want = new Map();
+    for (const id of myCellSet) if (!myByCell.has(id)) want.set(id, territoryEmojiOf('me'));
+    for (const [id, c] of world.cells) {
+      const o = ownerOf(id);
+      if (o && o !== 'me' && !c.building) want.set(id, territoryEmojiOf(o));
+    }
+    for (const [id, t] of tiles) if (!want.has(id)) { t.handle.remove(); tiles.delete(id); }
+    for (const [id, glyph] of want) {
+      let t = tiles.get(id);
+      if (!t) {
+        const el = document.createElement('div');
+        el.className = 'tt';
+        el.innerHTML = '<i></i>';
+        const c = cell(id);
+        t = { el, handle: map.addMarker(el, { lat: c.lat, lng: c.lng }, 2), glyph: '' };
+        tiles.set(id, t);
+      }
+      if (t.glyph !== glyph) { t.glyph = glyph; t.el.firstChild.textContent = glyph; }
+    }
+  }
+
   // Online players nearby (from the world view): a 🧍 with their name. Several in one cell fan out around its center.
   const playerPins = new Map(); // player id -> { handle, el, at }
   function playerSpots() {
@@ -1762,8 +1857,8 @@
       if (!pin) {
         const el = document.createElement('div');
         el.className = 'op';
-        el.innerHTML = '<div class="pi"><div class="pe"></div><div class="on"></div></div>';
-        pin = { el, handle: map.addMarker(el, at, 6), at, face: '' };
+        el.innerHTML = '<div class="pi"><div class="bubble"></div><div class="pe"></div><div class="on"></div></div>';
+        pin = { el, handle: map.addMarker(el, at, 6), at, face: '', said: '' };
         playerPins.set(p.id, pin);
       } else if (pin.at.lat !== at.lat || pin.at.lng !== at.lng) {
         pin.handle.move(at);
@@ -1772,6 +1867,8 @@
       const name = pin.el.querySelector('.on'), face = avatarOf(p);
       if (name.textContent !== p.username) name.textContent = p.username;
       if (pin.face !== face) { pin.face = face; pin.el.querySelector('.pe').textContent = face; }
+      const said = p.emote || '';
+      if (pin.said !== said) { pin.said = said; pin.el.querySelector('.bubble').textContent = said; }
     }
     for (const [id, pin] of playerPins) if (!seen.has(id)) { pin.handle.remove(); playerPins.delete(id); }
   }
@@ -1782,14 +1879,14 @@
     let best = null, bestD = 26;
     for (const [id, pin] of playerPins) {
       const q = map.toPx(pin.at);
-      const d = Math.hypot(q.x - t.x, q.y + 17 - t.y); // the avatar stands above its point
+      const d = Math.hypot(q.x - t.x, q.y + 22 - t.y); // the avatar stands above its point
       if (d < bestD) { bestD = d; best = id; }
     }
     return best;
   }
   const meEl = document.createElement('div');
   meEl.className = 'op me';
-  meEl.innerHTML = '<div class="pi"><div class="pe"></div><div class="on"></div></div>';
+  meEl.innerHTML = '<div class="pi"><div class="ring"></div><div class="spark">✨</div><div class="bubble"></div><div class="pe"></div><div class="on"></div></div>';
   let meMarker = null;
   function updatePlayerVisuals() {
     if (!map || !pos) return;
@@ -1797,8 +1894,10 @@
     else puck.move(pos);
     if (!meMarker) meMarker = map.addMarker(meEl, pos, 11);
     else meMarker.move(pos);
-    const face = avatarOf(me && me.player);
-    if (meEl.firstChild.firstChild.textContent !== face) meEl.firstChild.firstChild.textContent = face;
+    const face = avatarOf(me && me.player), pe = meEl.querySelector('.pe');
+    if (pe.textContent !== face) pe.textContent = face;
+    const said = myEmote && Date.now() < myEmote.until ? myEmote.text : '', bub = meEl.querySelector('.bubble');
+    if (bub.textContent !== said) bub.textContent = said;
     puckEl.style.setProperty('--hd', `${heading.toFixed(1)}deg`);
     map.setReach(pos, true);
     map.setAccuracy(pos, mode === 'gps' && gps.acc > 0 ? Math.min(gps.acc, 2000) : 0);
@@ -1823,7 +1922,6 @@
   }
   function setFollow(on) {
     follow = on;
-    $('locateBtn').innerHTML = svg(on ? 'arrow' : 'arrowo');
     $('locateBtn').setAttribute('aria-pressed', String(on));
   }
   let reachDirty = false;
@@ -1886,20 +1984,28 @@
 
   // ------------------------------------------------------------------ UI: resources and status
   let serverState = 'ok'; // 'ok' | 'waking' | 'down'
+  const fmtShort = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e4 ? `${(n / 1e3).toFixed(n >= 1e5 ? 0 : 1)}K` : fmtNum(n)).replace('.0', '');
   function refreshHud() {
     if (!me) return;
-    const hq = hqLevel(), cap = capacity(), bs = builders();
-    $('credits').textContent = fmtNum(credits());
-    $('creditsCap').textContent = hq ? `/${fmtNum(cap)}` : '';
-    $('creditsBar').style.width = `${cap ? Math.min(100, (credits() / cap) * 100) : 0}%`;
+    const hq = hqLevel(), bs = builders();
+    $('credits').textContent = fmtShort(credits());
     $('hexes').textContent = me.territory.count;
     $('hexesMax').textContent = `/${me.territory.max}`;
-    $('hexesK').textContent = hq ? `Hexes · HQ ${hq}` : 'Hexes';
     $('builders').textContent = hq ? bs.total - bs.busy : '–';
     $('buildersMax').textContent = hq ? `/${bs.total}` : '';
     const n = invTotal();
     $('invBadge').hidden = !n;
     $('invBadge').textContent = n;
+    refreshLevelBar();
+  }
+  /** Bottom card: avatar, name, level and the score still needed for the next level. */
+  function refreshLevelBar() {
+    const p = me.player, lv = me.level || 1, next = me.nextLevelScore, base = me.levelScore || 0;
+    $('lvAvatar').textContent = avatarOf(p);
+    $('lvName').textContent = p.username;
+    $('lvBadge').textContent = lv;
+    $('lvSub').textContent = next == null ? `${E.star} Highest level` : `${E.star} ${fmtNum(Math.max(0, next - me.score))} to level-up`;
+    $('lvFill').style.width = next == null ? '100%' : `${Math.max(0, Math.min(100, ((me.score - base) / (next - base)) * 100))}%`;
   }
   function refreshStatus() {
     let emoji, text;
@@ -2135,9 +2241,17 @@
     } else if (put) startPlacing({ kind: 'place', type: put.dataset.place });
   });
 
+  let started = false; // the level bar and tools show once the game has started
   function layoutControls() {
     const h = sheetOpen ? sheetEl.offsetHeight : !$('placeBar').hidden ? $('placeBar').offsetHeight : 0;
-    appEl.style.setProperty('--ctl-bottom', h ? `${Math.round(sheetBottomPx() + h + 14)}px` : 'calc(var(--sb) + 40px)');
+    const bar = $('lvlBar');
+    bar.hidden = !started || !!h;
+    // The tool bar and the talk button make room for an open sheet or the placing bar.
+    $('rail').classList.toggle('away', !!h);
+    $('talkBtn').classList.toggle('away', !!h);
+    if (h) $('talkPop').hidden = true;
+    const barH = bar.hidden ? 0 : bar.offsetHeight;
+    appEl.style.setProperty('--ctl-bottom', h ? `${Math.round(sheetBottomPx() + h + 14)}px` : barH ? `${barH + 14}px` : 'calc(var(--sb) + 40px)');
     appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 12))}px`);
   }
   function select(id) {
@@ -2248,6 +2362,35 @@
     $('locHelpWhy').textContent = why;
     openModal('locHelp');
   }
+  // ------------------------------------------------------------------ UI: quick messages (speech bubbles)
+  let myEmote = null; // { text, until }
+  function openTalk() {
+    const pop = $('talkPop');
+    if (!pop.hidden) { pop.hidden = true; return; }
+    pop.innerHTML = cfg.social.emotes.map((t, i) => `<button type="button" data-say="${i}">${esc(t)}</button>`).join('');
+    pop.hidden = false;
+  }
+  $('talkBtn').addEventListener('click', openTalk);
+  $('talkPop').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-say]');
+    if (!b) return;
+    const text = cfg.social.emotes[+b.dataset.say];
+    $('talkPop').hidden = true;
+    myEmote = { text, until: Date.now() + cfg.social.emoteSeconds * 1000 };
+    updatePlayerVisuals();
+    setTimeout(updatePlayerVisuals, cfg.social.emoteSeconds * 1000 + 50);
+    try {
+      await api('POST', '/v1/emote', { text });
+    } catch (err) {
+      myEmote = null;
+      updatePlayerVisuals();
+      toast(err.message, true);
+    }
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!$('talkPop').hidden && !e.target.closest('#talkPop, #talkBtn')) $('talkPop').hidden = true;
+  });
+
   // ------------------------------------------------------------------ UI: profiles and the leaderboard
   let profileSeq = 0;
   async function openProfile(id, fromLeaders) {
@@ -2276,8 +2419,8 @@
     const medal = p.rank && p.rank <= 3 ? ` ${E.medal[p.rank - 1]}` : '';
     return `<div class="prof"><div class="tile xl tint-blue">${esc(avatarOf(p))}</div><h2>${esc(p.username)}${medal}</h2>` +
       `<p><span class="dot${on ? ' on' : ''}"></span>${status}</p><p>Commander since ${esc(since)}</p></div>` +
-      `<div class="kpis"><div><b>${fmtNum(p.score)}</b><span>Score</span></div><div><b>${p.rank ? `#${p.rank}` : '–'}</b><span>Rank</span></div><div><b>${p.hqLevel || '–'}</b><span>Headquarters</span></div></div>` +
-      `<h4 class="sec-h">Empire</h4><div class="group">${row(E.neutral, 'green', 'Territory', `${p.territory} hex${p.territory === 1 ? '' : 'es'}`)}${buildings.join('')}</div>` +
+      `<div class="kpis"><div><b>${p.level || 1}</b><span>Level</span></div><div><b>${fmtNum(p.score)}</b><span>Score</span></div><div><b>${p.rank ? `#${p.rank}` : '–'}</b><span>Rank</span></div></div>` +
+      `<h4 class="sec-h">Empire</h4><div class="group">${row(p.territoryEmoji || E.neutral, 'green', 'Territory', `${p.territory} hex${p.territory === 1 ? '' : 'es'}`)}${buildings.join('')}</div>` +
       `<h4 class="sec-h">Stats</h4><div class="group">` +
       row(E.walk, 'blue', 'Distance Walked', fmtDist(s.distanceMeters)) +
       row(E.flag, 'green', 'Hexes Claimed', fmtNum(s.hexesClaimed)) +
@@ -2300,7 +2443,7 @@
         const mine = me && e.id === me.player.id;
         const badge = e.rank <= 3 ? `<div class="rank">${E.medal[e.rank - 1]}</div>` : `<div class="rank">${e.rank}</div>`;
         return `<button class="row t${mine ? ' me' : ''}" type="button" data-player="${esc(e.id)}">${badge}<div class="tile sm tint-blue">${esc(avatarOf(e))}</div><div class="row-main"><div class="row-title">${esc(e.username)}${mine ? ' (You)' : ''}</div>` +
-          `<div class="row-sub">HQ ${e.hqLevel} · ${e.territory} hex${e.territory === 1 ? '' : 'es'}</div></div><span class="row-value">${fmtNum(e.score)}</span><span class="row-chev">${svg('chev')}</span></button>`;
+          `<div class="row-sub">Level ${e.level || 1} · HQ ${e.hqLevel} · ${e.territory} hex${e.territory === 1 ? '' : 'es'}</div></div><span class="row-value">${fmtNum(e.score)}</span><span class="row-chev">${svg('chev')}</span></button>`;
       });
       const you = lb.me && lb.me.rank ? `You are #${lb.me.rank} with ${fmtNum(lb.me.score)} points.` : 'Found your Headquarters to join the leaderboard.';
       $('leadersBody').innerHTML = `<p class="lead">${esc(you)}</p>` + (rows.length ? `<div class="group">${rows.join('')}</div>` : '') +
@@ -2310,7 +2453,7 @@
     }
   }
   $('leadersBtn').addEventListener('click', openLeaders);
-  $('profileBtn').addEventListener('click', () => { if (me) openProfile(me.player.id); });
+  $('lvlBar').addEventListener('click', () => { if (me) openProfile(me.player.id); });
   $('profileBack').addEventListener('click', openLeaders);
   $('leadersBody').addEventListener('click', (e) => {
     const r = e.target.closest('[data-player]');
@@ -2318,12 +2461,13 @@
   });
 
   // ------------------------------------------------------------------ UI: create / edit profile (name + avatar)
-  const setup = { tone: '', avatar: '', done: null };
+  const setup = { tone: '', avatar: '', land: '', done: null };
   function renderSetup() {
     const cell = (e) => `<button type="button" data-av="${e}" class="${e === setup.avatar ? 'on' : ''}" aria-label="${e}">${e}</button>`;
     $('setupTones').innerHTML = TONES.map((t, i) => `<button type="button" data-tone="${i}" class="${t === setup.tone ? 'on' : ''}" aria-label="Skin tone ${i}">${withTone('✋', t)}</button>`).join('');
     $('setupPeople').innerHTML = AV_PEOPLE.map((e) => cell(withTone(e, setup.tone))).join('');
     $('setupFaces').innerHTML = AV_FACES.map(cell).join('');
+    $('setupLand').innerHTML = cfg.social.territoryEmojis.map((e) => `<button type="button" data-land="${e}" class="${e === setup.land ? 'on' : ''}" aria-label="${e}">${e}</button>`).join('');
     $('setupPreview').textContent = setup.avatar || E.user;
     $('setupPreviewName').textContent = $('setupName').value.trim() || $('setupName').placeholder;
   }
@@ -2332,6 +2476,7 @@
     const p = me.player;
     setup.avatar = p.avatar || withTone(AV_PEOPLE[0], '');
     setup.tone = TONES.find((t) => t && setup.avatar.includes(t)) || '';
+    setup.land = p.territoryEmoji || cfg.social.territoryEmojis[0];
     $('setupName').value = first ? '' : p.username;
     $('setupName').placeholder = p.username;
     $('setupNameErr').textContent = $('setupErr').textContent = '';
@@ -2352,6 +2497,12 @@
     if (base) setup.avatar = withTone(base, setup.tone);
     renderSetup();
   });
+  $('setupLand').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-land]');
+    if (!b) return;
+    setup.land = b.dataset.land;
+    renderSetup();
+  });
   for (const id of ['setupPeople', 'setupFaces']) {
     $(id).addEventListener('click', (e) => {
       const b = e.target.closest('[data-av]');
@@ -2367,11 +2518,13 @@
     if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) { $('setupNameErr').textContent = 'Use 3 to 20 letters, digits or _ (no spaces).'; return; }
     $('setupGo').disabled = true;
     try {
-      const body = { avatar: setup.avatar };
+      const body = { avatar: setup.avatar, territoryEmoji: setup.land };
       if (name !== me.player.username) body.username = name;
       setMe(await api('PATCH', '/v1/me', body));
       closeModal('setup');
       updatePlayerVisuals();
+      syncTiles();
+      refreshUi();
       if (setup.done) { setup.done(); setup.done = null; }
       toast(`Welcome, ${me.player.username}`, false, me.player.avatar);
     } catch (err) {
@@ -2542,6 +2695,9 @@
     busy(null);
     measureGrid(pos);
     $('shopBtn').hidden = false;
+    $('talkBtn').hidden = !(cfg.social && cfg.social.emotes.length);
+    started = true;
+    layoutControls();
     setFollow(true);
     map.setView(centerFor(pos), MAP.mpp, false);
     updatePlayerVisuals();
