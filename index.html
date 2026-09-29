@@ -35,7 +35,7 @@
     --round: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     --st: env(safe-area-inset-top, 0px);
     --sb: env(safe-area-inset-bottom, 0px);
-    --sheet-bottom: calc(var(--sb) + 30px);
+    --sheet-bottom: 0px;
     --ctl-bottom: calc(var(--sb) + 40px);
     --spring: cubic-bezier(.32, .72, 0, 1);
   }
@@ -98,7 +98,7 @@
   .rail, .talk { transition: opacity .25s, transform .3s var(--spring); }
   .rail.away { opacity: 0; pointer-events: none; transform: translate(70px, -50%); }
   .talk.away { opacity: 0; pointer-events: none; transform: translateX(80px); }
-  .home.away { transform: translateY(calc(100% + 40px)); transition: transform .4s var(--spring), max-height .45s var(--spring); }
+  .home.away { transform: translate3d(0, 100%, 0) !important; }
   .rbtn { position: relative; display: grid; place-items: center; width: 50px; height: 52px; padding: 0; border: 0; background: none; }
   .rbtn + .rbtn { border-top: .5px solid var(--sep); }
   .rbtn .emo { font-size: 25px; }
@@ -120,13 +120,15 @@
   /* Home sheet: collapsed it is your player bar; tap or drag it up and the same sheet shows your
      profile, bag and combat stats. Same material and grabber as every other sheet. */
   .home {
-    position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); display: flex; flex-direction: column;
-    max-height: 96px; border-radius: 26px; background: var(--sheet); color: var(--label); overflow: hidden;
+    position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column;
+    height: var(--home-full, 90vh); border-radius: 16px 16px 0 0; background: var(--sheet); color: var(--label); overflow: hidden;
     -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
-    box-shadow: var(--shadow), inset 0 0 0 .5px var(--glass-edge); transition: max-height .45s var(--spring);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, .16), inset 0 .5px 0 var(--glass-edge);
+    transform: translate3d(0, var(--home-y, 100%), 0); transition: transform .45s var(--spring); will-change: transform; touch-action: none;
   }
-  .home.open { max-height: var(--home-max, 78vh); }
-  .home-head { position: relative; flex: none; display: flex; align-items: center; gap: 12px; width: 100%; padding: 16px 16px 12px; border: 0; background: none; color: inherit; text-align: left; }
+  .home.dragging { transition: none; }
+  .home.large .home-body { touch-action: pan-y; overflow-y: auto; }
+  .home-head { position: relative; flex: none; display: flex; align-items: center; gap: 12px; width: 100%; padding: 18px 16px 12px; border: 0; background: none; color: inherit; text-align: left; touch-action: none; }
   .home-head::before { content: ''; position: absolute; top: 5px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--fill); }
   .lv-av { flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 24px; background: var(--fill3); font: 34px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
   .lv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -142,7 +144,7 @@
   .home-chev { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 15px; background: var(--fill3); color: var(--label2); transition: transform .3s; }
   .home-chev svg { width: 13px; height: 13px; transform: rotate(-90deg); }
   .home.open .home-chev { transform: rotate(180deg); }
-  .home-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px calc(var(--sb) + 16px); -webkit-overflow-scrolling: touch; }
+  .home-body { flex: 1; min-height: 0; overflow: hidden; overscroll-behavior: contain; padding: 4px 16px calc(var(--sb) + 24px); -webkit-overflow-scrolling: touch; }
   .seg.wide { display: flex; width: 100%; margin: 2px 0 14px; }
   .seg.wide button { flex: 1; min-width: 0; }
   /* health bars on the map */
@@ -156,7 +158,7 @@
   .bot { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .bot .be { position: absolute; left: -17px; top: -30px; width: 34px; height: 34px; display: grid; place-items: center; font: 30px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; transform: scale(var(--pz)); transform-origin: 50% 100%; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45)); }
   .bot .hpbar { top: 6px; }
-  .op .hpbar { top: 18px; }
+  .op .hpbar { top: 40px; }
   .aim { position: absolute; left: -24px; top: -46px; width: 48px; height: 48px; border: 2.5px solid #ff3b30; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255, 255, 255, .8); pointer-events: none; animation: aim 1.2s ease-in-out infinite; }
   @keyframes aim { 50% { transform: scale(1.12); } }
   .dmg { position: absolute; left: 0; top: -58px; transform: translateX(-50%); font: 800 16px var(--round); color: #ff3b30; text-shadow: 0 0 3px #fff, 0 0 3px #fff; pointer-events: none; animation: dmg 1s ease-out forwards; white-space: nowrap; }
@@ -189,6 +191,85 @@
   .fab:active { background: var(--fill3); }
   .fab .emo { font-size: 21px; }
 
+  /* ---------------------------------------------------------------- home sheet content: rings, stat bars, big buttons */
+  .gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 6px 0 14px; }
+  .gauge { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 4px 12px; border-radius: 14px; background: var(--row); }
+  .ring { position: relative; width: 64px; height: 64px; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 7; }
+  .ring .bg { stroke: var(--fill); }
+  .ring .fg { stroke-linecap: round; transition: stroke-dashoffset .5s var(--spring); }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font: 700 17px var(--round); font-variant-numeric: tabular-nums; }
+  .gauge span { font-size: 12px; line-height: 15px; color: var(--label2); text-align: center; }
+  .sbar { display: grid; grid-template-columns: 30px 1fr auto; grid-template-rows: auto auto; column-gap: 12px; row-gap: 5px; align-items: center; padding: 11px 16px; }
+  .sbar + .sbar { border-top: .5px solid var(--sep); }
+  .sbar .tile { grid-row: 1 / 3; }
+  .sbar-k { font-size: 15px; line-height: 20px; }
+  .sbar-v { font: 600 15px var(--round); font-variant-numeric: tabular-nums; color: var(--label2); }
+  .sbar .bar { grid-column: 2 / 4; margin: 0; height: 5px; }
+  .bar.blue i { background: var(--blue); } .bar.indigo i { background: var(--indigo); } .bar.gray i { background: var(--gray); }
+  .bigbtns { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+  .bigbtns .btn { margin: 0; justify-content: flex-start; padding: 0 18px; border-radius: 14px; background: var(--row); color: var(--label); font-weight: 500; }
+  .bigbtns .btn .bi { width: 26px; text-align: center; }
+  .bigbtns .btn::after { content: '›'; margin-left: auto; font-size: 24px; font-weight: 400; color: var(--label3); }
+  .home .seg.wide { margin-top: 22px; }
+
+  /* ---------------------------------------------------------------- tips: stacked notification banners */
+  .tips { display: flex; flex-direction: column; gap: 6px; max-width: 400px; pointer-events: none; transition: opacity .2s; }
+  .tips.away { opacity: 0; }
+  .tips.away .tipcard { pointer-events: none; }
+  .tipcard {
+    pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 16px; color: var(--label);
+    animation: tip-in .45s var(--spring);
+  }
+  .tipcard.out { opacity: 0; transform: translateY(-12px) scale(.96); transition: opacity .25s, transform .25s; }
+  .tipcard .tile { width: 30px; height: 30px; border-radius: 8px; font-size: 17px; }
+  .tipcard .tip-main { flex: 1; min-width: 0; }
+  .tipcard b { display: block; font-size: 14px; line-height: 18px; font-weight: 600; }
+  .tipcard p { margin: 0; font-size: 13px; line-height: 17px; color: var(--label2); }
+  .tipcard .xbtn { width: 24px; height: 24px; }
+  .tipcard .xbtn svg { width: 10px; height: 10px; }
+  @keyframes tip-in { from { opacity: 0; transform: translateY(-16px) scale(.96); } }
+
+  /* ---------------------------------------------------------------- where you are: a large title over the map */
+  .city {
+    position: absolute; z-index: 4; left: 16px; right: 16px; top: calc(var(--st) + 30%); text-align: center; pointer-events: none; color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .55), 0 0 18px rgba(0, 0, 0, .35); opacity: 0; transform: scale(.94); transition: opacity .6s, transform .8s var(--spring);
+  }
+  .city.show { opacity: 1; transform: none; }
+  .city small { display: block; font: 600 17px var(--font); }
+  .city b { display: block; font: 800 34px/40px var(--round); }
+
+  /* ---------------------------------------------------------------- hold to collect everything in reach */
+  .hold { position: absolute; z-index: 8; left: 0; top: 0; width: 76px; height: 76px; margin: -38px 0 0 -38px; pointer-events: none; opacity: 0; transition: opacity .15s; }
+  .hold.on { opacity: 1; }
+  .hold svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .hold circle { fill: none; stroke-width: 6; }
+  .hold .bg { stroke: rgba(0, 0, 0, .28); }
+  .hold .fg { stroke: #ffcc00; stroke-linecap: round; stroke-dasharray: 201; stroke-dashoffset: 201; }
+  .hold.on .fg { animation: hold var(--hold-ms, 3000ms) linear forwards; }
+  .hold.done .fg { stroke: #34c759; }
+  @keyframes hold { to { stroke-dashoffset: 0; } }
+  .gain { position: absolute; left: 0; top: -20px; transform: translateX(-50%); font: 800 15px var(--round); color: #ffd60a; white-space: nowrap; pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .8), 0 0 4px rgba(0, 0, 0, .5); animation: gain .9s ease-out forwards; }
+  @keyframes gain { to { transform: translate(-50%, -28px); opacity: 0; } }
+  .tt.pop i { animation: pluck .35s var(--spring); }
+  @keyframes pluck { 40% { transform: scale(calc(var(--pz) * 1.35)); } }
+
+  /* ---------------------------------------------------------------- join screen */
+  .join { position: fixed; inset: 0; z-index: 25; display: flex; flex-direction: column; align-items: center; padding: calc(var(--st) + 24px) 28px calc(var(--sb) + 20px);
+    background: var(--page); text-align: center; transition: opacity .35s, transform .45s var(--spring); overflow-y: auto; }
+  .join:not(.open) { opacity: 0; transform: scale(1.04); pointer-events: none; }
+  .join-hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 260px; }
+  .join-av { width: 150px; height: 150px; display: grid; place-items: center; border-radius: 75px; background: var(--fill3); font: 104px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .join h1 { margin: 14px 0 0; font-size: 30px; line-height: 36px; font-weight: 700; }
+  .join .lead { max-width: 340px; margin: 0; }
+  .join .w-list { width: 100%; max-width: 380px; margin: 26px 0 8px; text-align: left; gap: 18px; }
+  .join-foot { width: 100%; max-width: 420px; }
+  .join-foot .btn { min-height: 56px; border-radius: 16px; font-size: 19px; }
+  .join-note { margin: 14px 8px 0; font-size: 13px; line-height: 18px; color: var(--label2); }
+  .linkbtn { padding: 6px; border: 0; background: none; color: var(--blue); font-size: 15px; }
+
   /* ---------------------------------------------------------------- simulated-walking joystick */
   .stick {
     position: absolute; z-index: 4; left: 16px; bottom: var(--ctl-bottom); width: 96px; height: 96px; border-radius: 50%;
@@ -205,21 +286,21 @@
     background: var(--red); color: #fff; font: 700 12px/18px var(--round); text-align: center;
   }
   .placebar {
-    position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px; border-radius: 24px; background: var(--sheet);
+    position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px calc(var(--sb) + 14px); border-radius: 16px 16px 0 0; background: var(--sheet);
   }
   .placebar h2 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 600; }
   .placebar p { margin: 1px 0 0; font-size: 13px; line-height: 18px; color: var(--label2); }
 
   /* ---------------------------------------------------------------- bottom sheet (selected hex) */
   .sheet {
-    position: absolute; z-index: 6; left: 8px; right: 8px; bottom: var(--sheet-bottom); max-height: var(--sheet-max, 60%);
-    overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 16px; border-radius: 28px;
+    position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; max-height: var(--sheet-max, 60%);
+    overflow-y: auto; overscroll-behavior: contain; padding: 0 16px calc(var(--sb) + 16px); border-radius: 16px 16px 0 0;
     background: var(--sheet); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, .22), inset 0 0 0 .5px var(--glass-edge);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, .16), inset 0 .5px 0 var(--glass-edge);
     transition: transform .42s var(--spring), visibility 0s;
   }
-  .sheet.off { transform: translateY(calc(100% + 60px)); visibility: hidden; transition: transform .3s var(--spring), visibility 0s .3s; }
+  .sheet.off { transform: translateY(100%); visibility: hidden; transition: transform .3s var(--spring), visibility 0s .3s; }
   .grab { padding-top: 7px; touch-action: none; }
   .grabber { width: 36px; height: 5px; margin: 0 auto 9px; border-radius: 3px; background: var(--label3); }
   .sheet-head { display: flex; align-items: center; gap: 12px; }
@@ -432,8 +513,9 @@
   #map.leaflet-container { background: #1c1c1e; font: 11px var(--font); }
   .leaflet-container .leaflet-control-attribution { background: rgba(0, 0, 0, .45); color: rgba(255, 255, 255, .7); }
   .leaflet-container .leaflet-control-attribution a { color: rgba(255, 255, 255, .85); }
-  .leaflet-control-attribution { margin-bottom: calc(env(safe-area-inset-bottom) + 2px) !important; }
-  .pin, .puck { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .leaflet-bottom { bottom: var(--attr-bottom, 0px); }
+  #map { -webkit-touch-callout: none; }
+  .pin { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .pi { position: absolute; left: 0; top: 0; transform: scale(var(--pz)); transform-origin: 0 0; }
   /* Buildings are bare emoji standing on their hex (no badge background). */
   .pb {
@@ -459,37 +541,28 @@
   .nm:empty { display: none; }
   /* Players: a big avatar emoji with their name, and a speech bubble when they say something. */
   .op { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
-  .op .pe { position: absolute; left: -22px; top: -44px; width: 44px; height: 44px; display: grid; place-items: center; font-size: 40px; line-height: 1; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
-  .op .on { position: absolute; left: 0; top: 1px; transform: translateX(-50%); font: 700 12px var(--font); color: #fff; white-space: nowrap; text-shadow: 0 1px 3px #000, 0 0 2px #000; }
-  .op.me .pe { left: -27px; top: -52px; width: 54px; height: 54px; font-size: 48px; }
-  .op.me .ring { position: absolute; left: -46px; top: -46px; width: 92px; height: 92px; border: 1.5px solid rgba(255, 255, 255, .55); border-radius: 50%; }
-  .op.me .spark { position: absolute; left: -40px; top: -44px; font-size: 16px; }
+  .op .pe { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; display: grid; place-items: center; font-size: 40px; line-height: 1; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .5)); }
+  .op .on { position: absolute; left: 0; top: 23px; transform: translateX(-50%); font: 700 12px var(--font); color: #fff; white-space: nowrap; text-shadow: 0 1px 3px #000, 0 0 2px #000; }
+  .op.me .pe { left: -26px; top: -26px; width: 52px; height: 52px; font-size: 46px; }
+  .op.me .ring { position: absolute; left: -36px; top: -36px; width: 72px; height: 72px; border: 2px solid rgba(255, 255, 255, .7); border-radius: 50%; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .15); }
+  .op.me .spark { position: absolute; left: -38px; top: -40px; font-size: 15px; }
   .op.me .on { display: none; }
   .bubble {
-    position: absolute; left: 0; bottom: 48px; transform: translateX(-50%); padding: 7px 13px; border-radius: 16px; background: rgba(255, 255, 255, .96);
-    color: #1c1c1e; font: 800 15px var(--round); white-space: nowrap; box-shadow: 0 3px 10px rgba(0, 0, 0, .35);
+    position: absolute; left: 0; bottom: 28px; transform: translateX(-50%); padding: 7px 12px; border-radius: 17px; background: rgba(233, 233, 235, .97);
+    color: #000; font: 400 15px/20px var(--font); white-space: nowrap; box-shadow: 0 3px 10px rgba(0, 0, 0, .35);
     animation: pop .25s var(--spring);
   }
-  .bubble::after { content: ''; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: rgba(255, 255, 255, .96); }
+  .bubble::after { content: ''; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: rgba(233, 233, 235, .97); }
   .bubble:empty { display: none; }
-  .op.me .bubble { bottom: 58px; }
+  .op.me .bubble { bottom: 40px; }
   @keyframes pop { from { transform: translateX(-50%) scale(.6); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
   .hide-pins .op .on { display: none; }
   /* Territory: each owned hex shows its owner's emoji. */
   .tt { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
-  .tt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .45)); }
+  .tt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
   .tt.far i { opacity: .8; }
   .hide-pins .tt { display: none; }
-  .puck .halo { display: none; }
-  .puck .dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border: 2px solid #fff; border-radius: 50%; background: #0a84ff; box-shadow: 0 1px 4px rgba(0, 0, 0, .5); }
-  .puck .cone {
-    position: absolute; left: -26px; top: -52px; width: 52px; height: 52px; opacity: 0; transform-origin: 50% 100%; transform: rotate(var(--hd, 0deg));
-    background: radial-gradient(circle at 50% 100%, rgba(0, 122, 255, .55), rgba(0, 122, 255, 0) 72%); clip-path: polygon(50% 100%, 10% 0, 90% 0); transition: opacity .3s;
-  }
-  .puck.moving .cone { opacity: 1; }
-  @keyframes puck { from { transform: scale(.45); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) {
-    .puck .halo { animation: none; opacity: .5; }
     .sheet, .page, .banner, .alert, .stick { transition-duration: .01s !important; }
   }
 </style>
@@ -503,14 +576,18 @@
         <button class="capsule mglass" id="status" type="button"><span class="emo" id="statusEmo">⏳</span><span id="statusText">Loading…</span></button>
         <button class="capsule mglass keychip" id="keyChip" type="button" hidden><span class="emo" id="keyChipEmo">⚠️</span><span id="keyChipText">No Google Maps key</span><span class="ic" data-icon="chev"></span></button>
       </div>
-      <!-- Compact stats, top right (hexes, credits, builders). -->
-      <header class="stats" id="hud" aria-label="Your resources">
-        <span class="st"><span class="emo">🗺️</span><b id="hexes">–</b><small id="hexesMax"></small></span>
+      <!-- Compact stats, top right (bag, health, credits, hexes). -->
+      <header class="stats mglass" id="hud" aria-label="Your resources">
+        <span class="st"><span class="emo">🎒</span><b id="bagUsed">–</b><small id="bagSlots"></small></span>
+        <span class="st"><span class="emo" id="hudHeart">❤️</span><b id="hudHp">–</b></span>
         <span class="st"><span class="emo">🪙</span><b id="credits">–</b></span>
-        <span class="st"><span class="emo">👷</span><b id="builders">–</b><small id="buildersMax"></small></span>
+        <span class="st"><span class="emo">🗺️</span><b id="hexes">–</b></span>
       </header>
     </div>
+    <div class="tips" id="tips"></div>
   </div>
+  <div class="city" id="city"><small>Welcome to</small><b id="cityName"></b></div>
+  <div class="hold" id="hold"><svg viewBox="0 0 76 76"><circle class="bg" cx="38" cy="38" r="32"/><circle class="fg" cx="38" cy="38" r="32"/></svg></div>
 
   <!-- Tool bar on the right edge. -->
   <nav class="rail mglass" id="rail">
@@ -524,7 +601,7 @@
 
   <div class="stick mglass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
 
-  <!-- Home sheet: your player bar, which opens into your profile, bag and combat stats. -->
+  <!-- Home sheet: your player bar. Drag it up (or tap it) and the same sheet becomes your profile, stats and bag. -->
   <section class="home" id="home" hidden>
     <button class="home-head" id="homeHead" type="button" aria-expanded="false">
       <span class="lv-av" id="lvAvatar"></span>
@@ -536,8 +613,16 @@
       <span class="home-chev" data-icon="chev"></span>
     </button>
     <div class="home-body" id="homeBody">
-      <div class="seg wide" id="homeSeg"><button type="button" data-tab="bag" class="on">Bag</button><button type="button" data-tab="stats">Stats</button><button type="button" data-tab="profile">Profile</button></div>
+      <div class="gauges" id="homeGauges"></div>
+      <div class="group" id="homeBars"></div>
+      <div class="seg wide" id="homeSeg"><button type="button" data-tab="bag" class="on">Bag</button><button type="button" data-tab="stats">Record</button><button type="button" data-tab="profile">Profile</button></div>
       <div id="homeTab"></div>
+      <div class="bigbtns" id="homeGo">
+        <button class="btn" type="button" data-go="shop"><span class="bi">🛒</span>Shop</button>
+        <button class="btn" type="button" data-go="leaders"><span class="bi">🏆</span>Leaderboard</button>
+        <button class="btn" type="button" data-go="howto"><span class="bi">❓</span>How to Play</button>
+        <button class="btn" type="button" data-go="settings"><span class="bi">⚙️</span>Settings</button>
+      </div>
     </div>
   </section>
 
@@ -590,23 +675,45 @@
     </div>
   </div>
 
-  <div class="modal" id="welcome" hidden>
-    <div class="scrim"></div>
+  <div class="join" id="welcome" hidden>
+    <div class="join-hero">
+      <div class="join-av" id="joinAvatar"></div>
+      <h1 id="joinTitle">Welcome to Clash&nbsp;of&nbsp;Cities</h1>
+      <p class="lead" id="joinLead">Walk around your city, grow plants on real places and defend them.</p>
+      <div class="w-list" id="joinList">
+        <div class="w-item"><div class="w-ic">🌱</div><div><b>Plant Real Places</b><p>Tap the ground near you to claim a hex. A plant grows there and makes credits, even while you're away.</p></div></div>
+        <div class="w-item"><div class="w-ic">👆</div><div><b>Tap to Collect</b><p>Tap a plant to collect its credits. Hold one for 3 seconds to collect from every plant in reach.</p></div></div>
+        <div class="w-item"><div class="w-ic">🚶</div><div><b>Walk to Play</b><p>You can act within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
+      </div>
+    </div>
+    <div class="join-foot">
+      <button class="btn" id="welcomeGo" type="button">Join Game</button>
+      <button class="btn plain" id="welcomeSim" type="button">Play with Simulated Walking</button>
+      <p class="join-note">📍 Other players nearby see your avatar while you play. Watch where you walk and stay off roads and private property.</p>
+      <button class="linkbtn" id="privacyBtn" type="button">Privacy Policy</button>
+    </div>
+  </div>
+
+  <div class="modal" id="howto" hidden>
+    <div class="scrim" data-close></div>
     <div class="page">
-      <div class="page-body welcome-body">
-        <div class="appicon" id="appIcon"></div>
-        <h1 class="w-title">Welcome to Clash&nbsp;of&nbsp;Cities</h1>
-        <div class="w-list">
-          <div class="w-item"><div class="w-ic">🗺️</div><div><b>Claim Real Places</b><p>Found your Headquarters where you stand, then grow your territory one hex at a time.</p></div></div>
-          <div class="w-item"><div class="w-ic">🏗️</div><div><b>Build Your Base</b><p>Every hex you claim grows a plant that makes credits, even while you're away. Level plants up and build on them.</p></div></div>
-          <div class="w-item"><div class="w-ic">🚶</div><div><b>Walk to Play</b><p>You can act on hexes within <span data-reach></span> m of you. Anything further away needs a real walk.</p></div></div>
-          <div class="w-item"><div class="w-ic">📱</div><div><b>One World</b><p>The web version and the iPhone app share the same world, with other players around you.</p></div></div>
+      <nav class="nav"><span></span><h3>How to Play</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
+      <div class="page-body">
+        <h4 class="sec-h">Grow</h4>
+        <div class="group steps">
+          <div class="row"><span class="num">1</span><div class="row-main">Tap the hex you stand on to found your <b>Headquarters</b>. Your first hex is free.</div></div>
+          <div class="row"><span class="num">2</span><div class="row-main">Tap an outlined hex next to your land, within reach, to claim it. A 🌱 plant grows there.</div></div>
+          <div class="row"><span class="num">3</span><div class="row-main">Plants make credits. <b>Tap a plant</b> to collect. <b>Hold a plant for 3 seconds</b> to collect from every plant in reach.</div></div>
+          <div class="row"><span class="num">4</span><div class="row-main">Tap a plant with nothing to collect to open it: grow it (it evolves every 10 levels) and add boosters.</div></div>
+          <div class="row"><span class="num">5</span><div class="row-main">Buy buildings in the 🛒 Shop and place them on your plants.</div></div>
         </div>
-        <div class="w-foot">
-          <p class="w-privacy"><span class="emo">📍</span><span>Your location is used only while the game is open and is sent to the game server to check what you can reach. Raw GPS data is deleted after 24 hours. Watch where you walk and stay off roads, rail tracks and private property.</span></p>
-          <button class="btn" id="welcomeGo" type="button">Continue</button>
-          <button class="btn plain" id="welcomeSim" type="button">Play with Simulated Walking</button>
+        <h4 class="sec-h">Fight</h4>
+        <div class="group steps">
+          <div class="row"><span class="num">1</span><div class="row-main">Tap an animal, a player or a rival's hex, then tap <b>Fire</b>. Up close you hit more often.</div></div>
+          <div class="row"><span class="num">2</span><div class="row-main">Defeated animals drop <b>boosters</b>. Turn them on in your bag, or put plant boosters into a plant.</div></div>
+          <div class="row"><span class="num">3</span><div class="row-main">Knock-outs and wilted plants give you part of the owner's credits.</div></div>
         </div>
+        <p class="sec-f">You can only act near where you really are. Anything further away needs a real walk.</p>
       </div>
     </div>
   </div>
@@ -777,7 +884,7 @@
   };
   const svg = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
   for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = svg(el.dataset.icon);
-  $('appIcon').innerHTML = '<svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="ai" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f9bff"/><stop offset="1" stop-color="#0055d4"/></linearGradient></defs>' +
+  if ($('appIcon')) $('appIcon').innerHTML = '<svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="ai" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f9bff"/><stop offset="1" stop-color="#0055d4"/></linearGradient></defs>' +
     '<rect width="80" height="80" fill="url(#ai)"/><path d="M40 15.5 61.2 27.7v24.6L40 64.5 18.8 52.3V27.7z" fill="none" stroke="#fff" stroke-width="5.5" stroke-linejoin="round"/>' +
     '<path d="M34.5 51V29.5" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M35.5 30h12.2c.9 0 1.4 1 .8 1.7l-2.6 3.6 2.6 3.6c.6.7.1 1.7-.8 1.7H35.5z" fill="#fff"/></svg>';
 
@@ -837,7 +944,7 @@
 
   // ------------------------------------------------------------------ game server
   // The server is the single source of truth, shared with the iPhone app.
-  const BUILD_API = "https://clash-of-cities-api.onrender.com"; // filled in by build.py
+  const BUILD_API = ""; // filled in by build.py
   const API_STORE = 'coc.api';
   const SESSION_STORE = 'coc.session.v1';
   const PREF = 'coc.mode';
@@ -986,6 +1093,7 @@
     me = state;
     meAt = Date.now();
     indexMe();
+    reapplyCollects();
     if (me.reachMeters && me.reachMeters !== REACH) setReach(me.reachMeters);
     const after = `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}`;
     if (before !== after) {
@@ -1228,6 +1336,143 @@
   const doItem = (path, body, msg) => command(() => (body === null ? api('DELETE', path, undefined, { idem: newKey() }) : post(path, body)), () => msg && toast(msg, false, E.box));
   const doBag = () => command(() => post('/v1/shop/bag', {}), (r) => toast(`Your bag holds ${r.result.slots} items now`, false, '🎒'));
 
+  // ------------------------------------------------------------------ collecting: tap a plant, or hold one for 3 s
+  // Collecting shows at once (the plant empties, "+N" rises, your credits go up); taps made close
+  // together go to the server in one request. Anything the server hasn't confirmed yet is applied
+  // again on top of each new state, so numbers never jump back.
+  const collectQ = new Set(), collectSent = new Set();
+  let collectTimer = 0, heldAt = 0;
+  /** Empties one of your plants locally; returns the credits it gave. */
+  function localCollect(id) {
+    const p = myPlants.get(id);
+    if (!p || p.wilted) return 0;
+    const stored = plantStoredNow(p), take = Math.min(Math.floor(stored), Math.max(0, Math.floor(capacity() - credits())));
+    if (take < 1) return 0;
+    p.stored = stored - take;
+    p.storedAt = new Date(serverNow()).toISOString();
+    me.resources.credits = credits() + take;
+    return take;
+  }
+  function gainAt(id, n) {
+    const t = tiles.get(id);
+    if (t) { t.el.classList.remove('pop'); void t.el.offsetWidth; t.el.classList.add('pop'); }
+    if (!map || n < 1) return;
+    const el = document.createElement('div'), c = cell(id);
+    el.className = 'op';
+    el.innerHTML = `<div class="gain">+${fmtNum(n)}</div>`;
+    const h = map.addMarker(el, { lat: c.lat, lng: c.lng }, 12);
+    setTimeout(() => h.remove(), 900);
+  }
+  function canCollectHere(id) {
+    return myPlants.has(id) && !locationBlock() && distM(pos, cell(id)) <= REACH;
+  }
+  /** A tap on your plant with credits in it collects them. Returns false to open the hex instead. */
+  function tapCollect(id) {
+    const p = myPlants.get(id);
+    if (!p || plantStoredNow(p) < 1 || !canCollectHere(id) || credits() >= capacity()) return false;
+    const n = localCollect(id);
+    if (!n) return false;
+    gainAt(id, n);
+    collectQ.add(id);
+    clearTimeout(collectTimer);
+    collectTimer = setTimeout(() => sendCollect(false), 350);
+    tipDone('tap');
+    afterLocalCollect();
+    return true;
+  }
+  function afterLocalCollect() {
+    refreshHud();
+    syncTiles();
+    if (selected || target) renderSheet();
+  }
+  /** Hold a plant 3 s: every plant in reach. */
+  function collectAll() {
+    if (!me || !pos) return;
+    heldAt = Date.now();
+    const why = locationBlock();
+    if (why) return toast(why, true);
+    if (credits() >= capacity()) return toast('Storage full. Build or upgrade a Vault.', true, E.storage);
+    let total = 0, n = 0;
+    for (const id of myPlants.keys()) {
+      if (distM(pos, cell(id)) > REACH) continue;
+      const got = localCollect(id);
+      if (!got) continue;
+      total += got;
+      n++;
+      if (n <= 40) gainAt(id, got);
+      collectSent.add(id);
+    }
+    if (!n) return toast('Nothing to collect in reach yet', true, '🌱');
+    if (navigator.vibrate) navigator.vibrate(25);
+    toast(`Collected ${fmtNum(total)} credits from ${n} plant${n === 1 ? '' : 's'}`, false, E.coin);
+    tipDone('hold');
+    afterLocalCollect();
+    clearTimeout(collectTimer);
+    sendCollect(true);
+  }
+  async function sendCollect(all) {
+    const cells = all ? null : [...collectQ];
+    for (const id of collectQ) collectSent.add(id);
+    collectQ.clear();
+    if (cells && !cells.length) return;
+    try {
+      const r = await post('/v1/plants/collect', { ...(cells ? { cells } : {}), location: fix() });
+      if (cells) for (const id of cells) collectSent.delete(id);
+      else collectSent.clear();
+      if (r.state) setMe(r.state);
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      collectSent.clear();
+      if (e.code !== 'NOTHING_TO_COLLECT') toast(e.message, true);
+      if (e.code === 'LOCATION_STALE') syncLocation(true);
+      loadMe(); // puts back what didn't happen
+    } finally {
+      refreshUi();
+    }
+  }
+  /** Applies collections the server hasn't confirmed yet to a fresh state from the server. */
+  function reapplyCollects() {
+    for (const id of collectQ) localCollect(id);
+    for (const id of collectSent) localCollect(id);
+  }
+  (() => {
+    // Hold detection on the map itself (works the same on every map engine).
+    const HOLD = 3000, el = $('map'), ring = $('hold');
+    let h = null;
+    const stop = () => {
+      if (!h) return;
+      clearTimeout(h.show);
+      clearTimeout(h.fire);
+      if (!h.done) ring.classList.remove('on');
+      h = null;
+    };
+    el.addEventListener('pointerdown', (e) => {
+      stop();
+      if (!e.isPrimary || e.button > 0 || !me || !pos || !map || placing) return;
+      const r = el.getBoundingClientRect(), ll = map.fromPx(e.clientX - r.left, e.clientY - r.top);
+      if (!ll || !myPlants.has(cellAt(ll.lat, ll.lng))) return;
+      const g = { id: e.pointerId, x: e.clientX, y: e.clientY, done: false };
+      h = g;
+      g.show = setTimeout(() => {
+        ring.classList.remove('on', 'done');
+        ring.style.left = `${g.x}px`;
+        ring.style.top = `${g.y}px`;
+        ring.style.setProperty('--hold-ms', `${HOLD - 250}ms`);
+        void ring.offsetWidth;
+        ring.classList.add('on');
+      }, 250);
+      g.fire = setTimeout(() => {
+        g.done = true;
+        ring.classList.add('done');
+        collectAll();
+        setTimeout(() => ring.classList.remove('on', 'done'), 450);
+      }, HOLD);
+    }, true);
+    el.addEventListener('pointermove', (e) => { if (h && e.pointerId === h.id && Math.hypot(e.clientX - h.x, e.clientY - h.y) > 12) stop(); }, true);
+    for (const t of ['pointerup', 'pointercancel']) el.addEventListener(t, (e) => { if (h && e.pointerId === h.id) stop(); }, true);
+    el.addEventListener('contextmenu', (e) => e.preventDefault());
+  })();
+
   // ------------------------------------------------------------------ combat
   let target = null; // { kind: 'player' | 'bot' | 'plant' | 'building', id }
   let shooting = false;
@@ -1335,10 +1580,8 @@
     out.sub = p.wilted ? 'Wilted: it heals over time, then grows again' : `${fmtNum(p.ratePerHour)} credits per hour · holds ${fmtNum(p.capacity)}`;
     out.tile = { icon: p.emoji, tint: 'green' };
     out.progress = { label: 'Credits', value: `${fmtNum(stored)} of ${fmtNum(p.capacity)}`, frac: stored / p.capacity, tint: 'yellow' };
-    let why = null;
-    if (stored < 1) why = 'Nothing to collect yet';
-    else if (credits() >= capacity()) why = 'Storage full. Build or upgrade a Vault.';
-    out.primary.push(act('collect', stored >= 1 ? `Collect ${fmtNum(stored)} Credits` : 'Collect', E.coin, why || reachWhy, { cells: [id] }));
+    out.progress.label = stored >= 1 && !reachWhy ? 'Credits · tap the plant to collect' : 'Credits';
+    if (stored >= 1 && credits() >= capacity()) out.tags.push({ tint: 'orange', icon: E.storage, text: 'Storage full: build or upgrade a Vault' });
     if (p.hp < p.maxHp) out.tags.push({ tint: p.wilted ? 'red' : 'orange', icon: p.wilted ? '🥀' : '❤️', text: `Health ${fmtNum(p.hp)} of ${fmtNum(p.maxHp)}` });
     if (p.upgradeCost !== null) {
       let cost10 = 0;
@@ -1517,7 +1760,7 @@
   // Territory is shown with emoji, so hexes are nearly invisible: no grid, no fills, faint borders,
   // and a light outline only where you can claim next (within reach) and around the selection.
   function hexStyles() {
-    const W = '#ffffff';
+    const W = dark ? '#ffffff' : '#1c1c1e'; // outlines: light on the dark map, dark on the light one
     return {
       own: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 4 },
       rival: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 3 },
@@ -1798,7 +2041,9 @@
       center() { const c = m.getCenter(); return { lat: c.lat, lng: c.lng }; },
       metersPerPixel() { const c = m.getCenter(); return (C * Math.cos(c.lat * RAD)) / (256 * 2 ** m.getZoom()); },
       setView(p, s, animate) { m.setView([p.lat, p.lng], s ? zoomFor(s, p.lat) : m.getZoom(), { animate: !!animate }); },
-      setCenter(p, animate) { m.panTo([p.lat, p.lng], { animate: !!animate }); },
+      setCenter(p, animate) {
+        m.panTo([p.lat, p.lng], animate === 'glide' ? { animate: true, duration: 0.6, easeLinearity: 1, noMoveStart: true } : { animate: !!animate });
+      },
       panBy(dx, dy) { m.panBy([dx, dy]); },
       toPx(p) { const q = m.latLngToContainerPoint([p.lat, p.lng]); return { x: q.x, y: q.y }; },
       fromPx(x, y) { const c = m.containerPointToLatLng([x, y]); return { lat: c.lat, lng: c.lng }; },
@@ -1858,9 +2103,10 @@
       }
     }
     map.on('tap', (lat, lng) => {
-      if (!me || !pos) return;
+      if (!me || !pos || Date.now() - heldAt < 1200) return;
       const id = cellAt(lat, lng);
       if (placing) return placeAt(id);
+      if (tapCollect(id)) return;
       const bot = botAt(lat, lng);
       if (bot) return selectTarget({ kind: 'bot', id: bot });
       const hit = playerAt(lat, lng);
@@ -1890,18 +2136,12 @@
   }
   let gridTimer = 0;
   function scheduleGridSync() { if (!gridTimer) gridTimer = setTimeout(() => { gridTimer = 0; syncGrid(); }, 120); }
-  /** Hexes drawn: the grid around the view (when zoomed in), the player's surroundings and all known territory. */
+  /** Hexes drawn: only those that show something (where you can claim next, and your free lots while
+   *  placing). The map has no visible grid, and drawing thousands of invisible hexes slowed every pan. */
   function syncGrid() {
     if (!map || !me || !pos) return;
-    const want = new Set(), s = mapScale();
-    if (s <= MAP.gridMpp) {
-      const el = $('map'), half = (Math.hypot(el.clientWidth, el.clientHeight) / 2) * s;
-      const c = map.center(), rings = Math.min(MAP.maxGridRings, Math.ceil(half / spacing) + 1);
-      for (const id of h3.gridDisk(cellAt(c.lat, c.lng), rings)) want.add(id);
-    }
-    for (const id of h3.gridDisk(cellAt(pos.lat, pos.lng), reachRings + 1)) want.add(id);
-    for (const id of myCellSet) want.add(id);
-    for (const id of world.cells.keys()) want.add(id);
+    const want = new Set(frontier);
+    if (placing) for (const id of reachSet) if (myCellSet.has(id)) want.add(id);
     for (const id of [...shownHexes]) {
       if (!want.has(id)) { map.removeHex(id); shownHexes.delete(id); }
     }
@@ -1949,12 +2189,8 @@
     if (changed) { restyleGrid(); syncPins(); if (selected) renderSheet(); }
   }
 
-  // ------------------------------------------------------------------ building pins (bare emoji) and the location puck
+  // ------------------------------------------------------------------ building pins (bare emoji)
   const pins = new Map(); // key -> pin
-  let puck = null;
-  const puckEl = document.createElement('div');
-  puckEl.className = 'puck';
-  puckEl.innerHTML = '<div class="cone"></div><div class="halo"></div><div class="dot"></div>';
   function onZoom() {
     const s = mapScale();
     document.documentElement.style.setProperty('--pz', Math.max(0.5, Math.min(1.2, Math.pow(MAP.pinMpp / s, 0.5))).toFixed(3));
@@ -2114,7 +2350,7 @@
       if (pin.hpKey !== hpKey) {
         pin.hpKey = hpKey;
         pin.el.querySelector('.hpbox').innerHTML = p.near && p.maxHp ? hpHtml(p.hp, p.maxHp) : '';
-        pin.el.querySelector('.aimbox').innerHTML = aimed ? '<div class="aim" style="top:-50px"></div>' : '';
+        pin.el.querySelector('.aimbox').innerHTML = aimed ? '<div class="aim" style="top:-24px"></div>' : '';
         pin.el.querySelector('.pe').style.opacity = p.knockedOut ? '.45' : '';
       }
     }
@@ -2127,36 +2363,39 @@
     let best = null, bestD = 26;
     for (const [id, pin] of playerPins) {
       const q = map.toPx(pin.at);
-      const d = Math.hypot(q.x - t.x, q.y + 22 - t.y); // the avatar stands above its point
+      const d = Math.hypot(q.x - t.x, q.y - t.y); // avatars are centred on their point
       if (d < bestD) { bestD = d; best = id; }
     }
     return best;
   }
+  // You: your avatar stands exactly on your position (no location dot), with a thin ring around it.
   const meEl = document.createElement('div');
   meEl.className = 'op me';
   meEl.innerHTML = '<div class="pi"><div class="ring"></div><div class="spark">✨</div><div class="bubble"></div><div class="pe"></div><div class="on"></div></div>';
-  let meMarker = null;
+  const mePe = meEl.querySelector('.pe'), meBub = meEl.querySelector('.bubble');
+  let meMarker = null, circlesAt = null, circlesKey = '';
   function updatePlayerVisuals() {
     if (!map || !pos) return;
-    if (!puck) puck = map.addMarker(puckEl, pos, 10);
-    else puck.move(pos);
     if (!meMarker) meMarker = map.addMarker(meEl, pos, 11);
     else meMarker.move(pos);
-    const face = avatarOf(me && me.player), pe = meEl.querySelector('.pe');
-    if (pe.textContent !== face) pe.textContent = face;
-    const said = myEmote && Date.now() < myEmote.until ? myEmote.text : '', bub = meEl.querySelector('.bubble');
-    if (bub.textContent !== said) bub.textContent = said;
-    puckEl.style.setProperty('--hd', `${heading.toFixed(1)}deg`);
-    map.setReach(pos, true);
-    map.setAccuracy(pos, mode === 'gps' && gps.acc > 0 ? Math.min(gps.acc, 2000) : 0);
+    setText(mePe, avatarOf(me && me.player));
+    setText(meBub, myEmote && Date.now() < myEmote.until ? myEmote.text : '');
+    // The reach and accuracy circles redraw a map layer: only after a small move.
+    const acc = mode === 'gps' && gps.acc > 0 ? Math.min(gps.acc, 2000) : 0, key = `${REACH}|${Math.round(acc)}`;
+    if (!circlesAt || key !== circlesKey || distM(circlesAt, pos) > 0.8) {
+      circlesAt = pos;
+      circlesKey = key;
+      map.setReach(pos, true);
+      map.setAccuracy(pos, acc);
+    }
   }
 
   // ------------------------------------------------------------------ camera: follow the player in the visible part of the map
   const sheetBottomPx = () => parseFloat(getComputedStyle(sheetEl).bottom) || 0;
   let sheetOpen = false;
   function visibleBand() {
-    const H = appEl.clientHeight, top = topEl.getBoundingClientRect().bottom;
-    const bottom = sheetOpen ? H - sheetBottomPx() - sheetEl.offsetHeight : H;
+    const H = appEl.clientHeight, top = topBarBottom();
+    const bottom = sheetOpen ? H - sheetEl.offsetHeight : started && !homeDetent ? H - homeStops().stops[0] : H;
     return { top, bottom, center: (top + bottom) / 2 };
   }
   function centerFor(p) {
@@ -2235,44 +2474,82 @@
   const fmtShort = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e4 ? `${(n / 1e3).toFixed(n >= 1e5 ? 0 : 1)}K` : fmtNum(n)).replace('.0', '');
   function refreshHud() {
     if (!me) return;
-    const hq = hqLevel(), bs = builders();
-    $('credits').textContent = fmtShort(credits());
-    $('hexes').textContent = me.territory.count;
-    $('hexesMax').textContent = `/${me.territory.max}`;
-    $('builders').textContent = hq ? bs.total - bs.busy : '–';
-    $('buildersMax').textContent = hq ? `/${bs.total}` : '';
+    const bag = me.bag, c = me.combat;
+    setText($('credits'), fmtShort(credits()));
+    setText($('hexes'), me.territory.count);
+    setText($('bagUsed'), bag ? bag.used : '–');
+    setText($('bagSlots'), bag ? `/${bag.slots}` : '');
+    if (c) {
+      const hp = hpNow();
+      setText($('hudHp'), fmtNum(hp));
+      setText($('hudHeart'), c.knockedOut ? '💫' : hp / c.maxHp < 0.35 ? '💔' : '❤️');
+    }
     const n = invTotal();
     $('invBadge').hidden = !n;
     $('invBadge').textContent = n;
     refreshLevelBar();
   }
+  const setText = (el, v) => { v = String(v); if (el.textContent !== v) el.textContent = v; };
+  /** Your health now: the server's value plus what regenerated since (the server does the same sum). */
+  function hpNow() {
+    const c = me && me.combat;
+    if (!c || c.knockedOut) return 0;
+    return Math.min(c.maxHp, Math.floor(c.hp + (cfg.combat.player.regenPerSecond * (Date.now() - meAt)) / 1000));
+  }
   /** Bottom card: avatar, name, level and the score still needed for the next level. */
   function refreshLevelBar() {
     const p = me.player, lv = me.level || 1, next = me.nextLevelScore, base = me.levelScore || 0, c = me.combat;
-    $('lvAvatar').textContent = avatarOf(p);
-    $('lvName').textContent = p.username;
-    $('lvBadge').textContent = lv;
-    $('lvSub').textContent = next == null ? `${E.star} Highest level` : `${E.star} ${fmtNum(Math.max(0, next - me.score))} to level ${lv + 1}`;
+    setText($('lvAvatar'), avatarOf(p));
+    setText($('lvName'), p.username);
+    setText($('lvBadge'), lv);
+    setText($('lvSub'), next == null ? `${E.star} Highest level` : `${E.star} ${fmtNum(Math.max(0, next - me.score))} to level ${lv + 1}`);
     $('lvFill').style.width = next == null ? '100%' : `${Math.max(0, Math.min(100, ((me.score - base) / (next - base)) * 100))}%`;
     if (c) {
-      const hp = c.knockedOut ? 0 : c.hp;
-      $('hpText').textContent = c.knockedOut ? `💫 Knocked out · ${fmtLeft(Date.parse(c.koUntil) - serverNow())}` : `❤️ ${fmtNum(hp)} / ${fmtNum(c.maxHp)}`;
+      const hp = hpNow();
+      setText($('hpText'), c.knockedOut ? `💫 Knocked out · ${fmtLeft(Date.parse(c.koUntil) - serverNow())}` : `❤️ ${fmtNum(hp)} / ${fmtNum(c.maxHp)}`);
       $('hpFill').style.width = `${(hp / c.maxHp) * 100}%`;
       $('hpBar').classList.toggle('low', hp / c.maxHp < 0.35);
     }
-    if ($('home').classList.contains('open')) renderHomeTab(false);
+    if (homeDetent) { renderHomeStats(); renderHomeTab(false); }
   }
 
-  // ------------------------------------------------------------------ UI: home sheet (you: bag, stats, profile)
-  let homeTab = 'bag', homeKey = '';
+  // ------------------------------------------------------------------ UI: home sheet (you: stats, bag, profile)
+  // A bottom sheet like Apple Maps': attached to the bottom edge, it follows your finger and rests at
+  // three heights: the player bar, half the screen, and the whole screen.
+  let homeTab = 'bag', homeKey = '', homeStatsKey = '', homeDetent = 0, homeGeo = '', homeDragEnd = 0;
+  const homeEl = $('home');
+  const sbProbe = document.createElement('div');
+  sbProbe.style.cssText = 'position:absolute;left:0;bottom:0;width:0;height:var(--sb);visibility:hidden;pointer-events:none';
+  appEl.appendChild(sbProbe);
+  function homeStops() {
+    const H = appEl.clientHeight, full = Math.round(H - Math.max(0, topEl.getBoundingClientRect().top - 8) - 10);
+    const low = $('homeHead').offsetHeight + sbProbe.offsetHeight;
+    return { full, stops: [low, Math.min(full, Math.max(low + 120, Math.round(H * 0.56))), full] };
+  }
+  function placeHome() {
+    const { full, stops } = homeStops(), key = `${full}|${stops[homeDetent]}`;
+    if (key === homeGeo) return;
+    homeGeo = key;
+    homeEl.style.setProperty('--home-full', `${full}px`);
+    homeEl.style.setProperty('--home-y', `${full - stops[homeDetent]}px`);
+  }
   function setHome(open) {
-    const h = $('home');
-    h.classList.toggle('open', open);
-    $('homeHead').setAttribute('aria-expanded', String(open));
-    if (open) { select(null); renderHomeTab(true); }
+    const was = homeDetent, d = open === true ? 2 : open === false ? 0 : open;
+    homeDetent = d;
+    homeGeo = '';
+    placeHome();
+    homeEl.classList.toggle('open', d > 0);
+    homeEl.classList.toggle('large', d === 2);
+    if (d < 2) $('homeBody').scrollTop = 0;
+    $('homeHead').setAttribute('aria-expanded', String(d > 0));
+    if (d && !was) { select(null); renderHomeTab(true); }
+    if (d) renderHomeStats();
     layoutControls();
   }
-  $('homeHead').addEventListener('click', () => setHome(!$('home').classList.contains('open')));
+  $('homeHead').addEventListener('click', () => {
+    if (Date.now() - homeDragEnd < 300) return;
+    setHome(homeDetent ? 0 : 2);
+  });
   $('homeSeg').addEventListener('click', (e) => {
     const b = e.target.closest('[data-tab]');
     if (!b) return;
@@ -2280,19 +2557,85 @@
     for (const x of $('homeSeg').children) x.classList.toggle('on', x === b);
     renderHomeTab(true);
   });
+  $('homeGo').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-go]');
+    if (!b || Date.now() - homeDragEnd < 300) return;
+    ({ shop: openShop, leaders: openLeaders, howto: () => openModal('howto'), settings: openSettings })[b.dataset.go]();
+  });
+  homeEl.addEventListener('wheel', (e) => { if (homeDetent === 1 && e.deltaY > 0) setHome(2); }, { passive: true });
   (() => {
-    // Drag the home sheet's head up to open it, down to close it.
-    const head = $('homeHead');
-    let y0 = null;
-    head.addEventListener('pointerdown', (e) => { y0 = e.clientY; });
-    head.addEventListener('pointerup', (e) => {
-      if (y0 === null) return;
-      const dy = e.clientY - y0;
-      y0 = null;
-      if (Math.abs(dy) > 30) { e.preventDefault(); setHome(dy < 0); head.dataset.dragged = '1'; setTimeout(() => delete head.dataset.dragged, 50); }
+    // Live drag: the sheet follows the finger (on the bar, or anywhere until it covers the screen),
+    // then settles on the nearest height, or the next one in the direction of a quick flick.
+    let g = null;
+    const rubber = (d) => 36 * Math.log1p(d / 36);
+    homeEl.addEventListener('pointerdown', (e) => {
+      if (e.button > 0 || homeEl.classList.contains('away') || e.target.closest('input, .switch')) return;
+      const { full, stops } = homeStops();
+      g = { id: e.pointerId, y0: e.clientY, base: full - stops[homeDetent], full, stops, moved: false, body: !!e.target.closest('#homeBody'), v: [[e.timeStamp, e.clientY]] };
     });
-    head.addEventListener('click', (e) => { if (head.dataset.dragged) e.stopImmediatePropagation(); }, true);
+    homeEl.addEventListener('pointermove', (e) => {
+      if (!g || e.pointerId !== g.id) return;
+      const dy = e.clientY - g.y0;
+      if (!g.moved) {
+        if (Math.abs(dy) < 6) return;
+        if (g.body && homeDetent === 2) { g = null; return; } // full screen: the content scrolls
+        g.moved = true;
+        homeEl.classList.add('dragging');
+        try { homeEl.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      }
+      const top = g.full - g.stops[2], bottom = g.full - g.stops[0];
+      let y = g.base + dy;
+      if (y < top) y = top - rubber(top - y);
+      if (y > bottom) y = bottom + rubber(y - bottom);
+      homeEl.style.setProperty('--home-y', `${y}px`);
+      g.v.push([e.timeStamp, e.clientY]);
+      if (g.v.length > 5) g.v.shift();
+    });
+    const end = (e) => {
+      if (!g || e.pointerId !== g.id) return;
+      const d = g;
+      g = null;
+      if (!d.moved) return; // a tap: the bar's click opens or closes the sheet
+      homeDragEnd = Date.now();
+      homeEl.classList.remove('dragging');
+      const [t0, y0] = d.v[0], v = (e.clientY - y0) / Math.max(8, e.timeStamp - t0); // px/ms, + is down
+      const shown = d.full - (d.base + e.clientY - d.y0) - v * 220; // where a flick would carry it
+      let best = 0;
+      d.stops.forEach((s, i) => { if (Math.abs(s - shown) < Math.abs(d.stops[best] - shown)) best = i; });
+      setHome(best);
+    };
+    homeEl.addEventListener('pointerup', end);
+    homeEl.addEventListener('pointercancel', end);
   })();
+  const ringSvg = (frac, color) => {
+    const L = 169.65, f = Math.max(0, Math.min(1, frac || 0));
+    return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle class="bg" cx="32" cy="32" r="27"/><circle class="fg" cx="32" cy="32" r="27" style="stroke:${color}" stroke-dasharray="${L}" stroke-dashoffset="${(L * (1 - f)).toFixed(1)}"/></svg>`;
+  };
+  const statBar = (icon, tint, title, value, frac, color) =>
+    `<div class="sbar"><div class="tile sm tint-${tint}">${icon}</div><span class="sbar-k">${esc(title)}</span><span class="sbar-v">${esc(value)}</span>` +
+    `<div class="bar ${color}"><i style="width:${(Math.max(0.03, Math.min(1, frac)) * 100).toFixed(1)}%"></i></div></div>`;
+  /** The top of the open home sheet: health, level and bag rings, then your combat stats as bars. */
+  function renderHomeStats() {
+    if (!me || !me.combat) return;
+    const c = me.combat, P = cfg.combat.player, hp = hpNow(), lv = me.level || 1, next = me.nextLevelScore, base = me.levelScore || 0, bag = me.bag;
+    const rings = [
+      { v: c.knockedOut ? '💫' : fmtNum(hp), frac: hp / c.maxHp, color: hp / c.maxHp < 0.35 ? 'var(--red)' : 'var(--green)', k: `Health · +${P.regenPerSecond}/s` },
+      { v: lv, frac: next == null ? 1 : (me.score - base) / (next - base), color: 'var(--yellow)', k: next == null ? 'Top level' : `${fmtNum(Math.max(0, next - me.score))} to level ${lv + 1}` },
+      { v: `${bag.used}/${bag.slots}`, frac: bag.used / bag.slots, color: 'var(--indigo)', k: `Bag · ${bagItems().filter((i) => i.place === 'active').length} on` },
+    ];
+    const g = rings.map((r) => `<div class="gauge"><div class="ring">${ringSvg(r.frac, r.color)}<b>${esc(String(r.v))}</b></div><span>${esc(r.k)}</span></div>`).join('');
+    const b = statBar('💥', 'orange', 'Damage', `${c.damage}`, c.damage / (P.damage * 3), 'orange') +
+      statBar('🔥', 'red', 'Fire Rate', `${Math.round(60 / c.cooldownSeconds)} per min`, P.cooldownSeconds / c.cooldownSeconds / 3, 'red') +
+      statBar('🔭', 'blue', 'Range', `${c.rangeMeters} m`, c.rangeMeters / (cfg.combat.rangeMeters * 2), 'blue') +
+      statBar('🎯', 'indigo', 'Accuracy', `${Math.round(c.accuracyNear * 100)} %`, c.accuracyNear, 'indigo') +
+      statBar('🛡️', 'gray', 'Defense', `${Math.round(c.defense * 100)} %`, c.defense / 0.6, 'gray') +
+      statBar('🌱', 'green', 'Reach', `${c.reachMeters} m`, c.reachMeters / (cfg.reach.meters * 2), 'green');
+    const key = g + b;
+    if (key === homeStatsKey) return;
+    homeStatsKey = key;
+    $('homeGauges').innerHTML = g;
+    $('homeBars').innerHTML = b;
+  }
   const statRow = (icon, tint, title, value) =>
     `<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div></div><span class="row-value">${esc(value)}</span></div>`;
   function renderHomeTab(force) {
@@ -2329,22 +2672,18 @@
         }).join('') + '</div>';
       }
     } else {
-      const c = me.combat, st = me.stats || {};
-      html += `<h4 class="sec-h">Combat</h4><div class="group">` +
-        statRow('❤️', 'red', 'Health', `${fmtNum(c.hp)} / ${fmtNum(c.maxHp)}`) +
-        statRow('💥', 'orange', 'Damage', `${c.damage}`) +
-        statRow('🔥', 'orange', 'Fire Rate', `every ${c.cooldownSeconds} s`) +
-        statRow('🔭', 'blue', 'Range', `${c.rangeMeters} m`) +
-        statRow('🎯', 'blue', 'Accuracy', `${Math.round(c.accuracyNear * 100)} % near · ${Math.round(c.accuracyFar * 100)} % far`) +
-        statRow('🛡️', 'gray', 'Defense', `${Math.round(c.defense * 100)} %`) +
-        statRow('🌱', 'green', 'Build Reach', `${c.reachMeters} m`) + '</div>';
+      const c = me.combat, st = me.stats || {}, bs = builders();
       html += `<h4 class="sec-h">Record</h4><div class="group">` +
         statRow('🎯', 'gray', 'Hits', `${fmtNum(st.hits || 0)} of ${fmtNum(st.shots || 0)}`) +
         statRow('💥', 'gray', 'Knock-outs', fmtNum(st.knockouts || 0)) +
         statRow('🐾', 'gray', 'Animals Defeated', fmtNum(st.botsDefeated || 0)) +
         statRow('🎁', 'gray', 'Boosters Found', fmtNum(st.itemsFound || 0)) +
         statRow('🌿', 'gray', 'Plant Levels Grown', fmtNum(st.plantLevels || 0)) + '</div>';
-      html += `<p class="sec-f">Shots are more likely to hit up close. Enemies further than ${c.rangeMeters} m are out of range.</p>`;
+      html += `<h4 class="sec-h">Base</h4><div class="group">` +
+        statRow('🗺️', 'green', 'Territory', `${fmtNum(me.territory.count)} of ${fmtNum(me.territory.max)} hexes`) +
+        statRow(E.builder, 'orange', 'Builders', hqLevel() ? `${bs.total - bs.busy} of ${bs.total} free` : '–') +
+        statRow(E.coin, 'yellow', 'Storage', `${fmtNum(credits())} of ${fmtNum(capacity())}`) + '</div>';
+      html += `<p class="sec-f">Shots hit ${Math.round(c.accuracyNear * 100)} % of the time up close and ${Math.round(c.accuracyFar * 100)} % at ${c.rangeMeters} m.</p>`;
     }
     const key = homeTab + html;
     if (!force && key === homeKey) return;
@@ -2373,12 +2712,12 @@
     else if (!mode) { emoji = E.hello; text = 'Welcome'; }
     else if (mode === 'sim') {
       emoji = walking ? E.walk : E.sim;
-      text = walking ? `Walking · ${simFast ? SIM_SPEED.fast : SIM_SPEED.walk} m/s` : `Simulated walking · Reach ${REACH} m`;
+      text = walking ? `Walking · ${simFast ? SIM_SPEED.fast : SIM_SPEED.walk} m/s` : 'Simulated';
     } else if (gps.err === 'denied') { emoji = E.bad; text = 'Location blocked'; }
     else if (!gps.at || Date.now() - gps.at > 30000) { emoji = E.weak; text = 'Waiting for GPS…'; }
     else if (gps.acc > cfg.location.maxAccuracyMeters) { emoji = E.weak; text = `GPS weak · ±${Math.round(gps.acc)} m`; }
     else if (locInfo && locInfo.blockedReason === 'MOVING_TOO_FAST') { emoji = E.fast; text = 'Moving fast · Actions paused'; }
-    else { emoji = E.good; text = `GPS ±${Math.round(gps.acc)} m · Reach ${REACH} m`; }
+    else { emoji = E.good; text = `GPS ±${Math.round(gps.acc)} m`; }
     $('statusEmo').textContent = emoji;
     $('statusText').textContent = text;
   }
@@ -2389,10 +2728,69 @@
     $('keyChipEmo').textContent = gAuthFailed ? E.stop : E.warn;
     $('keyChipText').textContent = gAuthFailed ? 'Google Maps key rejected' : 'Map without API key';
   }
+  // ------------------------------------------------------------------ tips: stacked banners at the top until done or closed
+  const TIPS_KEY = 'coc.tips';
+  let tipsDone = new Set(), tipsKey = '';
+  try { tipsDone = new Set(JSON.parse(lsGet(TIPS_KEY) || '[]')); } catch (e) { /* none */ }
+  const hasCredits = () => [...myPlants.values()].some((p) => plantStoredNow(p) >= 1);
+  const TIPS = [
+    { id: 'walk', icon: '🚶', tint: 'teal', title: 'Walk to play', text: 'You can act inside the circle around you.', when: () => me.territory.count < 3 },
+    { id: 'hq', icon: E.hq, tint: 'blue', title: 'Found your Headquarters', text: 'Tap the hex you stand on. It’s free.', when: () => !me.territory.count },
+    { id: 'claim', icon: '🌱', tint: 'green', title: 'Plant around you', text: 'Tap an outlined hex inside the circle.', when: () => me.territory.count > 0 && me.territory.count < 6 },
+    { id: 'tap', icon: '👆', tint: 'yellow', title: 'Tap a plant to collect', text: 'Plants make credits over time.', when: () => me.territory.count > 0 && hasCredits() },
+    { id: 'hold', icon: '✋', tint: 'orange', title: 'Hold a plant for 3 seconds', text: 'Collects from every plant in reach.', when: () => myPlants.size >= 3 && tipsDone.has('tap') && hasCredits() },
+    { id: 'fight', icon: '🎯', tint: 'red', title: 'Hunt animals', text: 'Tap one, then Fire. They drop boosters.', when: () => me.territory.count >= 3 && (world.bots || []).length > 0 },
+  ];
+  function tipDone(id) {
+    if (tipsDone.has(id)) return;
+    tipsDone.add(id);
+    lsSet(TIPS_KEY, JSON.stringify([...tipsDone]));
+    renderTips();
+  }
+  function makeTip() {
+    const el = document.createElement('div');
+    el.className = 'tipcard mglass';
+    el.innerHTML = '<div class="tile"></div><div class="tip-main"><b></b><p></p></div><button class="xbtn" type="button" aria-label="Close">' + svg('x') + '</button>';
+    el.lastElementChild.addEventListener('click', () => { el.classList.add('out'); setTimeout(() => tipDone(el._tip), 220); });
+    return el;
+  }
+  function updateTip(el, t) {
+    el._tip = t.id;
+    setTile(el.firstElementChild, t.icon, t.tint, '');
+    el.querySelector('b').textContent = t.title;
+    el.querySelector('p').textContent = t.text;
+  }
+  function renderTips() {
+    if (!me || !started) return;
+    const show = TIPS.filter((t) => !tipsDone.has(t.id) && t.when()).slice(0, 2);
+    const key = show.map((t) => t.id).join();
+    if (key === tipsKey) return;
+    tipsKey = key;
+    reconcile($('tips'), show.map((t) => ({ ...t, key: t.id })), makeTip, updateTip);
+  }
+
+  // ------------------------------------------------------------------ where you are: a large title over the map, once per area
+  let cityAt = null;
+  async function showCity() {
+    if (!pos || (cityAt && distM(cityAt, pos) < 3000)) return;
+    cityAt = { ...pos };
+    try {
+      const q = `lat=${pos.lat.toFixed(3)}&lon=${pos.lng.toFixed(3)}&accept-language=${encodeURIComponent(navigator.language || 'en')}`;
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&${q}`);
+      const a = ((await r.json()) || {}).address || {};
+      const name = a.suburb || a.city_district || a.town || a.city || a.village || a.municipality || a.county;
+      if (!name) return;
+      $('cityName').textContent = name;
+      $('city').classList.add('show');
+      setTimeout(() => $('city').classList.remove('show'), 3200);
+    } catch (e) { /* no name, no title */ }
+  }
+
   function refreshUi() {
     refreshStatus();
     if (!me) return;
     refreshHud();
+    renderTips();
     if (selected || target) renderSheet();
     syncTiles();
     syncPins();
@@ -2526,13 +2924,13 @@
     $('placeSub').textContent = 'Tap a bright green hex: empty, yours and within reach.';
     $('placeBar').hidden = false;
     layoutControls();
-    restyleGrid();
+    syncGrid();
   }
   function stopPlacing() {
     placing = null;
     $('placeBar').hidden = true;
     layoutControls();
-    if (map) restyleGrid();
+    syncGrid();
   }
   async function placeAt(id) {
     const p = placing;
@@ -2620,16 +3018,19 @@
     const bar = $('home');
     bar.hidden = !started;
     bar.classList.toggle('away', !!h);
-    appEl.style.setProperty('--home-max', `${Math.max(240, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 16))}px`);
-    const homeOpen = bar.classList.contains('open');
+    if (started) placeHome();
+    const homeOpen = homeDetent > 0;
     // The tool bar and the talk button make room for an open sheet or the placing bar.
     $('rail').classList.toggle('away', !!h || homeOpen);
+    $('tips').classList.toggle('away', !!h || homeOpen);
     $('talkBtn').classList.toggle('away', !!h || homeOpen);
     if (h || homeOpen) $('talkPop').hidden = true;
-    const barH = bar.hidden || h ? 0 : 96 + sheetBottomPx();
+    const barH = bar.hidden || h ? 0 : homeStops().stops[0];
     appEl.style.setProperty('--ctl-bottom', h ? `${Math.round(sheetBottomPx() + h + 14)}px` : barH ? `${barH + 14}px` : 'calc(var(--sb) + 40px)');
-    appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topEl.getBoundingClientRect().bottom - sheetBottomPx() - 12))}px`);
+    appEl.style.setProperty('--sheet-max', `${Math.max(200, Math.round(appEl.clientHeight - topBarBottom() - 12))}px`);
+    appEl.style.setProperty('--attr-bottom', `${barH}px`);
   }
+  const topBarBottom = () => topEl.firstElementChild.getBoundingClientRect().bottom;
   /** Opens the sheet for a player or an animal (aim at it). */
   function selectTarget(t) {
     if (placing) stopPlacing();
@@ -3023,7 +3424,7 @@
   $('status').addEventListener('click', () => {
     if (!mode) return;
     if (mode === 'gps' && gps.err === 'denied') { showLocHelp('Location access is turned off for this page.'); return; }
-    showAlert('Your Reach', `You can claim, place, move, upgrade and collect on hexes whose center is within ${REACH} m of you, inside the blue circle. For hexes further away, walk there.`, [{ label: 'OK', style: 'strong' }]);
+    showAlert('Your Reach', `You can claim, place, move, upgrade and collect on hexes whose center is within ${REACH} m of you, inside the circle around you. For hexes further away, walk there.`, [{ label: 'OK', style: 'strong' }]);
   });
   $('locateBtn').addEventListener('click', () => {
     if (!pos || !map) return;
@@ -3031,8 +3432,25 @@
     setFollow(true);
     followCamera(true);
   });
-  $('welcomeGo').addEventListener('click', () => { closeModal('welcome'); enterGps(); });
-  $('welcomeSim').addEventListener('click', () => { closeModal('welcome'); enterSim(); });
+  // The join screen, on every start: your avatar and one big button (like the reference layout).
+  let joinSim = false;
+  function prepareJoin() {
+    const p = me.player, back = me.territory.count > 0;
+    joinSim = lsGet(PREF) === 'sim';
+    $('joinAvatar').textContent = avatarOf(p);
+    $('joinTitle').textContent = back ? `Welcome back, ${p.username}!` : `Welcome, ${p.username}!`;
+    let waiting = 0;
+    for (const pl of myPlants.values()) waiting += Math.floor(plantStoredNow(pl));
+    $('joinLead').textContent = !back ? 'Walk around your city, grow plants on real places and defend them.'
+      : waiting >= 1 ? `Your plants have ${fmtNum(waiting)} credits waiting for you.` : 'Your plants are growing.';
+    $('joinList').hidden = back;
+    $('welcomeSim').textContent = joinSim ? 'Play with Real GPS' : 'Play with Simulated Walking';
+  }
+  $('welcomeGo').addEventListener('click', () => { closeModal('welcome'); if (joinSim) enterSim(); else enterGps(); });
+  $('welcomeSim').addEventListener('click', () => { closeModal('welcome'); if (joinSim) enterGps(); else enterSim(); });
+  $('privacyBtn').addEventListener('click', () => showAlert('Privacy',
+    'Your location is used only while the game is open. It is sent to the game server to check what you can reach, and raw GPS data is deleted after 24 hours. ' +
+    'Players nearby see your avatar on the map (you can turn this off in Settings). The map service loads map pictures and the name of the area around you.', [{ label: 'OK' }]));
   $('locRetry').addEventListener('click', () => { closeModal('locHelp'); enterGps(); });
   $('locSim').addEventListener('click', () => { closeModal('locHelp'); enterSim(); });
 
@@ -3113,6 +3531,7 @@
     updateReach(true);
     refreshUi();
     setTimeout(() => followCamera(false), 50);
+    setTimeout(showCity, 900);
     if (!me.territory.count) {
       select(cellAt(pos.lat, pos.lng));
       toast(mode === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false, mode === 'gps' ? E.here : E.sim);
@@ -3128,11 +3547,10 @@
     if (moved) {
       reachDirty = true;
       updatePlayerVisuals();
-      if (follow && t - lastFollow > 30) { lastFollow = t; followCamera(false); }
+      if (follow && t - lastFollow > 600) { lastFollow = t; followCamera('glide'); }
     }
     if (moved !== walking) {
       walking = moved;
-      puckEl.classList.toggle('moving', moved);
       if (!moved && mode === 'sim' && pos) lsSet(SIM_POS, JSON.stringify(pos));
       refreshStatus();
     }
@@ -3149,7 +3567,7 @@
       // Construction that just finished: the server settles it when asked.
       if (me && me.buildings.some((b) => b.state !== 'active' && endsIn(b) <= 0) && Date.now() - meAt > 1500) { meAt = Date.now(); loadMe(); }
     }
-    if (tickN % 120 === 0 && me) loadMe(); // every 30 s
+    if (tickN % 120 === 0 && me) { loadMe(); showCity(); } // every 30 s
   }
 
   // ------------------------------------------------------------------ boot
@@ -3189,10 +3607,9 @@
     updateKeyChip();
     layoutControls();
     if (!me.player.avatar) await editProfile(true); // new players create their profile first
-    const pref = lsGet(PREF);
-    if (pref === 'gps') enterGps();
-    else if (pref === 'sim') enterSim();
-    else { refreshStatus(); openModal('welcome'); }
+    prepareJoin();
+    refreshStatus();
+    openModal('welcome');
     requestAnimationFrame(frame);
     setInterval(tick, 250);
     window.addEventListener('resize', () => { layoutControls(); followCamera(false); });
