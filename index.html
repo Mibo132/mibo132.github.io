@@ -14,7 +14,14 @@
      (the controls keep their own safe-area insets), and anything behind it matches the map. */
   html, body { background: #e5e3df !important; }
   @media (prefers-color-scheme: dark) { html, body { background: #242424 !important; } }
-  #map { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; }
+  /* Home Screen app with the translucent status bar: iOS starts the page under the status bar but still
+     reports the viewport as that much shorter, so full-screen layers stretch by the top inset. */
+  @media (display-mode: standalone) {
+    #app, .join, .modal, .alert-wrap, .fatal { bottom: auto !important; height: calc(100% + env(safe-area-inset-top, 0px)) !important; }
+  }
+  /* A hidden banner fades out as it slides up, so it never waits behind the clock. */
+  .banner { transition: transform .5s var(--spring), opacity .25s !important; }
+  .banner:not(.show) { opacity: 0; }
 </style>
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://cdn.apple-mapkit.com">
