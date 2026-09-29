@@ -320,6 +320,56 @@
   .row.card .row-sub.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .row.card .row-title small { margin-left: 4px; }
 
+  /* ---------------------------------------------------------------- plant sheet: compact, swipe up for boosters, look and selling */
+  .psheet {
+    position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; height: var(--ps-full, 90vh); display: flex; flex-direction: column;
+    border-radius: 16px 16px 0 0; background: var(--sheet); color: var(--label); overflow: hidden;
+    -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, .16), inset 0 .5px 0 var(--glass-edge);
+    transform: translate3d(0, var(--ps-y, 100%), 0); transition: transform .42s var(--spring); will-change: transform; touch-action: none;
+  }
+  .psheet.dragging { transition: none; }
+  .psheet.off { transform: translate3d(0, 100%, 0) !important; visibility: hidden; transition: transform .3s var(--spring), visibility 0s .3s; }
+  .ps-top { flex: none; padding: 7px 16px 0; }
+  .ps-head { display: flex; align-items: center; gap: 12px; }
+  .ps-emo { flex: none; width: 54px; text-align: center; font: 46px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .ps-head h2 { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 24px; line-height: 29px; font-weight: 700; }
+  .ps-head p { margin: 2px 0 0; font: 500 14px var(--round); color: var(--label2); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ps-grow { display: flex; gap: 10px; margin-top: 14px; }
+  .btn.gold { margin: 0; min-height: 56px; border-radius: 16px; background: var(--yellow); color: #000; font: 700 19px var(--round); }
+  .btn.gold.more { flex: none; width: auto; min-width: 104px; padding: 0 12px; background: rgba(255, 204, 0, .22); color: var(--label); font-size: 15px; }
+  .btn.gold:disabled { background: var(--fill3); color: var(--label3); }
+  .psheet.large #psHint:empty { display: none; }
+  .psheet.large .ps-top { padding-bottom: 8px; }
+  .ps-hint { margin: 10px 0 12px; min-height: 18px; text-align: center; font-size: 14px; line-height: 18px; color: var(--label2); }
+  .ps-body { flex: 1; min-height: 0; overflow: hidden; overscroll-behavior: contain; padding: 0 16px calc(var(--sb) + 24px); }
+  .psheet.large .ps-body { overflow-y: auto; touch-action: pan-y; }
+  .ps-body .btn { border-radius: 16px; min-height: 54px; font-size: 19px; }
+  .btn.gray { background: var(--fill3); color: var(--label); }
+  .btn.red { background: var(--red); color: #fff; }
+  .ps-empty { padding: 22px 0 16px; text-align: center; }
+  .ps-empty .big { font: 46px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .ps-empty b { display: block; margin-top: 8px; font-size: 20px; }
+  .ps-empty p { margin: 4px 0 0; font-size: 15px; color: var(--label2); }
+  .pm { flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 15px; color: #fff; font: 700 21px/30px var(--round); }
+  .pm.add { background: var(--green); } .pm.rem { background: var(--red); }
+  .pm:disabled { background: var(--fill3); color: var(--label3); }
+  .ps-seg { margin: 4px 0 12px; }
+  /* owner faces next to plants on the map */
+  .tt .ow { position: absolute; left: 7px; top: -13px; font: 11px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; transform: scale(var(--pz)); transform-origin: 0 100%; }
+  .hide-pins .tt .ow { display: none; }
+
+  /* ---------------------------------------------------------------- missions */
+  .ms-row .bar { margin-top: 7px; height: 5px; }
+  .ms-row .price { min-width: 96px; }
+  .ms-row.claimed .tile, .ms-row.claimed .row-title { opacity: .5; }
+  .ms-timer { margin: 30px 8px 0; text-align: center; }
+  .ms-timer b { display: block; font: 700 24px/30px var(--round); font-variant-numeric: tabular-nums; }
+  .ms-timer p { margin: 8px 0 0; font-size: 14px; line-height: 19px; color: var(--label2); }
+  .locate { top: calc(50% + 190px); color: var(--blue); }
+  .locate svg { width: 22px; height: 22px; }
+  .locate.following { opacity: 0; pointer-events: none; transform: scale(.8); }
+
   /* ---------------------------------------------------------------- simulated-walking joystick */
   .stick {
     position: absolute; z-index: 4; left: 16px; bottom: var(--ctl-bottom); width: 96px; height: 96px; border-radius: 50%;
@@ -641,12 +691,13 @@
 
   <!-- Tool bar on the right edge. -->
   <nav class="rail mglass" id="rail">
-    <button class="rbtn" id="locateBtn" type="button" aria-label="Find me" aria-pressed="true"><span class="emo">🔍</span></button>
+    <button class="rbtn" id="leadersBtn" type="button" aria-label="Your area and rankings"><span class="emo">🔍</span></button>
     <button class="rbtn" id="shopBtn" type="button" aria-label="Shop and inventory" hidden><span class="emo">📦</span><span class="badge" id="invBadge" hidden></span></button>
-    <button class="rbtn" id="leadersBtn" type="button" aria-label="Leaderboard"><span class="emo">🏆</span></button>
+    <button class="rbtn" id="missionsBtn" type="button" aria-label="Missions"><span class="emo">🏆</span><span class="badge" id="msBadge" hidden></span></button>
     <button class="rbtn" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
   </nav>
   <button class="talk mglass" id="talkBtn" type="button" aria-label="Say something" hidden><span class="emo">💬</span></button>
+  <button class="talk mglass locate following" id="locateBtn" type="button" aria-label="Find me" aria-pressed="true"><span data-icon="arrow"></span></button>
   <div class="talk-pop" id="talkPop" hidden></div>
 
   <div class="stick mglass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
@@ -669,7 +720,8 @@
       <div id="homeTab"></div>
       <div class="bigbtns" id="homeGo">
         <button class="btn" type="button" data-go="shop"><span class="bi">🛒</span>Shop</button>
-        <button class="btn" type="button" data-go="leaders"><span class="bi">🏆</span>Leaderboard</button>
+        <button class="btn" type="button" data-go="missions"><span class="bi">🏆</span>Missions</button>
+        <button class="btn" type="button" data-go="leaders"><span class="bi">🔍</span>Area &amp; Rankings</button>
         <button class="btn" type="button" data-go="howto"><span class="bi">❓</span>How to Play</button>
         <button class="btn" type="button" data-go="settings"><span class="bi">⚙️</span>Settings</button>
       </div>
@@ -701,6 +753,19 @@
     <p class="note" id="sheetNote"></p>
   </section>
 
+  <section class="psheet off" id="psheet" aria-live="polite">
+    <div class="ps-top" id="psTop">
+      <div class="grabber"></div>
+      <header class="ps-head">
+        <div class="ps-emo" id="psEmo"></div>
+        <div class="titles"><h2><span id="psName"></span><i class="lv-badge" id="psLevel"></i></h2><p id="psSub"></p></div>
+        <button class="xbtn" id="psClose" type="button" aria-label="Close"><span data-icon="x"></span></button>
+      </header>
+      <div class="ps-grow" id="psGrow"></div>
+      <p class="ps-hint" id="psHint"></p>
+    </div>
+    <div class="ps-body" id="psBody"></div>
+  </section>
   <div class="banner glass" id="toast" role="status"><span class="emo" id="toastIcon"></span><span id="toastText"></span></div>
   <div class="busy glass" id="busy" hidden><span class="spinner"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="busyText">Loading…</span></div>
 
@@ -800,6 +865,15 @@
       <nav class="nav"><span></span><div class="bigtabs" id="lbScope"><button type="button" data-scope="area" class="on">Area</button><button type="button" data-scope="world">World</button></div><button class="nav-btn strong" type="button" data-close>Done</button></nav>
       <div class="lb-seg"><div class="seg wide" id="lbSeg"></div></div>
       <div class="page-body" id="leadersBody"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="missions" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><span></span><h3>🏆 Missions</h3><button class="nav-btn strong" type="button" data-close>Done</button></nav>
+      <div class="lb-seg"><div class="seg wide" id="msSeg"><button type="button" data-ms="daily" class="on">Daily</button><button type="button" data-ms="weekly">Weekly</button><button type="button" data-ms="levels">Levels</button></div></div>
+      <div class="page-body" id="msBody"></div>
     </div>
   </div>
 
@@ -1387,6 +1461,11 @@
   const doGrow = (id, levels) => command(() => post(`/v1/plants/${id}/upgrade`, { levels, location: fix() }),
     (r) => toast(`${stageOf(r.result.level).emoji} Level ${r.result.level}${stageOf(r.result.level).from === r.result.level && r.result.level > 1 ? ` · It's a ${stageOf(r.result.level).name} now!` : ''}`, false, E.up));
   const doItem = (path, body, msg) => command(() => (body === null ? api('DELETE', path, undefined, { idem: newKey() }) : post(path, body)), () => msg && toast(msg, false, E.box));
+  const doIcon = (id, icon) => command(() => post(`/v1/plants/${id}/icon`, { icon }), () => toast('New look', false, icon || stageOf(myPlants.get(id).level).emoji));
+  const doSell = (id) => command(() => post(`/v1/plants/${id}/sell`, { location: fix() }), (r) => {
+    toast(`Sold for ${fmtNum(r.result.paid.credits || 0)} credits${r.result.lost > 0 ? ` (${fmtNum(r.result.lost)} didn't fit in storage)` : ''}`, false, '💰');
+    select(null);
+  });
   const doBag = () => command(() => post('/v1/shop/bag', {}), (r) => toast(`Your bag holds ${r.result.slots} items now`, false, '🎒'));
 
   // ------------------------------------------------------------------ collecting: tap a plant, or hold one for 3 s
@@ -1825,7 +1904,7 @@
       oRival: { fill: COL.rival, fillOpacity: 0, stroke: COL.rival, strokeOpacity: 0.4, width: 1, z: 5 },
       lot: { fill: COL.own, fillOpacity: 0.45, stroke: W, strokeOpacity: 0.9, width: 1.5, z: 6 },
       sel: { fill: W, fillOpacity: 0.12, stroke: W, strokeOpacity: 0.95, width: 2.5, z: 20 },
-      reach: { fill: '#8e8e93', fillOpacity: 0.2, stroke: W, strokeOpacity: 0.08, width: 1, z: 10 },
+      reach: { fill: W, fillOpacity: 0.04, stroke: dark ? '#ffffff' : '#1c1c1e', strokeOpacity: 0.55, width: 1.5, z: 10 },
       acc: { fill: W, fillOpacity: 0.05, stroke: W, strokeOpacity: 0.12, width: 1, z: 11 },
     };
   }
@@ -2301,8 +2380,11 @@
   function syncTiles() {
     if (!map || !me) return;
     const want = new Map();
-    for (const [id, p] of myPlants) want.set(id, { p, own: true, under: myByCell.has(id) });
-    for (const [id, c] of world.cells) if (c.plant && ownerOf(id) && ownerOf(id) !== 'me') want.set(id, { p: c.plant, own: false, under: !!c.building });
+    const mine = avatarOf(me.player);
+    for (const [id, p] of myPlants) want.set(id, { p, own: true, under: myByCell.has(id), face: mine });
+    for (const [id, c] of world.cells) {
+      if (c.plant && ownerOf(id) && ownerOf(id) !== 'me') want.set(id, { p: c.plant, own: false, under: !!c.building, face: avatarOf(world.owners[c.ownerId]) });
+    }
     for (const [id, t] of tiles) if (!want.has(id)) { t.handle.remove(); tiles.delete(id); }
     for (const [id, w] of want) {
       let t = tiles.get(id);
@@ -2313,11 +2395,11 @@
         tiles.set(id, t);
       }
       const p = w.p, full = w.own && plantStoredNow(p) >= p.capacity;
-      const key = `${p.emoji || stageOf(p.level).emoji}|${p.hp}|${p.maxHp}|${p.wilted}|${w.under}|${full}`;
+      const key = `${p.emoji || stageOf(p.level).emoji}|${p.hp}|${p.maxHp}|${p.wilted}|${w.under}|${full}|${w.face}`;
       if (t.key === key) continue;
       t.key = key;
       t.el.className = `tt${p.wilted ? ' wilted' : ''}${w.under ? ' under' : ''}`;
-      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${full && !w.under ? '<span class="full">🪙</span>' : ''}${w.under ? '' : hpHtml(p.hp, p.maxHp)}`;
+      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${w.under ? '' : `<span class="ow">${esc(w.face)}</span>`}${full && !w.under ? '<span class="full">🪙</span>' : ''}${w.under ? '' : hpHtml(p.hp, p.maxHp)}`;
     }
   }
 
@@ -2448,7 +2530,7 @@
   let sheetOpen = false;
   function visibleBand() {
     const H = appEl.clientHeight, top = topBarBottom();
-    const bottom = sheetOpen ? H - sheetEl.offsetHeight : started && !homeDetent ? H - homeStops().stops[0] : H;
+    const bottom = sheetOpen ? H - openSheetH() : started && !homeDetent ? H - homeStops().stops[0] : H;
     return { top, bottom, center: (top + bottom) / 2 };
   }
   function centerFor(p) {
@@ -2463,6 +2545,7 @@
   function setFollow(on) {
     follow = on;
     $('locateBtn').setAttribute('aria-pressed', String(on));
+    $('locateBtn').classList.toggle('following', on || !started);
   }
   let reachDirty = false;
   function playerMoved(animate) {
@@ -2613,7 +2696,7 @@
   $('homeGo').addEventListener('click', (e) => {
     const b = e.target.closest('[data-go]');
     if (!b || Date.now() - homeDragEnd < 300) return;
-    ({ shop: openShop, leaders: openLeaders, howto: () => openModal('howto'), settings: openSettings })[b.dataset.go]();
+    ({ shop: openShop, leaders: openLeaders, missions: openMissions, howto: () => openModal('howto'), settings: openSettings })[b.dataset.go]();
   });
   homeEl.addEventListener('wheel', (e) => { if (homeDetent === 1 && e.deltaY > 0) setHome(2); }, { passive: true });
   (() => {
@@ -2626,7 +2709,7 @@
       const { full, stops } = homeStops();
       g = { id: e.pointerId, y0: e.clientY, base: full - stops[homeDetent], full, stops, moved: false, body: !!e.target.closest('#homeBody'), v: [[e.timeStamp, e.clientY]] };
     });
-    homeEl.addEventListener('pointermove', (e) => {
+    window.addEventListener('pointermove', (e) => {
       if (!g || e.pointerId !== g.id) return;
       const dy = e.clientY - g.y0;
       if (!g.moved) {
@@ -2657,8 +2740,8 @@
       d.stops.forEach((s, i) => { if (Math.abs(s - shown) < Math.abs(d.stops[best] - shown)) best = i; });
       setHome(best);
     };
-    homeEl.addEventListener('pointerup', end);
-    homeEl.addEventListener('pointercancel', end);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
   })();
   const ringSvg = (frac, color) => {
     const L = 169.65, f = Math.max(0, Math.min(1, frac || 0));
@@ -2908,8 +2991,13 @@
     pill.hidden = !r.button;
     pill.disabled = !r.enabled;
   }
+  const openSheetH = () => (sheetKind === 'plant' ? psVisible() : sheetEl.offsetHeight);
   function renderSheet() {
     if ((!selected && !target) || !me || !pos) return;
+    if (sheetKind === 'plant') {
+      if (selected && isPlainPlant(selected)) return renderPlantSheet();
+      return select(selected); // built on, sold or gone: pick the right sheet again
+    }
     const info = !selected && target ? describeTarget(target) : describe(selected);
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
@@ -2964,6 +3052,171 @@
     else if (a.kind === 'shop') openShop();
     else if (a.kind === 'profile') openProfile(a.owner);
   }
+
+  // ------------------------------------------------------------------ UI: your plant (compact; swipe up for boosters, its look and selling)
+  const psEl = $('psheet');
+  let sheetKind = 'hex', psDetent = 0, psTab = 'slots', psBodyKey = '', psGrowKey = '', psGeo = '', psDragEnd = 0;
+  /** Your plant with nothing built on it gets the plant sheet; everything else the hex sheet. */
+  const isPlainPlant = (id) => !!id && myPlants.has(id) && !myByCell.has(id);
+  function psStops() {
+    const H = appEl.clientHeight, full = Math.round(H - Math.max(0, topEl.getBoundingClientRect().top - 8) - 10);
+    return { full, stops: [$('psTop').offsetHeight + sbProbe.offsetHeight, full] };
+  }
+  function placePs(force) {
+    const { full, stops } = psStops(), key = `${full}|${stops[psDetent]}`;
+    if (key === psGeo && !force) return;
+    psGeo = key;
+    psEl.style.setProperty('--ps-full', `${full}px`);
+    psEl.style.setProperty('--ps-y', `${full - stops[psDetent]}px`);
+  }
+  function setPsDetent(d) {
+    psDetent = d;
+    psEl.classList.toggle('large', d === 1);
+    if (!d) $('psBody').scrollTop = 0;
+    renderPlantSheet();
+    placePs(true);
+    layoutControls();
+  }
+  const psVisible = () => psStops().stops[psDetent];
+  function growCost(p, n) {
+    let cost = 0;
+    const c = cfg.plants.upgradeCost;
+    for (let l = p.level; l < Math.min(cfg.plants.maxLevel, p.level + n); l++) cost += Math.round((c.base + c.linear * l + c.quadratic * l * l) / 5) * 5;
+    return cost;
+  }
+  function renderPlantSheet() {
+    const id = selected, p = myPlants.get(id);
+    if (!p || !pos) return;
+    const st = stageOf(p.level), stored = Math.floor(plantStoredNow(p)), d = distM(pos, cell(id));
+    const reachWhy = locationBlock() || (d <= REACH ? null : `Walk closer: ${fmtDist(d)} away`);
+    setText($('psEmo'), p.emoji);
+    setText($('psName'), st.name);
+    setText($('psLevel'), p.level);
+    setText($('psSub'), `🪙 ${fmtNum(stored)}/${fmtNum(p.capacity)} (+${fmtNum(p.ratePerHour)}/h) · ${p.wilted ? '🥀' : '❤️'} ${fmtNum(p.hp)}/${fmtNum(p.maxHp)}`);
+    let grow;
+    if (p.upgradeCost === null) grow = '<button class="btn gold" type="button" disabled>Fully Grown</button>';
+    else {
+      const n = Math.min(10, cfg.plants.maxLevel - p.level), c10 = growCost(p, n);
+      grow = `<button class="btn gold" type="button" data-grow="1"${reachWhy || credits() < p.upgradeCost ? ' disabled' : ''}>Grow 🪙 ${fmtNum(p.upgradeCost)}</button>` +
+        (n > 1 ? `<button class="btn gold more" type="button" data-grow="${n}"${reachWhy || credits() < c10 ? ' disabled' : ''}>+${n} · 🪙 ${fmtShort(c10)}</button>` : '');
+    }
+    if (grow !== psGrowKey) { psGrowKey = grow; $('psGrow').innerHTML = grow; }
+    setText($('psHint'), reachWhy ? `${E.walk} ${reachWhy}` : stored >= 1 ? 'Tap the plant on the map to collect' : psDetent ? '' : `Swipe up for ${p.emoji} boosters and more`);
+    // The expanded part.
+    const inPlant = p.items.map((i) => itemsById.get(i)).filter(Boolean);
+    const forPlants = bagItems().filter((x) => itemType(x).for === 'plant');
+    const free = p.slots - inPlant.length;
+    const row = (it, btn) => {
+      const t = itemType(it);
+      return `<div class="row t"><div class="tile sm tint-${t.for === 'plant' ? 'green' : 'red'}">${t.emoji}</div><div class="row-main"><div class="row-title">${esc(t.name)} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${esc(bonusText(it))}</div></div>${btn}</div>`;
+    };
+    let html = '<p class="ps-hint">Use ＋ and − to move boosters</p>' +
+      `<div class="seg wide ps-seg" id="psSeg"><button type="button" data-ps="slots"${psTab === 'slots' ? ' class="on"' : ''}>${p.emoji} ${inPlant.length}/${p.slots}</button>` +
+      `<button type="button" data-ps="bag"${psTab === 'bag' ? ' class="on"' : ''}>🎒 ${me.bag.used}/${me.bag.slots}</button></div>`;
+    const nextSlot = (Math.floor(p.level / cfg.plants.slots.perLevels) + 1) * cfg.plants.slots.perLevels;
+    if (psTab === 'slots') {
+      html += inPlant.length
+        ? `<div class="group">${inPlant.map((it) => row(it, `<button class="pm rem" type="button" data-unplant="${it.id}" aria-label="Back to the bag"${reachWhy ? ' disabled' : ''}>−</button>`)).join('')}</div>`
+        : `<div class="ps-empty"><div class="big">${p.emoji}</div><b>No boosters yet</b><p>This plant holds up to ${p.slots} booster${p.slots === 1 ? '' : 's'}.</p></div>`;
+      if (nextSlot <= cfg.plants.maxLevel) html += `<p class="sec-f">One more slot at level ${nextSlot}.</p>`;
+    } else {
+      html += forPlants.length
+        ? `<div class="group">${forPlants.map((it) => row(it, `<button class="pm add" type="button" data-plant="${it.id}" aria-label="Put into the plant"${reachWhy || free < 1 ? ' disabled' : ''}>＋</button>`)).join('')}</div>`
+        : `<div class="ps-empty"><div class="big">🎒</div><b>No plant boosters</b><p>Defeat animals on the map to find some.</p></div>`;
+      if (forPlants.length && free < 1) html += '<p class="sec-f">All slots are full. Take a booster out first.</p>';
+    }
+    const next = cfg.plants.stages.find((x) => x.from > p.level);
+    html += `<h4 class="sec-h">This Plant</h4><div class="group">` +
+      statRow(E.coin, 'yellow', 'Makes', `${fmtNum(p.ratePerHour)} per hour`) +
+      statRow('📦', 'orange', 'Holds', `${fmtNum(p.capacity)} credits`) +
+      statRow('❤️', 'red', 'Health', `${fmtNum(p.hp)} / ${fmtNum(p.maxHp)}`) +
+      (next ? statRow(next.emoji, 'green', 'Next Stage', `${next.name} at level ${next.from}`) : '') + '</div>';
+    html += `<div style="display:flex;flex-direction:column;gap:12px;margin-top:24px">` +
+      `<button class="btn gray" type="button" data-look>Change Look ${p.emoji}</button>` +
+      `<button class="btn red" type="button" data-sell${reachWhy ? ' disabled' : ''}>Sell 🪙 ${fmtNum(p.sellValue + stored)}</button></div>` +
+      `<p class="sec-f">Selling makes the hex neutral again. You get ${fmtNum(p.sellValue)} credits for the plant plus what it holds; its boosters go back to your bag.</p>`;
+    if (html !== psBodyKey) { psBodyKey = html; $('psBody').innerHTML = html; }
+  }
+  function openPlant() {
+    sheetKind = 'plant';
+    sheetEl.classList.add('off');
+    psDetent = 0;
+    psEl.classList.remove('large');
+    psBodyKey = psGrowKey = '';
+    renderPlantSheet();
+    psEl.classList.remove('off');
+    placePs(true);
+  }
+  $('psClose').addEventListener('click', () => select(null));
+  $('psTop').addEventListener('click', (e) => {
+    if (e.target.closest('button') || Date.now() - psDragEnd < 300) return;
+    setPsDetent(psDetent ? 0 : 1);
+  });
+  $('psGrow').addEventListener('click', (e) => { const b = e.target.closest('[data-grow]'); if (b && !b.disabled && selected) doGrow(selected, Number(b.dataset.grow)); });
+  $('psBody').addEventListener('click', (e) => {
+    const id = selected, p = myPlants.get(id);
+    if (!p) return;
+    const t = e.target.closest('[data-ps]');
+    if (t) { psTab = t.dataset.ps; return renderPlantSheet(); }
+    const un = e.target.closest('[data-unplant]');
+    if (un && !un.disabled) return doItem(`/v1/items/${un.dataset.unplant}/unplant`, { location: fix() }, 'Booster back in your bag');
+    const pl = e.target.closest('[data-plant]');
+    if (pl && !pl.disabled) return doItem(`/v1/items/${pl.dataset.plant}/plant`, { cell: id, location: fix() }, `Booster in your ${stageOf(p.level).name}`);
+    if (e.target.closest('[data-look]')) {
+      const reached = cfg.plants.stages.filter((s) => s.from <= p.level), cur = stageOf(p.level);
+      return showAlert('Change Look', 'Your plant can look like any stage it has reached.', [
+        ...reached.map((s) => ({ label: `${s.emoji} ${s.name}${s.emoji === p.emoji ? ' ✓' : ''}`, onTap: () => doIcon(id, s.emoji === cur.emoji ? null : s.emoji) })),
+        { label: 'Cancel', style: 'strong' },
+      ]);
+    }
+    const sell = e.target.closest('[data-sell]');
+    if (sell && !sell.disabled) {
+      showAlert(`Sell this ${stageOf(p.level).name}?`, `You get ${fmtNum(p.sellValue + Math.floor(plantStoredNow(p)))} credits and the hex becomes neutral. Anyone can claim it then.`, [
+        { label: 'Cancel' },
+        { label: 'Sell', style: 'destructive', onTap: () => doSell(id) },
+      ]);
+    }
+  });
+  (() => {
+    // Swipe the plant sheet up for more, down to make it small again or close it.
+    let g = null;
+    psEl.addEventListener('pointerdown', (e) => {
+      if (e.button > 0 || e.target.closest('input, .switch')) return;
+      const { full, stops } = psStops();
+      g = { id: e.pointerId, y0: e.clientY, base: full - stops[psDetent], full, stops, moved: false, body: !!e.target.closest('#psBody'), v: [[e.timeStamp, e.clientY]] };
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!g || e.pointerId !== g.id) return;
+      const dy = e.clientY - g.y0;
+      if (!g.moved) {
+        if (Math.abs(dy) < 6) return;
+        if (g.body && psDetent === 1) { g = null; return; }
+        g.moved = true;
+        psEl.classList.add('dragging');
+        try { psEl.setPointerCapture(e.pointerId); } catch (err) { /* released */ }
+      }
+      const top = g.full - g.stops[1];
+      let y = g.base + dy;
+      if (y < top) y = top - 36 * Math.log1p((top - y) / 36);
+      psEl.style.setProperty('--ps-y', `${y}px`);
+      g.v.push([e.timeStamp, e.clientY]);
+      if (g.v.length > 5) g.v.shift();
+    });
+    const end = (e) => {
+      if (!g || e.pointerId !== g.id) return;
+      const d = g;
+      g = null;
+      if (!d.moved) return;
+      psDragEnd = Date.now();
+      psEl.classList.remove('dragging');
+      const [t0, y0] = d.v[0], v = (e.clientY - y0) / Math.max(8, e.timeStamp - t0);
+      const shown = d.full - (d.base + e.clientY - d.y0) - v * 220;
+      if (shown < d.stops[0] * 0.55) return select(null); // pulled down past the small sheet: close
+      setPsDetent(Math.abs(d.stops[1] - shown) < Math.abs(d.stops[0] - shown) ? 1 : 0);
+    };
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+  })();
 
   // Placing a building from the inventory, or moving one (Clash of Clans style): tap a highlighted hex.
   let placing = null; // { kind: 'place', type } | { kind: 'move', id }
@@ -3109,7 +3362,8 @@
 
   let started = false; // the level bar and tools show once the game has started
   function layoutControls() {
-    const h = sheetOpen ? sheetEl.offsetHeight : !$('placeBar').hidden ? $('placeBar').offsetHeight : 0;
+    const h = sheetOpen ? openSheetH() : !$('placeBar').hidden ? $('placeBar').offsetHeight : 0;
+    if (sheetOpen && sheetKind === 'plant') placePs();
     const bar = $('home');
     bar.hidden = !started;
     bar.classList.toggle('away', !!h);
@@ -3132,6 +3386,8 @@
     selected = null;
     target = t;
     if (map) map.setSelection(null);
+    sheetKind = 'hex';
+    psEl.classList.add('off');
     renderSheet();
     sheetOpen = true;
     sheetEl.classList.remove('off');
@@ -3148,15 +3404,22 @@
         sheetOpen = false;
         sheetEl.style.transform = '';
         sheetEl.classList.add('off');
+        psEl.classList.add('off');
+        sheetKind = 'hex';
         layoutControls();
         if (follow) followCamera(true);
       }
       return;
     }
     map.setSelection(cell(selected).path);
-    renderSheet();
     sheetOpen = true;
-    sheetEl.classList.remove('off');
+    if (isPlainPlant(selected)) openPlant();
+    else {
+      sheetKind = 'hex';
+      psEl.classList.add('off');
+      renderSheet();
+      sheetEl.classList.remove('off');
+    }
     layoutControls();
     revealSelection();
   }
@@ -3340,6 +3603,66 @@
       `<p class="sec-f">Score: ${cfg.score.perCell} per hex, ${cfg.score.perPlantLevel} per plant level, ${cfg.score.perBuildingLevel} per building level, decorations and fights.</p>` +
       (embedded ? `<button class="btn plain" type="button" data-edit-profile>Edit Name and Avatar</button>` : '');
   }
+  // ------------------------------------------------------------------ UI: missions (daily, weekly, level rewards)
+  const msState = { data: null, tab: 'daily', at: 0 };
+  const rewardText = (r) => [r.credits ? `🪙 ${fmtShort(r.credits)}` : '', r.item ? `🎁 ${rarityName(r.item.rarity)}` : ''].filter(Boolean).join(' + ');
+  function missionsBadge() {
+    const d = msState.data;
+    const n = d ? ['daily', 'weekly', 'levels'].reduce((s, k) => s + d[k].missions.filter((m) => m.done && !m.claimed).length, 0) : 0;
+    $('msBadge').hidden = !n;
+    $('msBadge').textContent = n;
+  }
+  async function loadMissions() {
+    try {
+      msState.data = await api('GET', '/v1/missions');
+      msState.at = Date.now();
+      missionsBadge();
+      if (!$('missions').hidden) renderMissions();
+    } catch (e) { /* next time */ }
+  }
+  function renderMissions() {
+    for (const b of $('msSeg').children) b.classList.toggle('on', b.dataset.ms === msState.tab);
+    const d = msState.data, body = $('msBody');
+    if (!d) { body.innerHTML = '<p class="loading">Loading…</p>'; return; }
+    const part = d[msState.tab];
+    const rows = part.missions.map((m) => {
+      const frac = m.target ? Math.min(1, m.progress / m.target) : 0;
+      const btn = m.claimed ? '<button class="price" type="button" disabled>✓ Claimed</button>'
+        : `<button class="price" type="button" data-claim="${esc(m.id)}"${m.done ? '' : ' disabled'}>${esc(rewardText(m.reward))}</button>`;
+      return `<div class="row t card ms-row${m.claimed ? ' claimed' : ''}"><div class="tile lg tint-${m.id === 'all' ? 'indigo' : msState.tab === 'levels' ? 'yellow' : 'blue'}">${m.emoji}</div>` +
+        `<div class="row-main"><div class="row-title">${esc(m.title)}</div><div class="row-sub">${m.done ? (m.claimed ? 'Done' : 'Done · claim your reward') : `Finished ${fmtNum(m.progress)} of ${fmtNum(m.target)}`}</div>` +
+        `<div class="bar ${m.done ? 'green' : 'blue'}"><i style="width:${(frac * 100).toFixed(1)}%"></i></div></div>${btn}</div>`;
+    });
+    let html = msState.tab === 'levels' ? `<p class="lead">You are level ${part.level}. Every level brings credits${(part.missions.find((m) => m.reward.item) || {}).target ? `, and level ${part.missions.find((m) => m.reward.item).target} and every ${part.missions.find((m) => m.reward.item).target}th after it a booster` : ''}.</p>` : '';
+    html += `<div class="group" style="margin-top:8px">${rows.join('')}</div>`;
+    if (part.endsAt) {
+      html += `<div class="ms-timer"><b>${msState.tab === 'daily' ? 'Missions end in' : 'Weekly missions end in'}<br>${fmtLeft(Date.parse(part.endsAt) - serverNow())}</b>` +
+        '<p>Rewards are gone when the timer runs out, so claim them in time. New missions start right after.</p></div>';
+    }
+    body.innerHTML = html;
+  }
+  function openMissions() {
+    select(null);
+    openModal('missions');
+    renderMissions();
+    if (!msState.data || Date.now() - msState.at > 15000) loadMissions();
+  }
+  $('msSeg').addEventListener('click', (e) => { const b = e.target.closest('[data-ms]'); if (b) { msState.tab = b.dataset.ms; renderMissions(); } });
+  $('msBody').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-claim]');
+    if (!b || b.disabled) return;
+    const kind = msState.tab, id = b.dataset.claim;
+    command(() => post('/v1/missions/claim', { kind, id }), (r) => {
+      msState.data = r.result.missions;
+      msState.at = Date.now();
+      const it = r.result.reward.item;
+      toast([r.result.reward.credits ? `+${fmtNum(r.result.reward.credits)} credits` : '', it ? `${itemType(it).emoji} ${rarityName(it.rarity)} ${itemType(it).name}` : ''].filter(Boolean).join(' and '), false, '🎁');
+      missionsBadge();
+      renderMissions();
+    });
+  });
+  $('missionsBtn').addEventListener('click', openMissions);
+
   // ------------------------------------------------------------------ UI: the Area page (who plays around you) and the rankings
   const lb = { scope: 'area', view: 'overview', area: null, areaAt: 0, world: {}, seq: 0 };
   const LB_VIEWS = { area: [['overview', 'Overview'], ['hexes', 'By Area'], ['level', 'By Level']], world: [['hexes', 'By Area'], ['level', 'By Level']] };
@@ -3704,6 +4027,8 @@
     refreshUi();
     setTimeout(() => followCamera(false), 50);
     setTimeout(showCity, 900);
+    loadMissions();
+    $('locateBtn').classList.toggle('following', follow);
     if (!me.territory.count) {
       select(cellAt(pos.lat, pos.lng));
       toast(mode === 'gps' ? 'You are here. Found your Headquarters!' : 'Walk with the joystick', false, mode === 'gps' ? E.here : E.sim);
@@ -3740,6 +4065,7 @@
       if (me && me.buildings.some((b) => b.state !== 'active' && endsIn(b) <= 0) && Date.now() - meAt > 1500) { meAt = Date.now(); loadMe(); }
     }
     if (tickN % 120 === 0 && me) { loadMe(); showCity(); } // every 30 s
+    if (tickN % 480 === 5 && me && started) loadMissions(); // every 2 min
   }
 
   // ------------------------------------------------------------------ boot
