@@ -374,6 +374,12 @@
   .locate svg { width: 22px; height: 22px; }
   .locate.following { opacity: 0; pointer-events: none; transform: scale(.8); }
 
+  /* ---------------------------------------------------------------- your base: name and territory color */
+  .base-prev { width: 96px; height: 96px; display: grid; place-items: center; border-radius: 26px; font: 58px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; background: var(--base-c, var(--green)); background: color-mix(in srgb, var(--base-c, #34c759) 30%, transparent); }
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; padding: 16px; }
+  .swatches button { aspect-ratio: 1; width: 100%; padding: 0; border: 0; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
+  .swatches button.on { box-shadow: 0 0 0 3px var(--page), 0 0 0 5px var(--c); }
+
   /* ---------------------------------------------------------------- simulated-walking joystick */
   .stick {
     position: absolute; z-index: 4; left: 16px; bottom: var(--ctl-bottom); width: 96px; height: 96px; border-radius: 50%;
@@ -612,6 +618,13 @@
   .ov { position: absolute; left: 0; top: 0; }
   .hide-pins .pin { display: none; }
   #map { isolation: isolate; } /* keeps map-library layers (Leaflet uses z-index 400+) below the game UI */
+  /* no hairline seams between tiles at in-between zoom levels */
+  .leaflet-container img.leaflet-tile { image-rendering: auto; mix-blend-mode: normal; outline: 1px solid transparent; }
+  .leaflet-tile-container img.leaflet-tile { width: 256.6px !important; height: 256.6px !important; }
+  .selring { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%; background: rgba(52, 199, 89, .32); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25); pointer-events: none; transition: opacity .15s; }
+  .selring[hidden] { display: block !important; opacity: 0; }
+  .pin .sub { position: absolute; left: 6px; top: 3px; font: 13px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .4)); }
+  .pin .sub:empty { display: none; }
   .osm-mk { background: none; border: 0; }
   .osm-dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.92) contrast(.9) saturate(.7); }
   #map.leaflet-container { background: #1c1c1e; font: 11px var(--font); }
@@ -634,12 +647,12 @@
   }
   .t-hq .lvl { left: 11px; top: 8px; }
   .cap {
-    position: absolute; left: 0; bottom: 20px; display: flex; align-items: center; gap: 4px; height: 21px; padding: 0 8px 0 6px; border-radius: 11px;
-    background: #fff; color: #1c1c1e; font: 700 12px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, .28); transform: translateX(-50%);
+    position: absolute; left: 0; top: 13px; height: 15px; padding: 0 5px; border-radius: 8px;
+    background: rgba(0, 0, 0, .62); color: #fff; font: 600 10px/15px var(--round); font-variant-numeric: tabular-nums; white-space: nowrap;
+    transform: translateX(-50%);
   }
   .cap:empty { display: none; }
-  .t-hq .cap { bottom: 23px; }
+  .t-hq .cap { top: 16px; }
   .cap.full { background: #ff9500; color: #fff; }
   .nm { position: absolute; left: 0; bottom: 23px; transform: translateX(-50%); font: 600 12px var(--font); color: #d70015; white-space: nowrap; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
   .nm:empty { display: none; }
@@ -663,7 +676,7 @@
   .hide-pins .op .on { display: none; }
   /* Territory: each owned hex shows its owner's emoji. */
   .tt { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
-  .tt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
+  .tt i { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; display: grid; place-items: center; font: 19px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; transform: scale(var(--pz)); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
   .tt.far i { opacity: .8; }
   .hide-pins .tt { display: none; }
   @media (prefers-reduced-motion: reduce) {
@@ -872,6 +885,23 @@
     </div>
   </div>
 
+  <div class="modal" id="base" hidden>
+    <div class="scrim" data-close></div>
+    <div class="page">
+      <nav class="nav"><button class="nav-btn left" type="button" data-close>Cancel</button><h3>Your Base</h3><button class="nav-btn strong" id="baseSave" type="button">Save</button></nav>
+      <div class="page-body">
+        <div class="av-hero"><div class="base-prev" id="basePrev">🏰</div><b id="basePrevName"></b></div>
+        <h4 class="sec-h">Name</h4>
+        <div class="group"><div class="row"><input class="field" id="baseName" type="text" maxlength="24" placeholder="Headquarters" autocomplete="off" aria-label="Base name"></div></div>
+        <p class="field-err" id="baseErr"></p>
+        <p class="sec-f">Shown on your Headquarters to everyone who taps it.</p>
+        <h4 class="sec-h">Territory Color</h4>
+        <div class="group"><div class="swatches" id="baseColors"></div></div>
+        <p class="sec-f">Your hexes are tinted with this color on the map, for you and for everyone around.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="missions" hidden>
     <div class="scrim" data-close></div>
     <div class="page">
@@ -889,6 +919,7 @@
         <h4 class="sec-h">Account</h4>
         <div class="group">
           <button class="row t" id="nameRow" type="button"><div class="tile sm tint-blue" id="nameAvatar">👤</div><div class="row-main"><div class="row-title" id="nameText">–</div><div class="row-sub">Name and avatar</div></div><span class="row-value">Edit</span><span class="row-chev" data-icon="chev"></span></button>
+          <button class="row t" id="baseRow" type="button"><div class="tile sm tint-indigo">🎨</div><div class="row-main"><div class="row-title">Your Base</div><div class="row-sub">Headquarters name and territory color</div></div><span class="row-chev" data-icon="chev"></span></button>
           <div class="row t"><div class="tile sm tint-green">🧍</div><div class="row-main"><div class="row-title">Show Me on the Map</div></div><label class="switch"><input type="checkbox" id="mapSwitch" aria-label="Show me on the map"><span></span></label></div>
         </div>
         <p class="sec-f">Players nearby see you on the map while you play, rounded to about 150 m. Your exact position is never shared.</p>
@@ -1815,7 +1846,7 @@
       const aimB = bInfo && !bInfo.protected && !bInfo.broken;
       const t = aimB ? { kind: 'building', id: bInfo.id, cell: id } : pl ? { kind: 'plant', id, cell: id } : null;
       const info = t && targetInfo(t);
-      out.title = b ? bdef(b.type).name : pl ? `${pl.stage} · Level ${pl.level}` : 'Rival Hex';
+      out.title = b ? (b.type === 'hq' && world.owners[owner] && world.owners[owner].baseName) || bdef(b.type).name : pl ? `${pl.stage} · Level ${pl.level}` : 'Rival Hex';
       out.sub = `${rivalName(owner)}'s ${b ? `level ${b.level} building` : 'plant'}`;
       out.tile = { icon: b ? emojiFor(b.type) : pl ? pl.emoji : E.rival, tint: 'red' };
       out.tags.push({ tint: 'red', icon: E.rival, text: 'Rival territory' });
@@ -1870,6 +1901,8 @@
         out.rows.push({ key: 'move', kind: 'move', id: b.id, icon: E.move, tint: 'gray', title: `Move ${bd.name}`,
           sub: 'To another hex you own, within reach', button: 'Move', enabled: true });
         if (b.type === 'hq') {
+          out.title = me.player.baseName || bd.name;
+          out.rows.push({ key: 'base', kind: 'base', icon: '🎨', tint: 'indigo', title: 'Name & Color', sub: `${me.player.baseName || 'Headquarters'} · your territory color`, button: 'Edit', enabled: true });
           const nx = cfg.hq.levels[b.level];
           out.note = nx
             ? `Level ${b.level + 1} allows ${nx.maxTerritoryCells} hexes, ${nx.builders} builder${nx.builders === 1 ? '' : 's'} and up to ` +
@@ -1889,28 +1922,33 @@
   // ------------------------------------------------------------------ map: one interface, two engines
   // Apple Maps (MapKit JS) when the server can sign a MapKit token; Google Maps until then.
   // Camera and layers, tuned for ~9 m hexes (H3 res 13): the default view shows the 70 m reach circle.
-  const MAP = { mpp: 0.4, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 2.4, maxGridRings: 40, worldRings: 45 };
+  // mpp = meters per pixel. maxMpp limits zooming out: plants never overlap and your reach circle still fits the screen.
+  const MAP = { mpp: 0.26, maxMpp: 0.345, pinMpp: 0.4, gridMpp: 0.55, pinMaxMpp: 99, maxGridRings: 40, worldRings: 45 };
   const COL = { own: '#34c759', rival: '#ff3b30', claim: '#ff9500', blue: '#007aff' };
   // The map follows the system appearance, like Apple Maps.
   const dark = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   // Territory is shown with emoji, so hexes are nearly invisible: no grid, no fills, faint borders,
   // and a light outline only where you can claim next (within reach) and around the selection.
+  // Territory is a soft tint in each owner's color (no outlines), so the map stays readable underneath.
+  const STY = {};
   function hexStyles() {
-    const W = dark ? '#ffffff' : '#1c1c1e'; // outlines: light on the dark map, dark on the light one
-    return {
-      own: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 4 },
-      rival: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 3 },
-      claimR: { fill: W, fillOpacity: 0.06, stroke: W, strokeOpacity: 0.45, width: 1, z: 2 },
-      claim: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0.12, width: 1, z: 2 },
-      nR: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 1 },
-      n: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0, z: 1 },
-      oMe: { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0.28, width: 1, z: 5 },
-      oRival: { fill: COL.rival, fillOpacity: 0, stroke: COL.rival, strokeOpacity: 0.4, width: 1, z: 5 },
-      lot: { fill: COL.own, fillOpacity: 0.45, stroke: W, strokeOpacity: 0.9, width: 1.5, z: 6 },
-      sel: { fill: W, fillOpacity: 0.12, stroke: W, strokeOpacity: 0.95, width: 2.5, z: 20 },
-      reach: { fill: W, fillOpacity: 0.04, stroke: dark ? '#ffffff' : '#1c1c1e', strokeOpacity: 0.55, width: 1.5, z: 10 },
-      acc: { fill: W, fillOpacity: 0.05, stroke: W, strokeOpacity: 0.12, width: 1, z: 11 },
-    };
+    if (STY.n) return STY;
+    const W = dark ? '#ffffff' : '#1c1c1e', none = { fill: W, fillOpacity: 0, stroke: W, strokeOpacity: 0, width: 0 };
+    Object.assign(STY, {
+      own: { ...none, z: 4 }, rival: { ...none, z: 3 }, claimR: { ...none, z: 2 }, claim: { ...none, z: 2 }, nR: { ...none, z: 1 }, n: { ...none, z: 1 },
+      oMe: { ...none, z: 5 }, oRival: { ...none, z: 5 },
+      lot: { fill: COL.own, fillOpacity: 0.42, stroke: W, strokeOpacity: 0, width: 0, z: 6 },
+      sel: { ...none, z: 20 },
+      reach: { fill: W, fillOpacity: 0.04, stroke: W, strokeOpacity: 0.5, width: 1.5, z: 10 },
+      acc: { fill: W, fillOpacity: 0.05, stroke: W, strokeOpacity: 0, width: 0, z: 11 },
+    });
+    return STY;
+  }
+  /** The style key for a territory tint in this color. */
+  function tintKey(color) {
+    const k = `t:${color}`;
+    if (!STY[k]) STY[k] = { fill: color, fillOpacity: dark ? 0.3 : 0.26, stroke: color, strokeOpacity: 0, width: 0, z: 5 };
+    return k;
   }
   let map = null; // the active engine
   const mapScale = () => (map ? map.metersPerPixel() : MAP.mpp);
@@ -2153,11 +2191,16 @@
       zoomControl: false, attributionControl: true, preferCanvas: true, inertia: true,
     });
     m.attributionControl.setPrefix(false);
-    L.tileLayer(cfg.map.tileUrlTemplate, { attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: false }).addTo(m);
+    // Retina tiles (sharp on iPhone); no tile loading in the middle of a zoom (no flicker); a wide buffer while panning.
+    L.tileLayer(cfg.map.tileUrlTemplate, {
+      attribution: esc(cfg.map.attribution), tileSize: cfg.map.tileSize, maxNativeZoom: 19, maxZoom: 21, detectRetina: true,
+      updateWhenZooming: false, updateWhenIdle: false, keepBuffer: 6,
+    }).addTo(m);
     if (dark) el.classList.add('osm-dark');
     const S = hexStyles();
-    const ls = (k) => { const s = S[k] || S.n; return { color: s.stroke, opacity: s.strokeOpacity, weight: s.width, fillColor: s.fill, fillOpacity: s.fillOpacity, interactive: false }; };
-    const pane = (name, z) => { m.createPane(name).style.zIndex = z; return L.canvas({ pane: name, padding: 0.3 }); };
+    const ls = (k) => { const s = S[k] || S.n; return { stroke: s.width > 0, color: s.stroke, opacity: s.strokeOpacity, weight: s.width, fillColor: s.fill, fillOpacity: s.fillOpacity, interactive: false }; };
+    // SVG, not canvas: during a pinch the vector shapes scale smoothly instead of a stretched bitmap that sharpens at the end.
+    const pane = (name, z) => { m.createPane(name).style.zIndex = z; return L.svg({ pane: name, padding: 0.5 }); };
     const rHex = pane('cocHex', 401), rOut = pane('cocOut', 402), rReach = pane('cocReach', 403), rSel = pane('cocSel', 404);
     const hexes = new Map();
     let outlines = [];
@@ -2192,15 +2235,26 @@
       },
       hexIds() { return hexes.keys(); },
       removeHex(id) { const o = hexes.get(id); if (o) { o.remove(); hexes.delete(id); } },
+      // One path per owner (all their hexes merged), updated in place: no seams, no flicker.
       setOutlines(list) {
-        for (const o of outlines) o.remove();
-        outlines = [];
+        const next = new Map();
         for (const { key, polygons } of list) {
-          for (const poly of polygons) {
-            outlines.push(L.polygon(poly.map((ring) => ring.map(([lng, lat]) => [lat, lng])), { ...ls(key), renderer: rOut }).addTo(m));
+          const latlngs = polygons.map((poly) => poly.map((ring) => ring.map(([lng, lat]) => [lat, lng])));
+          const sig = JSON.stringify(polygons);
+          let o = outlines.find((x) => x._key === key && !next.has(x));
+          if (o) {
+            if (o._sig !== sig) { o._sig = sig; o.setLatLngs(latlngs); }
+          } else {
+            o = L.polygon(latlngs, { ...ls(key), renderer: rOut, smoothFactor: 0 }).addTo(m);
+            o._key = key;
+            o._sig = sig;
           }
+          next.set(o, true);
         }
+        for (const o of outlines) if (!next.has(o)) o.remove();
+        outlines = [...next.keys()];
       },
+      setMaxMpp(mpp) { m.setMinZoom(zoomFor(mpp, m.getCenter().lat)); },
       setSelection(path) { sel.setLatLngs(path || []); },
       setReach(p, show) {
         reach.setLatLng([p.lat, p.lng]);
@@ -2254,8 +2308,9 @@
     map.on('zoom', () => { onZoom(); recenter = follow; });
     map.on('idle', () => {
       scheduleGridSync();
-      if (recenter && follow) followCamera(true);
-      recenter = false;
+      const again = recenter && follow;
+      recenter = false; // before moving: a pan of zero pixels reports "moved" right away
+      if (again) followCamera(true);
     });
     onZoom();
   }
@@ -2295,7 +2350,10 @@
       if (o && o !== 'me') (byOwner.get(o) || byOwner.set(o, []).get(o)).push(id);
     }
     const list = [];
-    for (const [o, ids] of byOwner) list.push({ key: o === 'me' ? 'oMe' : 'oRival', polygons: h3.cellsToMultiPolygon(ids, true) });
+    for (const [o, ids] of byOwner) {
+      const color = o === 'me' ? me.player.color : (world.owners[o] && world.owners[o].color);
+      list.push({ key: tintKey(color || (o === 'me' ? COL.own : COL.rival)), polygons: h3.cellsToMultiPolygon(ids, true) });
+    }
     map.setOutlines(list);
   }
   function computeFrontier() {
@@ -2325,12 +2383,24 @@
     if (changed) { restyleGrid(); syncPins(); if (selected) renderSheet(); }
   }
 
+  // ------------------------------------------------------------------ the selected hex: a soft disc under it
+  const selEl = document.createElement('div');
+  selEl.className = 'selring';
+  let selHandle = null;
+  function selRing(id) {
+    if (!map) return;
+    if (!id) { selEl.hidden = true; return; }
+    const c = cell(id);
+    if (!selHandle) selHandle = map.addMarker(selEl, { lat: c.lat, lng: c.lng }, 1);
+    else selHandle.move({ lat: c.lat, lng: c.lng });
+    selEl.hidden = false;
+  }
+
   // ------------------------------------------------------------------ building pins (bare emoji)
   const pins = new Map(); // key -> pin
   function onZoom() {
     const s = mapScale();
-    document.documentElement.style.setProperty('--pz', Math.max(0.5, Math.min(1.2, Math.pow(MAP.pinMpp / s, 0.5))).toFixed(3));
-    document.documentElement.classList.toggle('hide-pins', s > MAP.pinMaxMpp);
+    void s; // emojis keep the same size on screen at every zoom (no --pz scaling, nothing hidden)
     scheduleGridSync();
   }
   function allBuildings() {
@@ -2347,9 +2417,9 @@
       let pin = pins.get(key);
       if (!pin) {
         const el = document.createElement('div');
-        el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="lvl"></div><div class="nm"></div></div>';
+        el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="sub"></div><div class="lvl"></div><div class="nm"></div></div>';
         const c = cell(b.cell);
-        pin = { el, cellId: b.cell, cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '' };
+        pin = { el, cellId: b.cell, cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), sub: el.querySelector('.sub'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '', subGlyph: '' };
         pin.handle = map.addMarker(el, { lat: c.lat, lng: c.lng }, 5);
         pins.set(key, pin);
       }
@@ -2362,15 +2432,12 @@
       pin.el.className = `pin t-${b.type} ${b.own ? 'own' : 'rival'}${b.own && !reachSet.has(b.cell) ? ' far' : ''}`;
       const glyph = active ? emojiFor(b.type) : E.building;
       if (pin.glyph !== glyph) { pin.glyph = glyph; pin.pb.textContent = glyph; }
-      pin.lvl.textContent = b.level;
-      pin.lvl.hidden = b.level < 2;
+      pin.lvl.hidden = true; // levels show in the sheet, not on the map
+      const under = b.own ? myPlants.get(b.cell) : world.cells.get(b.cell) && world.cells.get(b.cell).plant;
+      const sg = under ? under.emoji || stageOf(under.level).emoji : '';
+      if (pin.subGlyph !== sg) { pin.subGlyph = sg; pin.sub.textContent = sg; }
       let cap = '', capCls = 'cap';
-      if (b.own && b.state !== 'active') cap = endsIn(b) > 0 ? `${E.timer} ${fmtClock(endsIn(b))}` : '';
-      else if (b.own && b.production) {
-        const s = storedNow(b), full = s >= b.production.capacity;
-        if (s >= 1) cap = `${E.coin} ${full ? 'Full' : `+${fmtNum(s)}`}`;
-        if (full) capCls = 'cap full';
-      }
+      if (b.own && b.state !== 'active') cap = endsIn(b) > 0 ? fmtClock(endsIn(b)) : '';
       if (pin.cap.textContent !== cap) pin.cap.textContent = cap;
       pin.cap.className = capCls;
       pin.nm.textContent = ''; // names stand under the avatars now
@@ -2385,9 +2452,10 @@
     if (!map || !me) return;
     const want = new Map();
     const mine = avatarOf(me.player);
-    for (const [id, p] of myPlants) want.set(id, { p, own: true, under: myByCell.has(id), face: mine });
+    void mine;
+    for (const [id, p] of myPlants) if (!myByCell.has(id)) want.set(id, { p, own: true, under: false, face: '' });
     for (const [id, c] of world.cells) {
-      if (c.plant && ownerOf(id) && ownerOf(id) !== 'me') want.set(id, { p: c.plant, own: false, under: !!c.building, face: avatarOf(world.owners[c.ownerId]) });
+      if (c.plant && !c.building && ownerOf(id) && ownerOf(id) !== 'me') want.set(id, { p: c.plant, own: false, under: false, face: avatarOf(world.owners[c.ownerId]) });
     }
     for (const [id, t] of tiles) if (!want.has(id)) { t.handle.remove(); tiles.delete(id); }
     for (const [id, w] of want) {
@@ -2403,7 +2471,7 @@
       if (t.key === key) continue;
       t.key = key;
       t.el.className = `tt${p.wilted ? ' wilted' : ''}${w.under ? ' under' : ''}`;
-      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${w.under ? '' : `<span class="ow">${esc(w.face)}</span>`}${full && !w.under ? '<span class="full">🪙</span>' : ''}${w.under ? '' : hpHtml(p.hp, p.maxHp)}`;
+      t.el.innerHTML = `<i>${p.emoji || stageOf(p.level).emoji}</i>${w.face ? `<span class="ow">${esc(w.face)}</span>` : ''}${full ? '<span class="full">🪙</span>' : ''}${hpHtml(p.hp, p.maxHp)}`;
     }
   }
 
@@ -3045,6 +3113,7 @@
     else if (a.kind === 'boost') pickBooster(a.id);
     else if (a.kind === 'move') startPlacing({ kind: 'move', id: a.id });
     else if (a.kind === 'shop') openShop();
+    else if (a.kind === 'base') openBase();
     else if (a.kind === 'profile') openProfile(a.owner);
   }
 
@@ -3059,7 +3128,7 @@
     const p = myPlants.get(id), info = describe(id), bd = bdef(b.type), next = bd.levels[b.level], left = endsIn(b);
     const d = distM(pos, cell(id)), reachWhy = locationBlock() || (d <= REACH ? null : `Walk closer: ${fmtDist(d)} away`);
     setText($('psEmo'), b.state === 'active' || left <= 0 ? emojiFor(b.type) : E.building);
-    setText($('psName'), bd.name);
+    setText($('psName'), b.type === 'hq' ? me.player.baseName || bd.name : bd.name);
     setText($('psLevel'), b.level);
     const stored = p ? Math.floor(plantStoredNow(p)) : 0;
     setText($('psSub'), p ? `on ${p.emoji} Lv ${p.level} · 🪙 ${fmtNum(stored)}/${fmtNum(p.capacity)} (+${fmtNum(p.ratePerHour)}/h)` : `Level ${b.level}`);
@@ -3422,7 +3491,7 @@
     if (placing) stopPlacing();
     selected = null;
     target = t;
-    if (map) map.setSelection(null);
+    selRing(null);
     sheetKind = 'hex';
     psEl.classList.add('off');
     renderSheet();
@@ -3436,7 +3505,7 @@
     selected = id || null;
     if (id || !selected) { const had = target; target = null; if (had) { syncBots(); syncPlayers(); } }
     if (!selected) {
-      if (map) map.setSelection(null);
+      selRing(null);
       if (sheetOpen) {
         sheetOpen = false;
         sheetEl.style.transform = '';
@@ -3447,7 +3516,7 @@
       }
       return;
     }
-    map.setSelection(cell(selected).path);
+    selRing(selected);
     sheetOpen = true;
     if (isPlainPlant(selected)) openPlant();
     else {
@@ -3635,6 +3704,37 @@
       `<p class="sec-f">Score: ${cfg.score.perCell} per hex, ${cfg.score.perPlantLevel} per plant level, ${cfg.score.perBuildingLevel} per building level, decorations and fights.</p>` +
       (embedded ? `<button class="btn plain" type="button" data-edit-profile>Edit Name and Avatar</button>` : '');
   }
+  // ------------------------------------------------------------------ UI: your base (Headquarters name and territory color)
+  const base = { color: '' };
+  function renderBase() {
+    const colors = cfg.social.colors || [];
+    $('baseColors').innerHTML = colors.map((c) => `<button type="button" data-c="${c}" style="--c:${c}"${c === base.color ? ' class="on"' : ''} aria-label="Color ${c}"></button>`).join('');
+    $('basePrev').style.setProperty('--base-c', base.color);
+    setText($('basePrevName'), $('baseName').value.trim() || 'Headquarters');
+  }
+  function openBase() {
+    select(null);
+    base.color = me.player.color;
+    $('baseName').value = me.player.baseName || '';
+    $('baseErr').textContent = '';
+    renderBase();
+    openModal('base');
+  }
+  $('baseColors').addEventListener('click', (e) => { const b = e.target.closest('[data-c]'); if (b) { base.color = b.dataset.c; renderBase(); } });
+  $('baseName').addEventListener('input', renderBase);
+  $('baseSave').addEventListener('click', async () => {
+    const name = $('baseName').value.trim();
+    try {
+      setMe(await api('PATCH', '/v1/me', { baseName: name || null, color: base.color }));
+      syncOutlines();
+      closeModal('base');
+      toast(name ? `Welcome to ${name}` : 'Your base is saved', false, E.hq);
+    } catch (e) {
+      $('baseErr').textContent = e.message || "Couldn't save";
+    }
+  });
+  $('baseRow').addEventListener('click', () => { closeModal('settings'); openBase(); });
+
   // ------------------------------------------------------------------ UI: missions (daily, weekly, level rewards)
   const msState = { data: null, tab: 'daily', at: 0 };
   const rewardText = (r) => [r.credits ? `🪙 ${fmtShort(r.credits)}` : '', r.item ? `🎁 ${rarityName(r.item.rarity)}` : ''].filter(Boolean).join(' + ');
@@ -4050,6 +4150,7 @@
     layoutControls();
     setFollow(true);
     map.setView(centerFor(pos), MAP.mpp, false);
+    if (map.setMaxMpp) map.setMaxMpp(MAP.maxMpp);
     updatePlayerVisuals();
     lastSent = { at: 0, pos: null };
     syncLocation(true);
