@@ -949,6 +949,77 @@
   .duel-tap:disabled { background: var(--fill3); color: var(--label3); box-shadow: none; }
   .duel-tap.hit { transform: scale(.96); }
   .duel .btn { max-width: 360px; }
+
+  /* ---------------------------------------------------------------- polish: gradual unlocks, the next best action, game feel */
+  .nofeat { display: none !important; } /* a feature you haven't unlocked yet: hidden, not greyed out */
+  /* The next best action: one capsule above the player bar (lifted over the joystick when it shows). */
+  .nba {
+    position: absolute; z-index: 5; left: 50%; bottom: calc(var(--ctl-bottom) + var(--nba-lift, 0px)); display: flex; align-items: center; gap: 6px;
+    max-width: calc(100% - 140px); transform: translateX(-50%); transition: opacity .25s, transform .45s var(--spring), bottom .42s var(--spring);
+  }
+  .nba.out { opacity: 0; pointer-events: none; transform: translate(-50%, 10px) scale(.96); }
+  .nba-go {
+    min-width: 0; display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px 0 11px; border: 0; border-radius: 18px;
+    font: 600 14px var(--font); color: var(--label); white-space: nowrap;
+  }
+  .nba-go .emo { flex: none; font-size: 17px; }
+  .nba-t { overflow: hidden; text-overflow: ellipsis; }
+  .nba-x { flex: none; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 14px; color: var(--label2); }
+  .nba-x svg { width: 10px; height: 10px; }
+  .nba.pop .nba-go { animation: nba-in .5s var(--spring); }
+  @keyframes nba-in { from { transform: scale(.9); opacity: .4; } }
+  /* The unlock moment: a small card, one at a time. */
+  .unlock { position: fixed; inset: 0; z-index: 28; display: grid; place-items: center; padding: 24px; }
+  .unlock-scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, .28); opacity: 0; transition: opacity .3s; }
+  .unlock.open .unlock-scrim { opacity: 1; }
+  .unlock-card {
+    position: relative; width: min(330px, 100%); padding: 30px 22px 14px; border-radius: 28px; background: var(--sheet); text-align: center;
+    -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 20px 60px rgba(0, 0, 0, .25), inset 0 0 0 .5px var(--glass-edge);
+    opacity: 0; transform: translateY(18px) scale(.94); transition: opacity .3s, transform .55s var(--spring);
+  }
+  .unlock.open .unlock-card { opacity: 1; transform: none; }
+  .unlock-emo { position: relative; width: 92px; height: 92px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #ffe28a, var(--yellow) 45%, var(--orange)); box-shadow: 0 8px 24px rgba(255, 149, 0, .32); }
+  .unlock-emo span { font: 50px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .unlock-emo i { position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--orange); opacity: 0; }
+  .unlock.open .unlock-emo span { animation: unlock-emo .7s .12s var(--spring) backwards; }
+  .unlock.open .unlock-emo i { animation: unlock-ring 1.1s .25s ease-out; }
+  @keyframes unlock-emo { from { transform: scale(.4) rotate(-12deg); opacity: 0; } }
+  @keyframes unlock-ring { from { opacity: .7; transform: scale(1); } to { opacity: 0; transform: scale(1.55); } }
+  .unlock small { display: block; font: 600 13px var(--font); letter-spacing: .4px; text-transform: uppercase; color: var(--orange); }
+  .unlock h2 { margin: 4px 0 6px; font: 800 26px/31px var(--round); }
+  .unlock p { margin: 0 4px 6px; font-size: 16px; line-height: 21px; color: var(--label2); }
+  .unlock .btn { margin-top: 16px; }
+  .unlock .btn.plain { margin-top: 2px; }
+  /* Goals on your profile. */
+  .goal .bar { margin: 7px 0 1px; height: 5px; }
+  .group.goals { margin-bottom: 16px; }
+  /* Coins fly from a plant to your credits; the counter bumps as they land. */
+  .coins { position: absolute; inset: 0; z-index: 16; pointer-events: none; overflow: hidden; }
+  .coins i { position: absolute; left: 0; top: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; font: 16px/18px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; text-align: center; will-change: transform, opacity; }
+  #hud .st b { display: inline-block; transition: transform .35s var(--spring); }
+  #hud .st.bump b { transform: scale(1.18); transition-duration: .08s; }
+  .lv-badge.bump { animation: lv-bump .7s var(--spring); }
+  @keyframes lv-bump { 30% { transform: scale(1.45); } }
+  /* Idle life: plants sway, animals wander a few metres. Only inner elements move (the CSS rotate and
+     translate properties, on top of their transform); the anchored marker itself never moves. */
+  .tt i { transform-origin: 50% 85%; animation: sway 5.6s ease-in-out var(--d, 0s) infinite; }
+  .tt.wilted i, .tt.under i { animation: none; }
+  .tt.pop i { animation: pluck .35s var(--spring); }
+  @keyframes sway { 0%, 100% { rotate: -2.4deg; } 50% { rotate: 2.4deg; } }
+  .bot .be, .bot .hpbar { animation: wander var(--wd, 19s) ease-in-out var(--d, 0s) infinite; }
+  .bot .aim { animation: aim 1.2s ease-in-out infinite, wander var(--wd, 19s) ease-in-out var(--d, 0s) infinite; }
+  @keyframes wander {
+    0%, 100% { translate: 0 0; } 18% { translate: 7px -2px; } 34% { translate: 11px 3px; } 52% { translate: 4px 7px; }
+    70% { translate: -6px 4px; } 86% { translate: -8px -3px; }
+  }
+  .idle-off .tt i, .idle-off .bot .be, .idle-off .bot .hpbar, .idle-off .bot .aim { animation-play-state: paused; }
+  .rm .tt i, .rm .bot .be, .rm .bot .hpbar, .rm .nba-go, .rm .unlock-emo span, .rm .unlock-emo i { animation: none !important; }
+  /* Press states: a quick, restrained spring. */
+  .btn, .pill, .price, .nba-go, .nba-x { transition: transform .4s var(--spring), opacity .2s, background-color .2s; }
+  .btn:active:not(:disabled), .pill:active:not(:disabled), .price:active:not(:disabled), .nba-go:active, .nba-x:active { transform: scale(.96); transition-duration: .08s; }
+  .rbtn { transition: transform .4s var(--spring); }
+  .rbtn:active { transition-duration: .08s; }
+  .seg button { transition: background-color .25s, color .25s; }
 </style>
 
 <div id="app">
@@ -966,7 +1037,7 @@
       </div>
       <!-- Compact stats, top right (bag, health, credits, hexes). -->
       <header class="stats mglass" id="hud" role="group" aria-label="Your resources">
-        <span class="st" aria-hidden="true"><span class="emo">🎒</span><b id="bagUsed">–</b><small id="bagSlots"></small></span>
+        <span class="st" aria-hidden="true" data-feat="bag"><span class="emo">🎒</span><b id="bagUsed">–</b><small id="bagSlots"></small></span>
         <span class="st" aria-hidden="true"><span class="emo" id="hudHeart">❤️</span><b id="hudHp">–</b></span>
         <span class="st" aria-hidden="true"><span class="emo">🪙</span><b id="credits">–</b></span>
       </header>
@@ -987,8 +1058,8 @@
   <!-- Tool bar on the right edge. -->
   <nav class="rail mglass" id="rail">
     <button class="rbtn" id="leadersBtn" type="button" aria-label="Your area and rankings"><span class="emo">🔍</span></button>
-    <button class="rbtn" id="shopBtn" type="button" aria-label="Shop and inventory" hidden><span class="emo">📦</span><span class="badge" id="invBadge" hidden></span></button>
-    <button class="rbtn" id="missionsBtn" type="button" aria-label="Missions"><span class="emo">🏆</span><span class="badge" id="msBadge" hidden></span></button>
+    <button class="rbtn" id="shopBtn" data-feat="shop bag market" type="button" aria-label="Shop and inventory" hidden><span class="emo">📦</span><span class="badge" id="invBadge" hidden></span></button>
+    <button class="rbtn" id="missionsBtn" data-feat="missions" type="button" aria-label="Missions"><span class="emo">🏆</span><span class="badge" id="msBadge" hidden></span></button>
     <button class="rbtn" id="routeBtn" type="button" aria-label="Walking route" aria-pressed="false" hidden><span class="emo">🧭</span></button>
     <button class="rbtn" id="settingsBtn" type="button" aria-label="Settings"><span class="emo">⚙️</span></button>
   </nav>
@@ -997,6 +1068,9 @@
   <div class="talk-pop" id="talkPop" hidden></div>
 
   <div class="stick mglass" id="stick" hidden aria-label="Walk joystick"><div class="knob" id="knob">🚶</div></div>
+  <!-- The next best action: one small capsule above the player bar. -->
+  <div class="nba" id="nba" hidden><button class="nba-go mglass" id="nbaGo" type="button"><span class="emo" id="nbaEmo"></span><span class="nba-t" id="nbaText"></span></button><button class="nba-x mglass" id="nbaX" type="button" aria-label="Not now"><span data-icon="x"></span></button></div>
+  <div class="coins" id="coins" aria-hidden="true"></div>
 
   <!-- Home sheet: your player bar. Drag it up (or tap it) and the same sheet becomes your profile, stats and bag. -->
   <section class="home" id="home" hidden>
@@ -1013,19 +1087,19 @@
     <div class="home-body" id="homeBody">
       <div class="gauges" id="homeGauges"></div>
       <div class="group" id="homeBars"></div>
-      <div class="seg wide" id="homeSeg"><button type="button" data-tab="bag" class="on" data-i18n>Bag</button><button type="button" data-tab="stats" data-i18n>Record</button><button type="button" data-tab="profile" data-i18n>Profile</button></div>
+      <div class="seg wide" id="homeSeg"><button type="button" data-tab="bag" class="on" data-feat="bag" data-i18n>Bag</button><button type="button" data-tab="stats" data-i18n>Record</button><button type="button" data-tab="profile" data-i18n>Profile</button></div>
       <div id="homeTab"></div>
       <div class="bigbtns" id="homeGo">
-        <button class="btn" type="button" data-go="shop"><span class="bi">🛒</span><span data-i18n>Shop</span></button>
-        <button class="btn" type="button" data-go="missions"><span class="bi">🏆</span><span data-i18n>Missions</span></button>
+        <button class="btn" type="button" data-go="shop" data-feat="shop bag market"><span class="bi">🛒</span><span data-i18n>Shop</span></button>
+        <button class="btn" type="button" data-go="missions" data-feat="missions"><span class="bi">🏆</span><span data-i18n>Missions</span></button>
         <button class="btn" type="button" data-go="today"><span class="bi">📅</span><span data-i18n>Today</span></button>
-        <button class="btn" type="button" data-go="journey"><span class="bi">🏅</span><span data-i18n>Achievements &amp; Collection</span><span class="badge go-badge" id="achBadge" hidden></span></button>
+        <button class="btn" type="button" data-go="journey" data-feat="achievements collection explorer"><span class="bi">🏅</span><span data-i18n>Achievements &amp; Collection</span><span class="badge go-badge" id="achBadge" hidden></span></button>
         <button class="btn" type="button" data-go="inbox"><span class="bi">📬</span><span data-i18n>Rewards</span><span class="badge go-badge" id="inboxBadge" hidden></span></button>
-        <h4 class="sec-h go-h" data-i18n>Together</h4>
-        <button class="btn" type="button" data-go="crew"><span class="bi">👥</span><span data-i18n>Crew</span></button>
-        <button class="btn" type="button" data-go="social"><span class="bi">🤝</span><span data-i18n>Friends &amp; Trades</span></button>
-        <button class="btn" type="button" data-go="season"><span class="bi" id="seasonGoEmo">🏅</span><span data-i18n>Season &amp; Legends</span></button>
-        <button class="btn" type="button" data-go="defense"><span class="bi">🛡️</span><span data-i18n>Defense &amp; Raids</span><span class="badge go-badge" id="defBadge" hidden></span></button>
+        <h4 class="sec-h go-h" data-feat="crews gifts trades mentor duels seasons legends citywar combat raids bounties" data-i18n>Together</h4>
+        <button class="btn" type="button" data-go="crew" data-feat="crews"><span class="bi">👥</span><span data-i18n>Crew</span></button>
+        <button class="btn" type="button" data-go="social" data-feat="gifts trades mentor duels"><span class="bi">🤝</span><span data-i18n>Friends &amp; Trades</span></button>
+        <button class="btn" type="button" data-go="season" data-feat="seasons legends citywar"><span class="bi" id="seasonGoEmo">🏅</span><span data-i18n>Season &amp; Legends</span></button>
+        <button class="btn" type="button" data-go="defense" data-feat="combat raids bounties"><span class="bi">🛡️</span><span data-i18n>Defense &amp; Raids</span><span class="badge go-badge" id="defBadge" hidden></span></button>
         <h4 class="sec-h go-h" data-i18n>More</h4>
         <button class="btn" type="button" data-go="leaders"><span class="bi">🔍</span><span data-i18n>Area &amp; Rankings</span></button>
         <button class="btn" type="button" data-go="photo"><span class="bi">📷</span><span data-i18n>Map Photo</span></button>
@@ -1157,7 +1231,7 @@
       </header>
       <div class="page-body">
         <div class="feature" id="shopFeature"></div>
-        <div class="seg wide" id="shopSeg"><button type="button" data-seg="build" class="on" data-i18n>Buildings</button><button type="button" data-seg="bag" data-i18n>Bag &amp; Boosters</button><button type="button" data-seg="market" data-i18n>Market</button></div>
+        <div class="seg wide" id="shopSeg"><button type="button" data-seg="build" class="on" data-feat="shop" data-i18n>Buildings</button><button type="button" data-seg="bag" data-feat="bag" data-i18n>Bag &amp; Boosters</button><button type="button" data-seg="market" data-feat="market" data-i18n>Market</button></div>
         <div id="shopInv"></div>
         <div id="shopRows"></div>
         <div id="shopNext"></div>
@@ -1176,7 +1250,7 @@
   <div class="modal" id="leaders" hidden>
     <div class="scrim" data-close></div>
     <div class="page">
-      <nav class="nav"><span></span><div class="bigtabs" id="lbScope"><button type="button" data-scope="area" class="on" data-i18n>Area</button><button type="button" data-scope="world" data-i18n>World</button><button type="button" data-scope="league" data-i18n>League</button></div><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
+      <nav class="nav"><span></span><div class="bigtabs" id="lbScope"><button type="button" data-scope="area" class="on" data-i18n>Area</button><button type="button" data-scope="world" data-i18n>World</button><button type="button" data-scope="league" data-feat="leagues" data-i18n>League</button></div><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
       <div class="lb-seg"><div class="seg wide" id="lbSeg"></div></div>
       <div class="page-body" id="leadersBody"></div>
     </div>
@@ -1203,7 +1277,7 @@
     <div class="scrim" data-close></div>
     <div class="page">
       <nav class="nav"><span></span><h3 data-i18n>🏆 Missions</h3><button class="nav-btn strong" type="button" data-close data-i18n>Done</button></nav>
-      <div class="lb-seg"><div class="seg wide" id="msSeg"><button type="button" data-ms="daily" class="on" data-i18n>Daily</button><button type="button" data-ms="weekly" data-i18n>Weekly</button><button type="button" data-ms="levels" data-i18n>Levels</button><button type="button" data-ms="today" data-i18n>Today</button></div></div>
+      <div class="lb-seg"><div class="seg wide" id="msSeg"><button type="button" data-ms="daily" class="on" data-feat="missions streak" data-i18n>Daily</button><button type="button" data-ms="weekly" data-feat="missions" data-i18n>Weekly</button><button type="button" data-ms="levels" data-feat="missions" data-i18n>Levels</button><button type="button" data-ms="today" data-i18n>Today</button></div></div>
       <div class="page-body" id="msBody"></div>
     </div>
   </div>
@@ -1227,7 +1301,7 @@
           <button class="row t" id="nameRow" type="button"><div class="tile sm tint-blue" id="nameAvatar">👤</div><div class="row-main"><div class="row-title" id="nameText">–</div><div class="row-sub" data-i18n>Name and avatar</div></div><span class="row-value" data-i18n>Edit</span><span class="row-chev" data-icon="chev"></span></button>
           <button class="row t" id="baseRow" type="button"><div class="tile sm tint-indigo">🎨</div><div class="row-main"><div class="row-title" data-i18n>Your Base</div><div class="row-sub" data-i18n>Headquarters name and territory color</div></div><span class="row-chev" data-icon="chev"></span></button>
           <div class="row t"><div class="tile sm tint-green">🧍</div><div class="row-main"><div class="row-title" data-i18n>Show Me on the Map</div></div><label class="switch"><input type="checkbox" id="mapSwitch" aria-label="Show me on the map"><span></span></label></div>
-          <button class="row t" id="wardrobeRow" type="button"><div class="tile sm tint-orange">🎩</div><div class="row-main"><div class="row-title" data-i18n>Wardrobe</div><div class="row-sub" data-i18n>Hats, trails and pots</div></div><span class="row-chev" data-icon="chev"></span></button>
+          <button class="row t" id="wardrobeRow" data-feat="wardrobe" type="button"><div class="tile sm tint-orange">🎩</div><div class="row-main"><div class="row-title" data-i18n>Wardrobe</div><div class="row-sub" data-i18n>Hats, trails and pots</div></div><span class="row-chev" data-icon="chev"></span></button>
         </div>
         <p class="sec-f" data-i18n>Players nearby see you on the map while you play, rounded to about 150 m. Your exact position is never shared.</p>
         <div id="signInBox" hidden>
@@ -1251,6 +1325,11 @@
           <div class="row t"><div class="tile sm tint-orange">🎨</div><div class="row-main"><div class="row-title" data-i18n>Color-Blind-Safe Colors</div></div><label class="switch"><input type="checkbox" id="cbSwitch" aria-label="Color-blind-safe colors"><span></span></label></div>
         </div>
         <p class="sec-f" data-i18n>Automatic follows your device's settings. Color-blind-safe colors show your land in blue and your rivals' in orange and purple tones.</p>
+        <h4 class="sec-h" data-i18n>Sound &amp; Haptics</h4>
+        <div class="group">
+          <div class="row t"><div class="tile sm tint-red">🔊</div><div class="row-main"><div class="row-title" data-i18n>Sounds</div><div class="row-sub" data-i18n>Coins, growing and level-ups</div></div><label class="switch"><input type="checkbox" id="soundSwitch" aria-label="Sounds"><span></span></label></div>
+          <div class="row t" id="hapticsRow"><div class="tile sm tint-indigo">📳</div><div class="row-main"><div class="row-title" data-i18n>Haptics</div><div class="row-sub" id="hapticsSub"></div></div><label class="switch"><input type="checkbox" id="hapticsSwitch" aria-label="Haptics"><span></span></label></div>
+        </div>
         <h4 class="sec-h" data-i18n>Location</h4>
         <div class="group">
           <div class="row t"><div class="tile sm tint-blue">🚶</div><div class="row-main"><div class="row-title" data-i18n>Simulated Walking</div></div><label class="switch"><input type="checkbox" id="simSwitch" aria-label="Simulated walking"><span></span></label></div>
@@ -1346,6 +1425,19 @@
     <p class="duel-hint" id="duelHint"></p>
     <button class="duel-tap" id="duelTap" type="button" data-i18n>Tap!</button>
     <button class="btn gray" id="duelClose" type="button" hidden data-i18n>Done</button>
+  </div>
+
+  <!-- A feature unlocked: "New: 🎯 Missions", one at a time. -->
+  <div class="unlock" id="unlock" hidden role="dialog" aria-modal="true" aria-labelledby="unlockTitle" aria-describedby="unlockText">
+    <div class="unlock-scrim"></div>
+    <div class="unlock-card">
+      <div class="unlock-emo"><i></i><span id="unlockEmo"></span></div>
+      <small id="unlockKicker"></small>
+      <h2 id="unlockTitle"></h2>
+      <p id="unlockText"></p>
+      <button class="btn" id="unlockGo" type="button"></button>
+      <button class="btn plain" id="unlockLater" type="button" data-i18n>Later</button>
+    </div>
   </div>
 
   <div class="alert-wrap" id="alert" hidden>
@@ -1567,6 +1659,12 @@
     AUTH_NOT_CONFIGURED: () => t('Sign-in isn’t set up on this server yet.'),
     MAPKIT_NOT_CONFIGURED: () => t('Apple Maps isn’t set up on this server yet.'),
     CONFLICT: () => t('That just happened on another device. Try again.'),
+    // Polish: features unlock with your level
+    FEATURE_LOCKED: (d) => {
+      const u = unlockDef(d.feature), n = d.level || (u && u.level);
+      if (u && n) return t('{emoji} {name} unlocks at level {n}.', { emoji: u.emoji || '🔒', name: loc(u, 'title'), n });
+      return n ? t('This unlocks at level {n}.', { n }) : t('This isn’t unlocked yet. Keep playing!');
+    },
   };
 
   /*__LANGS_START__*/
@@ -2273,6 +2371,22 @@
       'Bus stop': 'Otobüs durağı', 'Tram stop': 'Tramvay durağı', 'Metro station': 'Metro istasyonu', 'Train station': 'Tren istasyonu', 'Ferry pier': 'Vapur iskelesi', 'Funicular': 'Füniküler', 'Cable car': 'Teleferik',
       'Declined': 'Reddedildi', 'On now': 'Şimdi sürüyor', 'Wilted': 'Soldu', 'Rank': 'Sıra', 'Stop': 'Durak',
       'Bosses': 'Patronlar', 'On now · {dist} away · leaves in {time}': 'Şimdi · {dist} uzakta · {time} sonra gidiyor', 'Account Suspended': 'Hesap Askıya Alındı',
+
+      // ---- polish: features unlock with your level, the next best action, goals, game feel
+      '{emoji} {name} unlocks at level {n}.': '{emoji} {name}, seviye {n} olunca açılır.', 'This unlocks at level {n}.': 'Bu, seviye {n} olunca açılır.',
+      'This isn’t unlocked yet. Keep playing!': 'Bu henüz açılmadı. Oynamaya devam et!',
+      'Open your profile': 'Profilini aç', 'Tap your player card or swipe it up: your record, your profile and your goals.': 'Oyuncu kartına dokun ya da yukarı kaydır: kayıtların, profilin ve hedeflerin.',
+      'Level {n}!': 'Seviye {n}!', 'New at level {n}': 'Seviye {n} ile yeni', 'New': 'Yeni', 'Open {name}': 'Aç: {name}', 'Got It': 'Anladım', 'Later': 'Sonra',
+      'Goals': 'Hedefler', 'Next unlock: {name}': 'Sıradaki yenilik: {name}', 'At level {n} · {p} score to go': 'Seviye {n} · {p} puan kaldı', 'At level {n}': 'Seviye {n}',
+      '#{n}': '#{n}', 'Also: {list}': 'Ayrıca: {list}', 'ring|{name} at level {n}': '{name} · seviye {n}', '{c} credits, health {h}': '{c} kredi, sağlık {h}', 'top {n} win {what}': 'ilk {n} kazanır: {what}', 'Season: {name}': 'Sezon: {name}', 'Next achievement: {name}': 'Sıradaki başarım: {name}',
+      'Tier {n} · {a} of {b}': 'Kademe {n} · {a} / {b}',
+      'Collect {n} full plants': '{n} dolu bitkiyi topla', '{n} full plants · {dist} away': '{n} dolu bitki · {dist} uzakta',
+      'Claim your streak · ends in {time}': 'Seri ödülünü al · {time} kaldı', 'A mission reward is ready': 'Bir görev ödülü hazır', 'A quest reward is ready': 'Bir yürüyüş görevi ödülü hazır',
+      '{n} rewards are waiting': '{n} ödül seni bekliyor', 'Claim your boss reward': 'Patron ödülünü al', 'Treasure chest · {dist}': 'Hazine sandığı · {dist}', '{name} · {dist}': '{name} · {dist}',
+      'Grow to level {n} · {coin} {c}': 'Büyüt: seviye {n} · {coin} {c}', 'Claim land next to you · {coin} {c}': 'Yanındaki araziyi sahiplen · {coin} {c}', 'Walk to {name} · {dist}': 'Yürü: {name} · {dist}',
+      'Not now': 'Şimdi değil',
+      'Sound &amp; Haptics': 'Ses ve Titreşim', 'Sounds': 'Sesler', 'Coins, growing and level-ups': 'Krediler, büyüme ve seviye atlama', 'Haptics': 'Titreşim',
+      'A light tap when you collect, claim or level up': 'Toplarken, sahiplenirken ve seviye atlarken hafif bir titreşim',
     },
     // Server errors by code, for messages with numbers in them (and anything new): a text, or a function of the error's details.
     errors: {
@@ -2311,6 +2425,7 @@
       CLAIM_NOT_READY: 'Henüz hazır değil. Yarın yine gel.', CHECKIN_COOLDOWN: 'Buraya az önce uğradın. Biraz sonra yine gel.', ALREADY_CLAIMED: 'Bu ödülü zaten aldın',
       NOT_ELIGIBLE: 'Ödülü yalnızca kazanan yakaya puan getirenler alır', CREW_NOT_FOUND: 'Bu koda ait bir ekip yok', CREW_FULL: 'Bu ekip dolu',
       ALREADY_IN_CREW: 'Önce ekibinden ayrıl', NOT_IN_CREW: 'Bir ekipte değilsin', GOAL_NOT_DONE: 'Ekibin bu haftanın hedefine henüz ulaşmadı', NUDGE_COOLDOWN: 'Ekibini az önce dürttün',
+      FEATURE_LOCKED: (d) => (d.level ? `Bu, seviye ${d.level} olunca açılır.` : 'Bu henüz açılmadı. Oynamaya devam et!'),
     },
   };
   /*__LANGS_END__*/
@@ -2475,8 +2590,13 @@
       .finally(() => { refreshing = null; });
     return refreshing;
   }
-  /** Authenticated call. Refreshes the access token when needed. */
+  /** Authenticated call. Refreshes the access token when needed. A command's new unlocks queue their "New: …" moment. */
   async function api(method, path, body, opts = {}) {
+    const r = await apiCall(method, path, body, opts);
+    if (r && typeof r === 'object') noteUnlocks([r.newUnlocks, r.result && r.result.newUnlocks, r.state && r.state.newUnlocks]);
+    return r;
+  }
+  async function apiCall(method, path, body, opts) {
     await ensureSession();
     if (Date.parse(session.accessTokenExpiresAt) - Date.now() < 30000) await refreshSession().catch(() => {});
     await ensureSession();
@@ -2590,7 +2710,9 @@
   const bagItems = () => (me.items || []).filter((i) => i.place !== 'plant');
   function setMe(state) {
     const before = me ? `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}` : '';
+    const prev = me;
     me = state;
+    progressed(prev, state);
     meAt = Date.now();
     indexMe();
     reapplyCollects();
@@ -2602,6 +2724,7 @@
     }
     noteAchievements();
     refreshGoBadges();
+    applyUnlocks();
   }
   const credits = () => (me ? me.resources.credits || 0 : 0);
   const capacity = () => (me ? me.capacity.credits || 0 : 0);
@@ -2821,6 +2944,7 @@
       if (!(e instanceof ApiError)) throw e;
       toast(errText(e), true);
       if (e.code === 'LOCATION_STALE') syncLocation(true);
+      if (e.code === 'FEATURE_LOCKED') loadMe(); // this screen was out of date: hide what isn't unlocked
       return false;
     } finally {
       inFlight = false;
@@ -2829,7 +2953,7 @@
   }
   const post = (path, body) => api('POST', path, body, { idem: newKey() });
   const doClaim = (id) => command(() => post('/v1/territory/claim', { cell: id, location: fix() }),
-    (r) => { tourEvent(r.result.foundedHq ? 'hq' : 'claim'); toast(r.result.foundedHq ? t('Headquarters founded') : t('Hex claimed for {n} credits', { n: fmtNum(r.result.cost.credits || 0) }), false, r.result.foundedHq ? E.hq : E.flag); });
+    (r) => { tourEvent(r.result.foundedHq ? 'hq' : 'claim'); feel('claim'); toast(r.result.foundedHq ? t('Headquarters founded') : t('Hex claimed for {n} credits', { n: fmtNum(r.result.cost.credits || 0) }), false, r.result.foundedHq ? E.hq : E.flag); });
   const doBuy = (type) => command(() => post('/v1/shop/buy', { type }), () => toast(t('{name} added to your inventory', { name: bName(type) }), false, E.shop));
   const doPlace = (id, type) => command(() => post('/v1/buildings', { cell: id, type, location: fix() }), () => toast(t('{name} placed. Construction started.', { name: bName(type) }), false, E.building));
   const doMove = (bid, id) => command(() => post(`/v1/buildings/${bid}/move`, { cell: id, location: fix() }), (r) => toast(t('{name} moved', { name: bName(r.result.building.type) }), false, E.move));
@@ -2837,7 +2961,7 @@
   const doCollect = (cells) => command(() => post('/v1/plants/collect', { ...(cells ? { cells } : {}), location: fix() }),
     (r) => toast(r.result.plants > 1 ? t('Collected {n} credits from {p} plants', { n: fmtNum(r.result.collected.credits || 0), p: r.result.plants }) : t('Collected {n} credits', { n: fmtNum(r.result.collected.credits || 0) }), false, E.coin));
   const doGrow = (id, levels) => command(() => post(`/v1/plants/${id}/upgrade`, { levels, location: fix() }),
-    (r) => tourEvent('grow') || toast(t('Growing to level {n} · {time}', { n: r.result.level, time: fmtLeft(Date.parse(r.result.readyAt) - serverNow()) }), false, stageOf(r.result.level).emoji));
+    (r) => tourEvent('grow') || feel('grow') || toast(t('Growing to level {n} · {time}', { n: r.result.level, time: fmtLeft(Date.parse(r.result.readyAt) - serverNow()) }), false, stageOf(r.result.level).emoji));
   const doItem = (path, body, msg) => command(() => (body === null ? api('DELETE', path, undefined, { idem: newKey() }) : post(path, body)), () => msg && toast(msg, false, E.box));
   const doIcon = (id, icon) => command(() => post(`/v1/plants/${id}/icon`, { icon }), () => toast(t('New look'), false, icon || stageOf(myPlants.get(id).level).emoji));
   const doSell = (id) => command(() => post(`/v1/plants/${id}/sell`, { location: fix() }), (r) => {
@@ -2847,11 +2971,13 @@
   });
   const doClaimAll = () => command(() => post('/v1/territory/claim-all', { location: fix() }), (r) => {
     tourEvent('claim');
+    feel('claim');
     const n = r.result.count, left = r.result.left;
     toast(tn(n, 'Claimed {n} hex for {c} credits', 'Claimed {n} hexes for {c} credits', { c: fmtNum(r.result.cost.credits || 0) }) + (left ? t(' · {n} more in reach', { n: left }) : ''), false, '🌱');
   });
   const doGrowAll = () => command(() => post('/v1/plants/upgrade-all', { location: fix() }), (r) => {
     tourEvent('grow');
+    feel('grow');
     const n = r.result.count, left = r.result.left;
     toast(tn(n, 'Growing {n} plant for {c} credits', 'Growing {n} plants for {c} credits', { c: fmtNum(r.result.cost.credits || 0) }) + (left ? t(' · {n} more need credits', { n: left }) : ''), false, '⏫');
   });
@@ -2891,9 +3017,11 @@
   function tapCollect(id) {
     const p = myPlants.get(id);
     if (!p || plantStoredNow(p) < 1 || !canCollectHere(id) || credits() >= capacity()) return false;
-    const n = localCollect(id);
+    const was = credits(), n = localCollect(id);
     if (!n) return false;
     gainAt(id, n);
+    coinsFly([id], was);
+    feel('coin');
     collectQ.add(id);
     clearTimeout(collectTimer);
     collectTimer = setTimeout(() => sendCollect(false), 350);
@@ -2915,6 +3043,7 @@
     if (why) return toast(why, true);
     if (credits() >= capacity()) return toast(t('Storage full. Build or upgrade a Vault.'), true, E.storage);
     let total = 0, n = 0;
+    const was = credits(), from = [];
     for (const id of myPlants.keys()) {
       if (distM(pos, cell(id)) > REACH) continue;
       const got = localCollect(id);
@@ -2922,10 +3051,12 @@
       total += got;
       n++;
       if (n <= 40) gainAt(id, got);
+      if (from.length < 6) from.push(id);
       collectSent.add(id);
     }
     if (!n) return toast(t('Nothing to collect in reach yet'), true, '🌱');
-    if (navigator.vibrate) navigator.vibrate(25);
+    coinsFly(from, was);
+    feel('coins');
     toast(tn(n, 'Collected {c} credits from {n} plant', 'Collected {c} credits from {n} plants', { c: fmtNum(total) }), false, E.coin);
     tipDone('hold');
     tourEvent('collect');
@@ -3042,6 +3173,7 @@
       if (r.state) setMe(r.state);
       const res = r.result;
       floatText(tg, res.hit ? `−${Math.round(res.damage)}` : t('Miss'), !res.hit);
+      if (res.hit) feel('hit');
       // Update the target locally so its health bar moves at once.
       if (tg.kind === 'bot') { const b = world.bots.find((x) => x.id === tg.id); if (b) b.hp = res.target.hp; if (res.target.defeated) world.bots = world.bots.filter((x) => x.id !== tg.id); }
       if (tg.kind === 'player') { const p = world.players.find((x) => x.id === tg.id); if (p) { p.hp = res.target.hp; p.knockedOut = !!res.target.knockedOut; } }
@@ -3142,8 +3274,8 @@
           sub: w10 || t('{n} credits · to level {lv}', { n: fmtNum(cost10), lv: p.level + n }), why: !!w10, button: t('Grow'), enabled: !w10 });
       }
     }
-    // Booster slots: one more every 10 levels.
-    for (let i = 0; i < p.slots; i++) {
+    // Booster slots: one more every 10 levels (once the bag is unlocked).
+    for (let i = 0; i < p.slots && feat('bag'); i++) {
       const it = p.items[i] && itemsById.get(p.items[i]);
       if (it) {
         out.rows.push({ key: 'slot' + i, kind: 'unplant', item: it.id, icon: itemType(it).emoji, tint: 'indigo', title: `${itemName(it)} · ${rarityName(it.rarity)}`,
@@ -3155,7 +3287,7 @@
           sub: w || tn(have.length, '{n} plant booster in your bag', '{n} plant boosters in your bag'), why: !!w, button: t('Add'), enabled: !w });
       }
     }
-    if (p.slots < 1 + Math.floor(cfg.plants.maxLevel / cfg.plants.slots.perLevels)) {
+    if (feat('bag') && p.slots < 1 + Math.floor(cfg.plants.maxLevel / cfg.plants.slots.perLevels)) {
       out.note = t('One more booster slot at level {n}.', { n: (Math.floor(p.level / cfg.plants.slots.perLevels) + 1) * cfg.plants.slots.perLevels });
     }
   }
@@ -4029,6 +4161,7 @@
       if (t.key === key) continue;
       t.key = key;
       t.el.className = `tt${p.wilted ? ' wilted' : ''}${w.under ? ' under' : ''}`;
+      t.el.style.setProperty('--d', `-${phaseOf(id, 5.6)}s`);
       t.el.innerHTML = `${w.pot ? `<span class="pot">${esc(w.pot)}</span>` : ''}<i>${p.emoji || stageOf(p.level).emoji}</i>${w.face ? `<span class="ow">${esc(w.face)}</span>` : ''}${full ? '<span class="full">🪙</span>' : ''}${grow ? `<span class="grow">${grow}</span>` : ''}${hpHtml(p.hp, p.maxHp)}`;
     }
   }
@@ -4051,6 +4184,9 @@
       const key = `${b.hp}|${aimed}`;
       if (pin.key !== key) {
         pin.key = key;
+        const wd = 16 + (b.id.length * 7 + b.id.charCodeAt(0)) % 9; // each animal its own pace
+        pin.el.style.setProperty('--wd', `${wd}s`);
+        pin.el.style.setProperty('--d', `-${phaseOf(b.id, wd)}s`);
         pin.el.innerHTML = `${aimed ? '<div class="aim"></div>' : ''}<div class="be">${b.emoji}</div>${hpHtml(b.hp, b.maxHp)}`;
       }
     }
@@ -4248,7 +4384,7 @@
   function refreshHud() {
     if (!me) return;
     const bag = me.bag, c = me.combat;
-    setText($('credits'), fmtShort(credits()));
+    setText($('credits'), fmtShort(roll.on ? roll.shown : credits()));
     setText($('bagUsed'), bag ? bag.used : '–');
     setText($('bagSlots'), bag ? `/${bag.slots}` : '');
     if (c) {
@@ -4256,7 +4392,8 @@
       setText($('hudHp'), fmtNum(hp));
       setText($('hudHeart'), c.knockedOut ? '💫' : hp / c.maxHp < 0.35 ? '💔' : '❤️');
     }
-    const hudLabel = t('{c} credits, health {h}, bag {a} of {b}', { c: fmtNum(credits()), h: c ? fmtNum(hpNow()) : '–', a: bag ? bag.used : 0, b: bag ? bag.slots : 0 });
+    const hudLabel = feat('bag') ? t('{c} credits, health {h}, bag {a} of {b}', { c: fmtNum(credits()), h: c ? fmtNum(hpNow()) : '–', a: bag ? bag.used : 0, b: bag ? bag.slots : 0 })
+      : t('{c} credits, health {h}', { c: fmtNum(credits()), h: c ? fmtNum(hpNow()) : '–' });
     if ($('hud').getAttribute('aria-label') !== hudLabel) $('hud').setAttribute('aria-label', hudLabel);
     const n = invTotal();
     $('invBadge').hidden = !n;
@@ -4403,12 +4540,15 @@
       { v: lv, frac: next == null ? 1 : (me.score - base) / (next - base), color: 'var(--yellow)', k: next == null ? t('Top level') : t('{n} to level {lv}', { n: fmtNum(Math.max(0, next - me.score)), lv: lv + 1 }) },
       { v: `${bag.used}/${bag.slots}`, frac: bag.used / bag.slots, color: 'var(--indigo)', k: t('Bag · {n} on', { n: bagItems().filter((i) => i.place === 'active').length }) },
     ];
+    const nu = !feat('bag') && nextUnlockOf();
+    if (nu) rings[2] = { v: nu.emoji || '🔓', frac: levelGoal(nu.level).frac, color: 'var(--orange)', k: tc('ring', '{name} at level {n}', { name: loc(nu, 'title') || nu.feature, n: nu.level }) };
+    else if (!feat('bag')) rings[2] = { v: fmtNum(me.territory.count), frac: 1, color: 'var(--green)', k: t('Hexes Owned') };
     const g = rings.map((r) => `<div class="gauge"><div class="ring">${ringSvg(r.frac, r.color)}<b>${esc(String(r.v))}</b></div><span>${esc(r.k)}</span></div>`).join('');
-    const b = statBar('💥', 'orange', t('Damage'), `${c.damage}`, c.damage / (P.damage * 3), 'orange') +
+    const b = (!feat('combat') ? '' : statBar('💥', 'orange', t('Damage'), `${c.damage}`, c.damage / (P.damage * 3), 'orange') +
       statBar('🔥', 'red', t('Fire Rate'), t('{n} per min', { n: Math.round(60 / c.cooldownSeconds) }), P.cooldownSeconds / c.cooldownSeconds / 3, 'red') +
       statBar('🔭', 'blue', t('Range'), t('{n} m', { n: c.rangeMeters }), c.rangeMeters / (cfg.combat.rangeMeters * 2), 'blue') +
       statBar('🎯', 'indigo', t('Accuracy'), pct(Math.round(c.accuracyNear * 100)), c.accuracyNear, 'indigo') +
-      statBar('🛡️', 'gray', t('Defense'), pct(Math.round(c.defense * 100)), c.defense / 0.6, 'gray') +
+      statBar('🛡️', 'gray', t('Defense'), pct(Math.round(c.defense * 100)), c.defense / 0.6, 'gray')) +
       statBar('🌱', 'green', t('Reach'), t('{n} m', { n: c.reachMeters }), c.reachMeters / (cfg.reach.meters * 2), 'green');
     const key = g + b;
     if (key === homeStatsKey) return;
@@ -4420,6 +4560,7 @@
     `<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div></div><span class="row-value">${esc(value)}</span></div>`;
   function renderHomeTab(force) {
     if (!me) return;
+    if (homeTab === 'bag' && !feat('bag')) { homeTab = 'stats'; for (const x of $('homeSeg').children) x.classList.toggle('on', x.dataset.tab === homeTab); }
     const box = $('homeTab');
     if (homeTab === 'profile') {
       if (force || !box.dataset.profile) {
@@ -4428,7 +4569,7 @@
         api('GET', `/v1/players/${me.player.id}`).then(async (p) => {
           if (homeTab !== 'profile') return;
           box.innerHTML = profileHtml(p, true);
-          await loadMastery();
+          await Promise.all([loadMastery(), loadGoals()]);
           if (homeTab === 'profile') box.innerHTML = profileHtml(p, true);
           fillBadges('myBadges', me.player.id);
         }).catch(() => {});
@@ -4466,17 +4607,18 @@
       }
     } else {
       const c = me.combat, st = me.stats || {}, bs = builders();
+      const fight = feat('combat');
       html += `<h4 class="sec-h">${t('Record')}</h4><div class="group">` +
-        statRow('🎯', 'gray', t('Hits'), t('{a} of {b}', { a: fmtNum(st.hits || 0), b: fmtNum(st.shots || 0) })) +
+        (!fight ? '' : statRow('🎯', 'gray', t('Hits'), t('{a} of {b}', { a: fmtNum(st.hits || 0), b: fmtNum(st.shots || 0) })) +
         statRow('💥', 'gray', t('Knock-outs'), fmtNum(st.knockouts || 0)) +
         statRow('🐾', 'gray', t('Animals Defeated'), fmtNum(st.botsDefeated || 0)) +
-        statRow('🎁', 'gray', t('Boosters Found'), fmtNum(st.itemsFound || 0)) +
+        statRow('🎁', 'gray', t('Boosters Found'), fmtNum(st.itemsFound || 0))) +
         statRow('🌿', 'gray', t('Plant Levels Grown'), fmtNum(st.plantLevels || 0)) + '</div>';
       html += `<h4 class="sec-h">${t('Base')}</h4><div class="group">` +
         statRow('🗺️', 'green', t('Hexes Owned'), fmtNum(me.territory.count)) +
         statRow(E.builder, 'orange', t('Builders'), hqLevel() ? t('{a} of {b} free', { a: bs.total - bs.busy, b: bs.total }) : '–') +
         statRow(E.coin, 'yellow', t('Storage'), t('{a} of {b}', { a: fmtNum(credits()), b: fmtNum(capacity()) })) + '</div>';
-      html += `<p class="sec-f">${esc(t('Shots hit {near} of the time up close and {far} at {n} m.', { near: pct(Math.round(c.accuracyNear * 100)), far: pct(Math.round(c.accuracyFar * 100)), n: c.rangeMeters }))}</p>`;
+      if (fight) html += `<p class="sec-f">${esc(t('Shots hit {near} of the time up close and {far} at {n} m.', { near: pct(Math.round(c.accuracyNear * 100)), far: pct(Math.round(c.accuracyFar * 100)), n: c.rangeMeters }))}</p>`;
     }
     const key = homeTab + html;
     if (!force && key === homeKey) return;
@@ -4538,13 +4680,14 @@
     { id: 'claim', icon: '🌱', tint: 'green', title: t('Plant around you'), text: t('Tap free land next to yours, or 💬 → Claim All.'), when: () => me.territory.count > 0 && me.territory.count < 6 },
     { id: 'tap', icon: '👆', tint: 'yellow', title: t('Tap a plant to collect'), text: t('Plants make credits over time.'), when: () => me.territory.count > 0 && hasCredits() },
     { id: 'hold', icon: '✋', tint: 'orange', title: t('Hold a plant for 3 seconds'), text: t('Collects from every plant in reach.'), when: () => myPlants.size >= 3 && tipsDone.has('tap') && hasCredits() },
-    { id: 'fight', icon: '🎯', tint: 'red', title: t('Hunt animals'), text: t('Tap one, then Fire. They drop boosters.'), when: () => me.territory.count >= 3 && (world.bots || []).length > 0 },
+    { id: 'fight', icon: '🎯', tint: 'red', title: t('Hunt animals'), text: t('Tap one, then Fire. They drop boosters.'), when: () => feat('combat') && me.territory.count >= 3 && (world.bots || []).length > 0 },
   ];
   function tipDone(id) {
     if (tipsDone.has(id)) return;
     tipsDone.add(id);
     lsSet(TIPS_KEY, JSON.stringify([...tipsDone]));
     renderTips();
+    renderNba(); // a chip the tip was holding back can show now
   }
   function makeTip() {
     const el = document.createElement('div');
@@ -4605,6 +4748,8 @@
     syncTiles();
     syncPins();
     setText($('mapSum'), mapSummary());
+    applyUnlocks();
+    renderNba();
   }
 
   // ------------------------------------------------------------------ UI: the hex sheet
@@ -4675,7 +4820,7 @@
       return select(selected); // built on, sold or gone: pick the right sheet again
     }
     if (selected && isPlainPlant(selected)) return select(selected); // just became yours: the compact sheet
-    const info = panel ? panel() : !selected && target ? describeTarget(target) : describe(selected);
+    const info = gate(panel ? panel() : !selected && target ? describeTarget(target) : describe(selected));
     $('sheetTitle').textContent = info.title;
     $('sheetSub').textContent = info.sub;
     setTile($('sheetTile'), info.tile.icon, info.tile.tint, 'lg');
@@ -4740,7 +4885,7 @@
   let psRows = [];
   /** A building on your hex: the same compact sheet, with Upgrade as the big button and the rest when swiped up. */
   function renderBuildingSheet(id, b) {
-    const p = myPlants.get(id), info = describe(id), bd = bdef(b.type), next = bd.levels[b.level], left = endsIn(b);
+    const p = myPlants.get(id), info = gate(describe(id)), bd = bdef(b.type), next = bd.levels[b.level], left = endsIn(b);
     const d = distM(pos, cell(id)), reachWhy = locationBlock() || (d <= REACH ? null : t('Walk closer: {dist} away', { dist: fmtDist(d) }));
     setText($('psEmo'), b.state === 'active' || left <= 0 ? emojiFor(b.type) : E.building);
     setText($('psName'), b.type === 'hq' ? me.player.baseName || loc(bd) : loc(bd));
@@ -4828,11 +4973,11 @@
       const ty = itemType(it);
       return `<div class="row t"><div class="tile sm tint-${ty.for === 'plant' ? 'green' : 'red'}">${ty.emoji}</div><div class="row-main"><div class="row-title">${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${esc(bonusText(it))}</div></div>${btn}</div>`;
     };
-    let html = `<p class="ps-hint">${t('Use ＋ and − to move boosters')}</p>` +
+    let html = !feat('bag') ? '' : `<p class="ps-hint">${t('Use ＋ and − to move boosters')}</p>` +
       `<div class="seg wide ps-seg" id="psSeg"><button type="button" data-ps="slots"${psTab === 'slots' ? ' class="on"' : ''}>${p.emoji} ${inPlant.length}/${p.slots}</button>` +
       `<button type="button" data-ps="bag"${psTab === 'bag' ? ' class="on"' : ''}>🎒 ${me.bag.used}/${me.bag.slots}</button></div>`;
     const nextSlot = (Math.floor(p.level / cfg.plants.slots.perLevels) + 1) * cfg.plants.slots.perLevels;
-    if (psTab === 'slots') {
+    if (!feat('bag')) { /* boosters unlock later */ } else if (psTab === 'slots') {
       html += inPlant.length
         ? `<div class="group">${inPlant.map((it) => row(it, `<button class="pm rem" type="button" data-unplant="${it.id}" aria-label="${esc(t('Back to the bag'))}"${reachWhy ? ' disabled' : ''}>−</button>`)).join('')}</div>`
         : `<div class="ps-empty"><div class="big">${p.emoji}</div><b>${t('No boosters yet')}</b><p>${esc(tn(p.slots, 'This plant holds up to {n} booster.', 'This plant holds up to {n} boosters.'))}</p></div>`;
@@ -4844,8 +4989,8 @@
       if (forPlants.length && free < 1) html += `<p class="sec-f">${t('All slots are full. Take a booster out first.')}</p>`;
     }
     // Build on it: buildings from your inventory, or the shop.
-    psRows = describe(id).rows.filter((r) => r.kind === 'place' || r.kind === 'shop');
-    html += `<h4 class="sec-h">${t('Build Here')}</h4><div class="group">${psRows.map((r, i) => `<div class="row t"><div class="tile sm tint-${r.tint}">${r.icon}</div><div class="row-main"><div class="row-title">${esc(r.title)}</div>` +
+    psRows = describe(id).rows.filter((r) => (r.kind === 'place' || r.kind === 'shop') && allowed(r));
+    if (psRows.length) html += `<h4 class="sec-h">${t('Build Here')}</h4><div class="group">${psRows.map((r, i) => `<div class="row t"><div class="tile sm tint-${r.tint}">${r.icon}</div><div class="row-main"><div class="row-title">${esc(r.title)}</div>` +
       `<div class="row-sub${r.why ? ' warn' : ''}">${esc(r.sub)}</div></div><button class="pill" type="button" data-row="${i}"${r.enabled ? '' : ' disabled'}>${esc(r.button)}</button></div>`).join('')}</div>`;
     // The garden (branch, seed, breeding): first when the plant has a branch to choose, else after building.
     if (branchDue) html = gardenHtml(id, p, reachWhy) + html;
@@ -5004,17 +5149,19 @@
   const soldHere = (type) => { const a = cfg.buildings[type] && cfg.buildings[type].availableIn; return !a || !a.length || a.includes(countryHere()); };
   function renderShop() {
     const hq = hqLevel(), bag = me.bag, inv = invTotal();
+    const segFeat = { build: 'shop', bag: 'bag', market: 'market' };
+    if (!feat(segFeat[shopSeg])) shopSeg = ['build', 'bag', 'market'].find((k) => feat(segFeat[k])) || 'build';
     $('shopLead').textContent = t('You have {coin} {a} of {b} · 🎒 {used}/{slots}', { coin: E.coin, a: fmtNum(credits()), b: fmtNum(capacity()), used: bag.used, slots: bag.slots });
     $('shopBadge').hidden = !inv;
     $('shopBadge').textContent = inv;
     // Featured: a bigger bag, and the buildings you can buy right now.
     const cards = [];
-    if (bag.upgradeCost) {
+    if (bag.upgradeCost && feat('bag')) {
       cards.push(`<div class="fcard g-indigo"><div class="fbig">🎒</div><small>${t('Bag')}</small><b>${esc(t('+{n} Bag Slots', { n: cfg.items.bag.slotsPerUpgrade }))}</b><p>${t('Room for more boosters from animals.')}</p>` +
         `${priceBtn('data-bag', bag.upgradeCost, credits() < bag.upgradeCost)}</div>`);
     }
     for (const [type, bd] of Object.entries(cfg.buildings)) {
-      if (!bd.buildable || !soldHere(type) || buyBlock(type) || cards.length >= 4) continue;
+      if (!bd.buildable || !soldHere(type) || buyBlock(type) || cards.length >= 4 || !feat('shop')) continue;
       const l = bd.levels[0];
       cards.push(`<div class="fcard g-${GRAD[type] || 'red'}"><div class="fbig">${emojiFor(type)}</div><small>${esc(catName(bd.category))}</small><b>${esc(loc(bd))}</b><p>${esc(cap1(effect(type, l)) || loc(bd, 'description'))}</p>` +
         `${priceBtn(`data-buy="${type}"`, costOf(l), false)}</div>`);
@@ -5237,6 +5384,7 @@
     $('toastIcon').textContent = emoji || (err ? E.warn : E.ok);
     el.classList.toggle('err', !!err);
     el.classList.add('show');
+    if (err) feel('error');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), err ? 3600 : 2400);
   }
@@ -5369,7 +5517,7 @@
       ? `<p class="sec-f" style="margin:0 0 12px"><span class="dot${on ? ' on' : ''}"></span>${status} · ${sinceText}${medal}</p>`
       : `<div class="prof"><div class="tile xl tint-blue">${esc(avatarOf(p))}</div><h2>${esc(p.username)}${medal}</h2>` +
         `<p><span class="dot${on ? ' on' : ''}"></span>${status}</p><p>${sinceText}</p></div>`;
-    return head +
+    return head + (mine && embedded ? goalsHtml() : '') +
       `<div class="kpis"><div><b>${p.level || 1}</b><span>${t('Level')}</span></div><div><b>${fmtNum(p.score)}</b><span>${t('Score')}</span></div><div><b>${p.rank ? `#${p.rank}` : '–'}</b><span>${t('Rank')}</span></div></div>` +
       `<h4 class="sec-h">${t('Empire')}</h4><div class="group">${row('🌱', 'green', t('Plants'), tn(p.territory, '{n} hex', '{n} hexes'))}${buildings.join('')}</div>` +
       (mine && embedded ? myExtrasHtml() : '') +
@@ -5440,7 +5588,7 @@
   function missionsBadge() {
     const d = msState.data;
     const qn = d && d.quests ? ['daily', 'weekly'].reduce((s, k) => s + ((d.quests[k] && d.quests[k].quests) || []).filter((m) => m.done && !m.claimed).length, 0) : 0;
-    const n = (d ? ['daily', 'weekly', 'levels'].reduce((s, k) => s + d[k].missions.filter((m) => m.done && !m.claimed).length, 0) : 0) + qn + (me && me.streak && !me.streak.claimedToday ? 1 : 0);
+    const n = (d && feat('missions') ? ['daily', 'weekly', 'levels'].reduce((s, k) => s + d[k].missions.filter((m) => m.done && !m.claimed).length, 0) : 0) + (feat('quests') ? qn : 0) + (feat('streak') && me && me.streak && !me.streak.claimedToday ? 1 : 0);
     $('msBadge').hidden = !n;
     $('msBadge').textContent = n;
   }
@@ -5453,6 +5601,7 @@
     } catch (e) { /* next time */ }
   }
   function renderMissions() {
+    if (msState.tab !== 'today' && !(msState.tab === 'daily' ? anyFeat('missions', 'streak') : feat('missions'))) msState.tab = anyFeat('missions', 'streak') ? 'daily' : 'today';
     for (const b of $('msSeg').children) b.classList.toggle('on', b.dataset.ms === msState.tab);
     const d = msState.data, body = $('msBody');
     if (msState.tab === 'today') {
@@ -5462,7 +5611,7 @@
     }
     if (!d) { body.innerHTML = `<p class="loading">${t('Loading…')}</p>`; return; }
     const part = d[msState.tab];
-    const rows = part.missions.map((m) => {
+    const rows = !feat('missions') ? [] : part.missions.map((m) => {
       const frac = m.target ? Math.min(1, m.progress / m.target) : 0;
       const btn = m.claimed ? `<button class="price" type="button" disabled>✓ ${t('Claimed')}</button>`
         : `<button class="price" type="button" data-claim="${esc(m.id)}"${m.done ? '' : ' disabled'}>${esc(rewardText(m.reward))}</button>`;
@@ -5473,9 +5622,9 @@
     const firstItem = (part.missions.find((m) => m.reward.item) || {}).target;
     let html = msState.tab === 'daily' ? streakCard() : '';
     html += msState.tab === 'levels' ? `<p class="lead">${esc(firstItem ? t('You are level {n}. Every level brings credits, and level {k} and every {k}th after it a booster.', { n: part.level, k: firstItem }) : t('You are level {n}. Every level brings credits.', { n: part.level }))}</p>` : '';
-    html += `<div class="group" style="margin-top:8px">${rows.join('')}</div>`;
-    if (msState.tab === 'daily' || msState.tab === 'weekly') html += questsHtml(msState.tab);
-    if (part.endsAt) {
+    if (rows.length) html += `<div class="group" style="margin-top:8px">${rows.join('')}</div>`;
+    if ((msState.tab === 'daily' || msState.tab === 'weekly') && feat('quests')) html += questsHtml(msState.tab);
+    if (part.endsAt && rows.length) {
       html += `<div class="ms-timer"><b>${msState.tab === 'daily' ? t('Missions end in') : t('Weekly missions end in')}<br>${fmtLeft(Date.parse(part.endsAt) - serverNow())}</b>` +
         `<p>${t('Rewards are gone when the timer runs out, so claim them in time. New missions start right after.')}</p></div>`;
     }
@@ -5558,6 +5707,7 @@
     return html;
   }
   function renderLeaders() {
+    if (lb.scope === 'league' && !feat('leagues')) { lb.scope = 'area'; lb.view = 'overview'; }
     const views = LB_VIEWS[lb.scope];
     if (!views.some((v) => v[0] === lb.view)) lb.view = views[0][0];
     for (const b of $('lbScope').children) b.classList.toggle('on', b.dataset.scope === lb.scope);
@@ -5568,7 +5718,7 @@
       const a = lb.area;
       if (!a) { body.innerHTML = `<p class="loading">${t('Loading…')}</p>`; return; }
       if (!a.located) { body.innerHTML = `<p class="loading">${E.here} ${t('Your area shows once the game knows where you are.')}</p>`; return; }
-      if (lb.view === 'overview') body.innerHTML = sidesHtml() + areaOverview(a);
+      if (lb.view === 'overview') body.innerHTML = (feat('sides') ? sidesHtml() : '') + areaOverview(a);
       else {
         const list = lb.view === 'hexes' ? a.byHexes : a.byLevel, m = a.me;
         const you = m ? t('You are #{n} in your area.', { n: lb.view === 'hexes' ? m.rankHexes : m.rankLevel }) : t('Claim a hex to join the ranking here.');
@@ -5780,7 +5930,7 @@
   /** The daily streak: seven days in a row, each with its reward; claim today's. */
   function streakCard() {
     const s = me && me.streak, R = cfg.streak && cfg.streak.rewards;
-    if (!s || !R || !R.length) return '';
+    if (!s || !R || !R.length || !feat('streak')) return '';
     const n = R.length, cur = (Math.max(1, s.days) - 1) % n;
     const short = (r) => (r.item ? '🎁' : `🪙${fmtShort(r.credits || 0)}`);
     const dots = R.map((r, i) => {
@@ -5865,6 +6015,7 @@
   }
   const doFeed = (id) => command(() => post(`/v1/bots/${id}/feed`, { location: fix() }), (r) => {
     const x = r.result, emo = x.companion.emoji;
+    feel('cat');
     toast(x.gift ? t('{emoji} keeps you company now and brought you {what}!', { emoji: emo, what: itemToast(x.gift) }) : t('{emoji} keeps you company for {h} h', { emoji: emo, h: cfg.cats.companionHours }), false, emo);
     select(null);
   });
@@ -6142,10 +6293,11 @@
     const comp = alive(me.companion) ? me.companion : null, cr = live.crew && live.crew.crew;
     let html = `<h4 class="sec-h">${esc(t('Together'))}</h4><div class="group">`;
     if (comp) html += statRow(comp.emoji, 'green', t('Companion'), t('{time} left', { time: fmtLeft(Date.parse(comp.until) - serverNow()) }));
-    html += `<button class="row t" type="button" data-open-crew><div class="tile sm tint-blue">${esc(cr ? cr.emoji : '👥')}</div><div class="row-main"><div class="row-title">${esc(cr ? cr.name : t('Crew'))}</div>` +
-      `<div class="row-sub">${esc(cr ? t('Your crew · code {code}', { code: cr.code }) : t('Play together with friends'))}</div></div><span class="row-chev">${svg('chev')}</span></button>` +
-      `<button class="row t" type="button" data-page="mentor" data-seg="mentor"><div class="tile sm tint-indigo">🧭</div><div class="row-main"><div class="row-title">${esc(t('Bring a Friend'))}</div><div class="row-sub">${esc(t('Your mentor code'))}</div></div><span class="row-chev">${svg('chev')}</span></button>` +
-      `<button class="row t" type="button" data-page="wardrobe"><div class="tile sm tint-orange">${esc(cosEmoji(myCos().hat) || '🎩')}</div><div class="row-main"><div class="row-title">${esc(t('Wardrobe'))}</div><div class="row-sub">${esc(t('Hats, trails and pots'))}</div></div><span class="row-chev">${svg('chev')}</span></button></div>`;
+    if (feat('crews')) html += `<button class="row t" type="button" data-open-crew><div class="tile sm tint-blue">${esc(cr ? cr.emoji : '👥')}</div><div class="row-main"><div class="row-title">${esc(cr ? cr.name : t('Crew'))}</div>` +
+      `<div class="row-sub">${esc(cr ? t('Your crew · code {code}', { code: cr.code }) : t('Play together with friends'))}</div></div><span class="row-chev">${svg('chev')}</span></button>`;
+    if (feat('mentor')) html += `<button class="row t" type="button" data-page="mentor" data-seg="mentor"><div class="tile sm tint-indigo">🧭</div><div class="row-main"><div class="row-title">${esc(t('Bring a Friend'))}</div><div class="row-sub">${esc(t('Your mentor code'))}</div></div><span class="row-chev">${svg('chev')}</span></button>`;
+    if (feat('wardrobe')) html += `<button class="row t" type="button" data-page="wardrobe"><div class="tile sm tint-orange">${esc(cosEmoji(myCos().hat) || '🎩')}</div><div class="row-main"><div class="row-title">${esc(t('Wardrobe'))}</div><div class="row-sub">${esc(t('Hats, trails and pots'))}</div></div><span class="row-chev">${svg('chev')}</span></button>`;
+    html = html.endsWith('<div class="group">') ? '' : html + '</div>';
     html += masteryHtml() + `<div id="myBadges">${badgeCache.has(me.player.id) ? badgesHtml(badgeCache.get(me.player.id).list) : ''}</div>`;
     return html;
   }
@@ -6648,9 +6800,10 @@
       dom: () => primaryBtn('claim'), spot: () => tourFrontier() },
     { id: 'grow', icon: '⏫', tint: 'orange', title: () => t('Grow a plant'), text: () => t('Tap one of your plants, then Grow. Bigger plants make more credits.'),
       dom: () => (sheetOpen && sheetKind === 'plant' ? document.querySelector('#psGrow [data-grow]:not(:disabled)') : null), spot: () => tourPlant(false) },
-    { id: 'bag', icon: '🎒', tint: 'teal', title: () => t('Open your bag'), text: () => t('Tap your player card or swipe it up: your bag, your record and your profile.'),
+    { id: 'bag', icon: '🎒', tint: 'teal', title: () => (feat('bag') ? t('Open your bag') : t('Open your profile')),
+      text: () => (feat('bag') ? t('Tap your player card or swipe it up: your bag, your record and your profile.') : t('Tap your player card or swipe it up: your record, your profile and your goals.')),
       dom: () => (homeDetent || sheetOpen ? null : $('homeHead')) },
-    { id: 'missions', icon: '🏆', tint: 'indigo', title: () => t('Missions'), text: () => t('Daily and weekly missions give credits and boosters. Tap 🏆 to see them.'),
+    { id: 'missions', feature: 'missions', icon: '🏆', tint: 'indigo', title: () => t('Missions'), text: () => t('Daily and weekly missions give credits and boosters. Tap 🏆 to see them.'),
       dom: () => (homeDetent || sheetOpen ? null : $('missionsBtn')) },
   ];
   function tourStart() {
@@ -6669,6 +6822,7 @@
   function tourNext() {
     if (tour.state !== 'on') return;
     tour.step++;
+    while (TOUR[tour.step] && TOUR[tour.step].feature && !feat(TOUR[tour.step].feature)) tour.step++;
     if (tour.step >= TOUR.length) return tourFinish(true);
     saveTour();
     renderTour();
@@ -6751,7 +6905,7 @@
     if (tour.state === 'on' && me) {
       let s = TOUR[tour.step];
       // Steps you already did (or whose result is there) finish by themselves.
-      while (s && (tour.seen.includes(s.id) || (s.state && s.state()))) {
+      while (s && (tour.seen.includes(s.id) || (s.state && s.state()) || (s.feature && !feat(s.feature)))) {
         tour.step++;
         saveTour();
         s = TOUR[tour.step];
@@ -6768,11 +6922,12 @@
     if (key !== tourKey) {
       tourKey = key;
       setTile($('coachTile'), s.icon, s.tint, '');
-      $('coachStep').textContent = t('Step {n} of {m}', { n: tour.step + 1, m: TOUR.length });
+      const steps = TOUR.filter((x, i) => i <= tour.step || !x.feature || feat(x.feature));
+      $('coachStep').textContent = t('Step {n} of {m}', { n: tour.step + 1, m: steps.length });
       $('coachTitle').textContent = title;
       $('coachText').textContent = text;
-      $('coachNext').textContent = tour.step === TOUR.length - 1 ? t('Done') : t('Next');
-      $('coachDots').innerHTML = TOUR.map((x, i) => `<i class="${i === tour.step ? 'on' : i < tour.step ? 'done' : ''}"></i>`).join('');
+      $('coachNext').textContent = tour.step === steps.length - 1 ? t('Done') : t('Next');
+      $('coachDots').innerHTML = steps.map((x, i) => `<i class="${i === tour.step ? 'on' : i < tour.step ? 'done' : ''}"></i>`).join('');
     }
     const el = s.dom ? s.dom() : null;
     setCoachTarget(el);
@@ -7359,6 +7514,7 @@
     $('wxSwitch').disabled = RM;
     const w = currentWeather();
     $('wxText').textContent = RM ? t('Off while Reduce Motion is on') : w ? `${w.emoji || ''} ${loc(w, 'label')}`.trim() : t('Rain, snow and wind where you are');
+    fillFeelSettings();
   }
   function pick(title, msg, list, store, after) {
     const cur = lsGet(store) || 'auto';
@@ -7376,6 +7532,7 @@
   /** Once a second: the tour, the weather's state, the route; the sun every half minute. */
   function clientTick(n) {
     if (!started) return;
+    if (unlockQ.length && !unlockCur) showNextUnlock();
     renderTour();
     weatherFx.update();
     if (n % 8 === 1) updateRoute();
@@ -7445,6 +7602,7 @@
       if (!(e instanceof ApiError)) throw e;
       toast(errText(e), true);
       if (e.code === 'LOCATION_STALE') syncLocation(true);
+      if (e.code === 'FEATURE_LOCKED') loadMe();
       return null;
     }
   }
@@ -7456,6 +7614,7 @@
   /** Opens a page ({id, title, segs, render, load, acts, tick}); `push` keeps the pages under it (a back button). */
   function openPage(def, push) {
     select(null);
+    def = pageGate(def);
     for (const m of document.querySelectorAll('.modal.open')) if (m.id !== 'pg') closeModal(m.id);
     if (!push || !pgOpen()) pg.stack = [];
     pg.stack.push({ seg: def.segs ? def.segs[0][0] : null, ...def });
@@ -7480,7 +7639,7 @@
     setText($('pgTitle'), p.title(p));
     $('pgBack').style.visibility = prev ? 'visible' : 'hidden';
     setText($('pgBack'), prev ? `‹ ${prev.title(prev)}` : '');
-    const segs = p.segs ? p.segs.map(([k, l]) => `<button type="button" data-seg="${k}"${k === p.seg ? ' class="on"' : ''}>${esc(t(l))}</button>`).join('') : '';
+    const segs = p.segs ? pageSegs(p).map(([k, l]) => `<button type="button" data-seg="${k}"${k === p.seg ? ' class="on"' : ''}>${esc(t(l))}</button>`).join('') : '';
     $('pgSegBox').hidden = !segs;
     if ($('pgSeg').innerHTML !== segs) $('pgSeg').innerHTML = segs;
     let html;
@@ -7550,7 +7709,7 @@
   let achTimer = 0;
   function noteAchievements() {
     const list = mget('newAchievements', []);
-    if (!Array.isArray(list) || !list.length) return;
+    if (!Array.isArray(list) || !list.length || !feat('achievements')) return; // they stay to claim once unlocked
     for (const a of list) if (!achQ.some((x) => x.id === a.id)) achQ.push(a);
     if (!achTimer) achTimer = setTimeout(nextAchToast, 400); // after the toast of the action that earned it
   }
@@ -8177,7 +8336,7 @@
   }
   function masteryHtml() {
     const m = mastery.data;
-    if (!m || !m.neighbourhoods || !m.neighbourhoods.length) return '';
+    if (!feat('mastery') || !m || !m.neighbourhoods || !m.neighbourhoods.length) return '';
     const rows = m.neighbourhoods.slice(0, 5).map((n) => rowHtml({ icon: (n.level && n.level.emoji) || '👣', tint: 'green', title: n.neighbourhood,
       sub: `${loc(n.level)} · ${tn(n.points, '{n} point', '{n} points')}${n.level && n.level.collectBonus ? ' · ' + t('+{p} when collecting', { p: pct(Math.round(n.level.collectBonus * 100)) }) : ''}`,
       extra: n.next ? `<div class="pctbar" style="margin-top:6px">${barHtml(n.progress, 'green')}<b>${esc(n.next.emoji || '')}</b></div>` : '' }));
@@ -8298,7 +8457,7 @@
     const B = cfgOf('branches'), BR = cfgOf('breeding');
     let html = '';
     const rows = [];
-    if (B && p.level >= B.atLevel && !p.branch) {
+    if (B && p.level >= B.atLevel && !p.branch && feat('branches')) {
       html += `<h4 class="sec-h">${esc(t('Choose a Branch'))}</h4><div class="group">` + Object.entries(B.types || {}).map(([k, x]) =>
         rowHtml({ icon: x.emoji, tint: k === 'money' ? 'yellow' : k === 'guard' ? 'red' : 'green', title: loc(x), sub: loc(x, 'description'), btn: { label: t('Choose'), a: 'branch', v: k } })).join('') +
         `</div><p class="sec-f">${esc(t('At level {n} a plant picks its path for good, with its own looks.', { n: B.atLevel }))}</p>`;
@@ -8310,9 +8469,9 @@
     if (nb !== null) rows.push(rowHtml({ icon: '🌸', tint: 'green', title: t('Blossom'), sub: nb > 0 ? t('+{p} faster from your plants next to it', { p: pct(Math.round(nb * 100)) }) : t('Plant next to it: each neighbour of yours makes it faster') }));
     const seedKind = p.seed && (((cfgOf('seeds') || {}).kinds || {})[p.seed] || ((BR || {}).seeds || {})[p.seed]);
     const nSeeds = sowables().length;
-    rows.push(rowHtml({ icon: seedKind ? seedKind.look || seedKind.emoji : '🌰', tint: 'green', title: seedKind ? t('Seed: {name}', { name: loc(seedKind) }) : t('Seed'),
+    if (seedKind || anyFeat('seeds', 'breeding')) rows.push(rowHtml({ icon: seedKind ? seedKind.look || seedKind.emoji : '🌰', tint: 'green', title: seedKind ? t('Seed: {name}', { name: loc(seedKind) }) : t('Seed'),
       sub: nSeeds ? tn(nSeeds, '{n} seed to sow', '{n} seeds to sow') : t('Find rare seeds near parks and water, or breed them'), btn: { label: t('Sow'), a: 'sow', off: !nSeeds } }));
-    if (BR) {
+    if (BR && feat('breeding')) {
       const ready = !p.breedReadyAt || Date.parse(p.breedReadyAt) <= serverNow();
       const why = p.level < BR.minLevel ? t('From level {n}', { n: BR.minLevel }) : !ready ? t('Resting · ready {when}', { when: fmtWhen(p.breedReadyAt) }) : !breedPartners(id).length ? t('Needs a plant of yours next to it, level {n}+', { n: BR.minLevel }) : credits() < BR.cost ? t('Need {n} credits', { n: fmtNum(BR.cost) }) : reachWhy;
       rows.push(rowHtml({ icon: '🧬', tint: 'indigo', title: t('Breed · {coin} {n}', { coin: E.coin, n: fmtNum(BR.cost) }), sub: why || t('Cross it with a neighbour for a new seed'), warn: !!why, btn: { label: t('Breed'), a: 'breed', off: !!why } }));
@@ -9136,7 +9295,7 @@
     const B = cfgOf('bounties');
     let html = `<div id="profBadges"></div>`;
     html += `<div class="group" style="margin-top:24px">`;
-    if (B && me.hqLevel) html += `<button class="row t" type="button" data-pact="bounty"><div class="tile sm tint-orange">💰</div><div class="row-main"><div class="row-title">${esc(t('Place a Bounty'))}</div><div class="row-sub">${esc(t('For whoever hurts their garden most'))}</div></div><span class="row-chev">${svg('chev')}</span></button>`;
+    if (B && me.hqLevel && feat('bounties')) html += `<button class="row t" type="button" data-pact="bounty"><div class="tile sm tint-orange">💰</div><div class="row-main"><div class="row-title">${esc(t('Place a Bounty'))}</div><div class="row-sub">${esc(t('For whoever hurts their garden most'))}</div></div><span class="row-chev">${svg('chev')}</span></button>`;
     html += `<button class="row t" type="button" data-pact="report"><div class="tile sm tint-gray">⚠️</div><div class="row-main"><div class="row-title">${esc(t('Report {name}', { name: p.username }))}</div></div><span class="row-chev">${svg('chev')}</span></button>` +
       `<button class="row t danger" type="button" data-pact="block"><div class="tile sm tint-red">🚫</div><div class="row-main"><div class="row-title">${esc(isBlocked(p.id) ? t('Unblock {name}', { name: p.username }) : t('Block {name}', { name: p.username }))}</div></div></button></div>`;
     return html;
@@ -9214,6 +9373,503 @@
     if (!duel.ui && duel.cur && duel.cur.status === 'active') openDuel();
     refreshGoBadges();
   }
+
+  // ================================================================== polish: gradual unlocks, the next best action, goals, game feel
+  // ---------------- features unlock with your level: progression.unlocks in the config, `unlocked` and
+  // `nextUnlock` in your state, `newUnlocks` in a command's result. Locked features are hidden, not
+  // greyed out. A server without unlocks (no `unlocked` in your state) has everything open, and so has
+  // localStorage coc.debugUnlockAll=1 (tests, demos).
+  let unlockAllOn = lsGet('coc.debugUnlockAll') === '1';
+  const unlockDefs = () => { const u = cfg && cfg.progression && cfg.progression.unlocks; return Array.isArray(u) ? u : []; };
+  const unlockDef = (f) => unlockDefs().find((u) => u && u.feature === f) || null;
+  /** Your unlocked features, or null when the server doesn't say (then everything is open). */
+  const unlockedList = () => { const u = mget('unlocked', null); return Array.isArray(u) ? u : null; };
+  /** Is this feature open for you? Features the config doesn't list are open from level 1. */
+  function feat(f) {
+    if (!f || unlockAllOn) return true;
+    const list = unlockedList();
+    return !list || list.includes(f) || !unlockDef(f);
+  }
+  function anyFeat(...fs) { return fs.some(feat); }
+  let unlockKey = null;
+  /** Hides the controls of locked features (elements with data-feat="a b": shown when any of them is open). */
+  function applyUnlocks() {
+    const list = unlockedList(), key = unlockAllOn || !list ? '*' : list.slice().sort().join();
+    if (key === unlockKey) return;
+    const first = unlockKey === null;
+    unlockKey = key;
+    for (const el of document.querySelectorAll('[data-feat]')) el.classList.toggle('nofeat', !el.dataset.feat.split(' ').some(feat));
+    if (first || !me) return;
+    // Something opened (or the server says otherwise): whatever is on screen shows the new set.
+    homeKey = '';
+    if (homeDetent) renderHomeTab(true);
+    if (!$('shop').hidden) renderShop();
+    if (!$('missions').hidden) renderMissions();
+    if (!$('leaders').hidden) renderLeaders();
+    missionsBadge();
+    renderTips();
+    pageRefresh();
+    if (selected || target || panel) renderSheet();
+  }
+  /** Sheet actions of locked features, by the action's key (or kind). */
+  const KEY_FEAT = { feed: 'cats', feedboss: 'bosses', open: 'treasure', pick: 'seeds', stopin: 'stops', plin: 'places', checkin: 'landmarks',
+    raid: 'raids', raidrun: 'raids', finish: 'raids', duel: 'duels', trade: 'trades', gift: 'gifts', shop: 'shop', ach: 'achievements', ms: 'missions' };
+  function actionFeat(a) {
+    if (a.kind === 'fire' || a.key === 'fire') return a.target && a.target.kind === 'boss' ? 'bosses' : 'combat';
+    if (a.kind === 'boost' || a.kind === 'unplant') return 'bag';
+    return KEY_FEAT[a.key] || null;
+  }
+  const allowed = (a) => feat(actionFeat(a));
+  /** A sheet's description without the actions you haven't unlocked. */
+  function gate(out) {
+    if (!out) return out;
+    const noFire = out.primary.some((a) => (a.kind === 'fire' || a.key === 'fire') && !allowed(a));
+    out.primary = out.primary.filter(allowed);
+    out.rows = out.rows.filter(allowed);
+    if (noFire) out.note = ''; // the aiming tips wait for combat
+    return out;
+  }
+  /** Page tabs that belong to a feature ('' = always there). */
+  const PAGE_SEG_FEAT = {
+    journey: { ach: 'achievements', col: 'collection', exp: 'explorer' },
+    defense: { raids: 'raids', towers: 'shop', bounties: 'bounties' },
+    social: { nearby: 'gifts trades duels', mentor: 'mentor' },
+    season: { season: 'seasons', legends: 'legends', cities: 'citywar' },
+  };
+  const segOk = (page, seg) => { const f = (PAGE_SEG_FEAT[page] || {})[seg]; return !f || f.split(' ').some(feat); };
+  /** The page's tabs you can open (none shown when only one is left). */
+  function pageSegs(p) {
+    if (!p.segs) return [];
+    const ok = p.segs.filter(([k]) => segOk(p.id, k));
+    return ok.length > 1 ? ok : [];
+  }
+  function pageGate(def) {
+    if (def.segs && !segOk(def.id, def.seg || def.segs[0][0])) {
+      const ok = def.segs.find(([k]) => segOk(def.id, k));
+      if (ok) def.seg = ok[0];
+    }
+    return def;
+  }
+  /** Your next unlock: the server's, else the config's next level above yours. */
+  function nextUnlockOf() {
+    const n = mget('nextUnlock', undefined);
+    if (n !== undefined) return n && n.feature ? { ...(unlockDef(n.feature) || {}), ...n } : null;
+    const list = unlockedList();
+    if (!list || !me) return null;
+    const lv = me.level || 1;
+    return unlockDefs().filter((u) => u.level > lv && !list.includes(u.feature)).sort((a, b) => a.level - b.level)[0] || null;
+  }
+  /** Progress from your level to `level`: the score still needed and how far along you are. */
+  function levelGoal(level) {
+    const S = cfg.social && cfg.social.levelScores, lv = me.level || 1, score = me.score || 0;
+    if (Array.isArray(S) && S[level - 1] != null) {
+      const from = S[lv - 1] || 0, to = S[level - 1];
+      return { left: Math.max(0, to - score), frac: to > from ? (score - from) / (to - from) : 1 };
+    }
+    const next = me.nextLevelScore, base = me.levelScore || 0;
+    return { left: next == null ? 0 : Math.max(0, next - score), frac: next == null ? 1 : level > lv + 1 ? 0 : (score - base) / Math.max(1, next - base) };
+  }
+
+  // ---------------- the unlock moment: "New: 🎯 Missions", one card at a time
+  const unlockQ = [], unlockShown = new Set();
+  let unlockCur = null;
+  function noteUnlocks(lists) {
+    for (const l of lists) if (Array.isArray(l)) for (const u of l) queueUnlock(u);
+  }
+  function queueUnlock(u) {
+    if (typeof u === 'string') u = unlockDef(u) || { feature: u };
+    if (!u || !u.feature || unlockShown.has(u.feature)) return;
+    unlockShown.add(u.feature);
+    unlockQ.push({ ...(unlockDef(u.feature) || {}), ...u });
+    showNextUnlock();
+  }
+  /** Your state moved on: a level up, and features that opened since the last state. */
+  function progressed(prev, next) {
+    if (!prev || !next || !prev.player || !next.player || prev.player.id !== next.player.id) return;
+    const a = Array.isArray(prev.unlocked) ? prev.unlocked : null, b = Array.isArray(next.unlocked) ? next.unlocked : null;
+    if (a && b) for (const f of b) if (!a.includes(f) && unlockDef(f)) queueUnlock(unlockDef(f));
+    if ((next.level || 1) > (prev.level || 1)) levelUp(next.level);
+  }
+  function levelUp(n) {
+    feel('levelup');
+    const b = $('lvBadge');
+    b.classList.remove('bump');
+    void b.offsetWidth;
+    b.classList.add('bump');
+    // The unlock card says it better; otherwise a short banner once the action's own has been read.
+    setTimeout(() => { if (!unlockCur && !unlockQ.length) toast(t('Level {n}!', { n }), false, E.star); }, 2200);
+  }
+  const homeOn = (tab) => () => { homeTab = tab; for (const x of $('homeSeg').children) x.classList.toggle('on', x.dataset.tab === tab); setHome(true); };
+  const pageOn = (id, seg) => () => openPageById(id, false, seg);
+  const msOn = (tab) => () => { msState.tab = tab; openMissions(); };
+  const shopOn = (seg) => () => { shopSeg = seg; openShop(); if (seg === 'market') loadMarket(true); };
+  const lbOn = (scope, view) => () => { lb.scope = scope; lb.view = view; openLeaders(); };
+  function nearestLandmark(maxM) {
+    if (!pos) return null;
+    let best = null, bd = maxM || Infinity;
+    for (const l of allLandmarks()) { const d = distM(pos, l); if (d < bd) { bd = d; best = l; } }
+    return best;
+  }
+  /** What the unlock card's button opens (null: nothing to open, the card just says "Got It"). */
+  const UNLOCK_OPEN = {
+    missions: () => msOn('daily'), streak: () => msOn('daily'), quests: () => msOn('daily'),
+    shop: () => shopOn('build'), bag: () => homeOn('bag'), market: () => shopOn('market'),
+    landmarks: () => { const l = nearestLandmark(); return l && (() => openLandmark(l.id)); },
+    bosses: () => openToday,
+    achievements: () => pageOn('journey', 'ach'), collection: () => pageOn('journey', 'col'), explorer: () => pageOn('journey', 'exp'),
+    mastery: () => homeOn('profile'), crews: () => openCrew, gifts: () => pageOn('social'), trades: () => pageOn('social'), duels: () => pageOn('social'),
+    mentor: () => pageOn('social', 'mentor'), raids: () => pageOn('defense', 'raids'), bounties: () => pageOn('defense', 'bounties'),
+    leagues: () => lbOn('league', 'neighbourhood'), sides: () => lbOn('area', 'overview'),
+    seasons: () => pageOn('season', 'season'), legends: () => pageOn('season', 'legends'), citywar: () => pageOn('season', 'cities'), wardrobe: () => pageOn('wardrobe'),
+  };
+  function showNextUnlock() {
+    if (unlockCur || !unlockQ.length) return;
+    if (!started || $('welcome').classList.contains('open') || $('setup').classList.contains('open')) return; // the tick tries again
+    const u = unlockCur = unlockQ.shift(), name = loc(u, 'title') || u.feature, text = loc(u, 'text');
+    u.go = UNLOCK_OPEN[u.feature] ? UNLOCK_OPEN[u.feature]() : null;
+    setText($('unlockEmo'), u.emoji || '✨');
+    setText($('unlockKicker'), u.level ? t('New at level {n}', { n: u.level }) : t('New'));
+    setText($('unlockTitle'), name);
+    setText($('unlockText'), text);
+    $('unlockText').hidden = !text;
+    setText($('unlockGo'), u.go ? t('Open {name}', { name }) : t('Got It'));
+    $('unlockLater').hidden = !u.go;
+    const el = $('unlock');
+    el.hidden = false;
+    el.getBoundingClientRect();
+    el.classList.add('open');
+    feel('unlock');
+  }
+  function closeUnlock(open) {
+    const u = unlockCur;
+    if (!u) return;
+    const el = $('unlock');
+    el.classList.remove('open');
+    if (open && u.go) { try { u.go(); } catch (e) { console.error(e); } }
+    setTimeout(() => { el.hidden = true; unlockCur = null; setTimeout(showNextUnlock, 200); }, RM ? 0 : 300);
+  }
+  $('unlockGo').addEventListener('click', () => closeUnlock(true));
+  $('unlockLater').addEventListener('click', () => closeUnlock(false));
+  document.querySelector('#unlock .unlock-scrim').addEventListener('click', () => closeUnlock(false));
+
+  // ---------------- goals on your profile: the next unlock, the season, the next achievement tier
+  const goals = { at: 0 };
+  async function loadGoals() {
+    if (Date.now() - goals.at < 60000) return;
+    goals.at = Date.now();
+    await Promise.all([
+      feat('achievements') ? api('GET', '/v1/achievements').then((r) => { journey.ach = r; }).catch(() => {}) : null,
+      feat('seasons') ? api('GET', '/v1/seasons/current').then((r) => { season.cur = r; }).catch(() => {}) : null,
+    ]);
+  }
+  const goalRow = (o) => `<${o.page ? 'button' : 'div'} class="row t goal"${o.page ? ` type="button" data-page="${o.page}"${o.seg ? ` data-seg="${o.seg}"` : ''}` : ''}>` +
+    `<div class="tile sm tint-${o.tint}">${esc(o.icon)}</div><div class="row-main"><div class="row-title">${esc(o.title)}</div><div class="row-sub">${esc(o.sub)}</div>` +
+    `${o.sub2 ? `<div class="row-sub">${esc(o.sub2)}</div>` : ''}${o.frac == null ? '' : barHtml(o.frac, o.color)}</div>${o.page ? `<span class="row-chev">${svg('chev')}</span>` : ''}</${o.page ? 'button' : 'div'}>`;
+  function goalsHtml() {
+    if (!me) return '';
+    const rows = [];
+    const nu = nextUnlockOf();
+    if (nu && nu.level) {
+      const g = levelGoal(nu.level), more = unlockDefs().filter((u) => u.level === nu.level && u.feature !== nu.feature && !feat(u.feature));
+      const name = (u) => `${u.emoji || ''} ${loc(u, 'title') || u.feature}`.trim();
+      rows.push(goalRow({ icon: '🔓', tint: 'yellow', title: t('Next unlock: {name}', { name: name(nu) }), color: 'yellow', frac: g.frac,
+        sub: g.left > 0 ? t('At level {n} · {p} score to go', { n: nu.level, p: fmtNum(g.left) }) : t('At level {n}', { n: nu.level }),
+        sub2: more.length ? t('Also: {list}', { list: more.slice(0, 3).map(name).join(', ') }) : '' }));
+    }
+    const S = season.cur, s = S && S.season;
+    if (feat('seasons') && s) {
+      const you = S.you || {}, tiers = (s.rewards || []).filter((r) => r && r.top).sort((a, b) => b.top - a.top);
+      const goal = !you.rank ? tiers[0] : tiers.filter((r) => r.top < you.rank).pop() || null;
+      const sub = [you.rank ? t('#{n}', { n: fmtNum(you.rank) }) : '', tn(you.points || 0, '{n} point', '{n} points', { n: fmtNum(you.points || 0) }),
+        goal ? t('top {n} win {what}', { n: fmtNum(goal.top), what: rewardWords(goal.reward) }) : t('Ends in {time}', { time: fmtLong(Date.parse(s.endsAt) - serverNow()) })].filter(Boolean).join(' · ');
+      rows.push(goalRow({ icon: (s.theme && s.theme.emoji) || '🏅', tint: 'orange', title: t('Season: {name}', { name: loc(s) }), sub, page: 'season', seg: 'season',
+        frac: goal && you.rank ? Math.min(1, goal.top / you.rank) : null, color: 'orange' }));
+    }
+    const A = journey.ach && journey.ach.achievements;
+    if (feat('achievements') && Array.isArray(A)) {
+      let best = null, bf = -1;
+      for (const a of A) {
+        if (a.done || typeof a.target !== 'number' || !a.target) continue;
+        const f = a.progress / a.target;
+        if (f > bf) { bf = f; best = a; }
+      }
+      if (best) {
+        rows.push(goalRow({ icon: best.emoji || '🏅', tint: TIER_TINT[best.tier || 1] || 'gray', title: t('Next achievement: {name}', { name: loc(best) }), page: 'journey', seg: 'ach',
+          sub: t('Tier {n} · {a} of {b}', { n: best.tier || 1, a: statVal(best.stat, best.progress), b: statVal(best.stat, best.target) }), frac: bf, color: 'blue' }));
+      }
+    }
+    return rows.length ? `<h4 class="sec-h">${esc(t('Goals'))}</h4><div class="group goals">${rows.join('')}</div>` : '';
+  }
+
+  // ---------------- the next best action: one capsule, the single most useful thing to do now
+  const NBA_STORE = 'coc.nba', NBA_SNOOZE = 45 * 60e3;
+  let nbaSnooze = {};
+  try { nbaSnooze = JSON.parse(lsGet(NBA_STORE) || '{}') || {}; } catch (e) { /* none */ }
+  let nbaCur = null, nbaKey = '', nbaQuiet = 0;
+  const nbaSnoozed = (k) => (nbaSnooze[k] || 0) > Date.now();
+  /** Milliseconds to the next local midnight (when today's streak runs out). */
+  const toMidnight = () => { const d = new Date(); d.setHours(24, 0, 0, 0); return d - Date.now(); };
+  function nearestOf(list, at) {
+    let best = null, bd = Infinity;
+    for (const x of list) { const d = distM(pos, at(x)); if (d < bd) { bd = d; best = x; } }
+    return best && { x: best, d: bd };
+  }
+  /** Actions worth doing now, most useful first (the plan's order): up to the first one not resting, or `all`. */
+  function nbaCandidates(all) {
+    const out = [], coin = E.coin;
+    if (!me || !pos) return out;
+    const enough = () => !all && out.some((a) => !nbaSnoozed(a.key));
+    // 1. no Headquarters yet
+    if (!me.territory.count) {
+      out.push({ key: 'hq', emoji: E.hq, text: t('Found your Headquarters'), run: () => select(cellAt(pos.lat, pos.lng)) });
+      return out;
+    }
+    // 2. plants full or nearly full
+    if (credits() < capacity()) {
+      const full = [];
+      for (const [id, p] of myPlants) if (!p.wilted && plantStoredNow(p) >= 0.9 * (p.storedMax || p.capacity)) full.push(id);
+      if (full.length) {
+        const near = full.filter((id) => distM(pos, cell(id)) <= REACH);
+        if (near.length) out.push({ key: 'full', emoji: '🪙', text: tn(near.length, 'Collect {n} full plant', 'Collect {n} full plants'), run: () => collectAll() });
+        else { const n = nearestOf(full, cell); out.push({ key: 'full', emoji: '🪙', text: tn(full.length, '{n} full plant · {dist} away', '{n} full plants · {dist} away', { dist: fmtDist(n.d) }), run: () => select(n.x) }); }
+      }
+    }
+    if (enough()) return out;
+    // 3. the daily streak, before the day ends
+    if (feat('streak') && me.streak && !me.streak.claimedToday && cfg.streak && (cfg.streak.rewards || []).length) {
+      out.push({ key: 'streak', emoji: '🔥', text: t('Claim your streak · ends in {time}', { time: fmtLeft(toMidnight()) }), run: () => doStreak() });
+    }
+    if (enough()) return out;
+    // 4. a reward ready: a mission, an achievement, the inbox, a boss
+    const d = msState.data;
+    if (d && feat('missions')) {
+      const tab = ['daily', 'weekly', 'levels'].find((k) => d[k] && d[k].missions.some((m) => m.done && !m.claimed));
+      if (tab) out.push({ key: 'missions', emoji: '🏆', text: t('A mission reward is ready'), run: msOn(tab) });
+    }
+    if (d && d.quests && feat('quests')) {
+      const tab = ['daily', 'weekly'].find((k) => ((d.quests[k] && d.quests[k].quests) || []).some((m) => m.done && !m.claimed));
+      if (tab) out.push({ key: 'quests', emoji: '🗺️', text: t('A quest reward is ready'), run: msOn(tab) });
+    }
+    const ach = feat('achievements') ? mget('achievementsToClaim', 0) : 0;
+    if (ach > 0) out.push({ key: 'ach', emoji: '🏅', text: tn(ach, '{n} achievement to claim', '{n} achievements to claim'), run: pageOn('journey', 'ach') });
+    const inb = mget('rewardsWaiting', 0);
+    if (inb > 0) out.push({ key: 'inbox', emoji: '📬', text: tn(inb, '{n} reward is waiting', '{n} rewards are waiting'), run: pageOn('inbox') });
+    const bc = feat('bosses') && bossToClaim();
+    if (bc) out.push({ key: 'bossclaim', emoji: bc.emoji || '🎁', text: t('Claim your boss reward'), run: () => selectTarget({ kind: 'boss', id: bc.id }) });
+    if (enough()) return out;
+    // 5. a chest or a boss nearby
+    const near = [];
+    if (feat('treasure')) { const c = nearestOf(wi.chests || [], (x) => ({ lat: x.center[0], lng: x.center[1] })); if (c && c.d <= 400) near.push({ d: c.d, key: 'chest', emoji: c.x.emoji || '🧰', text: t('Treasure chest · {dist}', { dist: fmtDist(c.d) }), run: () => openFind({ kind: 'chest', id: c.x.id }) }); }
+    if (feat('bosses')) { const b = nearestOf(activeBosses(), bossWhere); if (b && b.d <= 800) near.push({ d: b.d, key: 'boss', emoji: b.x.emoji || '👹', text: t('{name} · {dist}', { name: loc(b.x), dist: fmtDist(b.d) }), run: () => selectTarget({ kind: 'boss', id: b.x.id }) }); }
+    out.push(...near.sort((a, b) => a.d - b.d));
+    if (enough()) return out;
+    // 6. grow a plant you can afford (in reach first, the cheapest)
+    let grow = null;
+    for (const [id, p] of myPlants) {
+      if (p.wilted || p.upgradeCost == null || p.upgradeCost > credits() || (p.growTo && p.growEndsAt && Date.parse(p.growEndsAt) > serverNow())) continue;
+      const inR = distM(pos, cell(id)) <= REACH;
+      if (!grow || (inR && !grow.inR) || (inR === grow.inR && p.upgradeCost < grow.p.upgradeCost)) grow = { id, p, inR };
+    }
+    if (grow) {
+      const { id, p, inR } = grow;
+      out.push({ key: 'grow', emoji: p.emoji || stageOf(p.level).emoji, text: t('Grow to level {n} · {coin} {c}', { n: p.level + 1, coin, c: fmtShort(p.upgradeCost) }), run: () => (inR ? doGrow(id, 1) : select(id)) });
+    }
+    if (enough()) return out;
+    // 7. claim land you can afford
+    const cost = me.territory.nextClaimCost && me.territory.nextClaimCost.amount;
+    const free = cost != null && credits() >= cost ? tourFrontier() : null;
+    if (free) out.push({ key: 'claim', emoji: '🌱', text: t('Claim land next to you · {coin} {c}', { coin, c: fmtShort(cost) }), run: () => doClaim(free) });
+    // 8. walk to a landmark you haven't visited today
+    if (feat('landmarks') && !enough()) {
+      const l = nearestOf(allLandmarks().filter((x) => !visitedToday(x.id)), (x) => x);
+      if (l && l.d <= 2500) out.push({ key: 'landmark', emoji: l.x.emoji || '📍', text: t('Walk to {name} · {dist}', { name: loc(l.x), dist: fmtDist(l.d) }), run: () => openLandmark(l.x.id) });
+    }
+    return out;
+  }
+  // A tip card already on screen says the same thing: the chip doesn't repeat it.
+  const tipShown = (key) => [...$('tips').children].some((e) => e._tip === key && !e.classList.contains('out'));
+  const nextAction = () => nbaCandidates().find((a) => !nbaSnoozed(a.key) && !tipShown(a.key)) || null;
+  /** The capsule waits while anything covers the map: a sheet, a page, the intro, the tour or placing. */
+  function nbaBlocked() {
+    return !started || !me || !pos || appEl.classList.contains('intro') || tour.state === 'on' || sheetOpen || homeDetent > 0 || !!placing || photo.on ||
+      !!document.querySelector('.modal.open') || !$('unlock').hidden || !$('duel').hidden || !$('alert').hidden || Date.now() < nbaQuiet;
+  }
+  function renderNba() {
+    const el = $('nba'), a = nbaBlocked() ? null : nextAction();
+    nbaCur = a;
+    if (!a) { if (!el.hidden) el.classList.add('out'); nbaKey = ''; return; }
+    appEl.style.setProperty('--nba-lift', $('stick').hidden ? '0px' : '106px');
+    const key = `${a.key}|${a.emoji}|${a.text}`;
+    if (key === nbaKey && !el.classList.contains('out')) return;
+    const fresh = !nbaKey || nbaKey.split('|')[0] !== a.key;
+    nbaKey = key;
+    setText($('nbaEmo'), a.emoji);
+    setText($('nbaText'), a.text);
+    $('nbaGo').setAttribute('aria-label', a.text);
+    el.hidden = false;
+    el.classList.remove('out');
+    if (fresh) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+  }
+  $('nbaGo').addEventListener('click', () => {
+    const a = nbaCur;
+    if (!a) return;
+    nbaQuiet = Date.now() + 1500; // let the result show before suggesting the next thing
+    $('nba').classList.add('out');
+    a.run();
+  });
+  $('nbaX').addEventListener('click', () => {
+    const a = nbaCur;
+    if (!a) return;
+    nbaSnooze[a.key] = Date.now() + NBA_SNOOZE;
+    for (const k of Object.keys(nbaSnooze)) if (nbaSnooze[k] < Date.now()) delete nbaSnooze[k];
+    lsSet(NBA_STORE, JSON.stringify(nbaSnooze));
+    nbaQuiet = Date.now() + 20000; // one at a time: the next suggestion comes a little later
+    $('nba').classList.add('out');
+  });
+
+  // ---------------- game feel: tiny synthesized sounds (off by default), haptics, flying coins
+  const SOUND_STORE = 'coc.sound', HAPTIC_STORE = 'coc.haptics';
+  const soundOn = () => lsGet(SOUND_STORE) === '1';
+  const hapticsOn = () => lsGet(HAPTIC_STORE) !== '0' && !RM && typeof navigator.vibrate === 'function';
+  const HAPTIC = { coin: 8, coins: [12, 40, 12], grow: 14, claim: 18, hit: 10, cat: 10, levelup: [16, 60, 16, 60, 28], unlock: [20, 70, 30], error: [8, 50, 8] };
+  const feelLog = [];
+  let lastFeel = { kind: '', at: 0 };
+  function feel(kind) {
+    const now = performance.now();
+    if (kind === lastFeel.kind && now - lastFeel.at < 70) return; // quick taps: one sound
+    lastFeel = { kind, at: now };
+    feelLog.push(kind);
+    if (feelLog.length > 40) feelLog.shift();
+    if (hapticsOn() && HAPTIC[kind]) { try { navigator.vibrate(HAPTIC[kind]); } catch (e) { /* not allowed now */ } }
+    if (soundOn()) sfx(kind);
+  }
+  let actx = null, master = null, noiseBuf = null;
+  function audio() {
+    if (!actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      actx = new AC();
+      master = actx.createGain();
+      master.gain.value = 0.2;
+      master.connect(actx.destination);
+    }
+    if (actx.state === 'suspended') actx.resume().catch(() => {});
+    return actx;
+  }
+  /** One soft note: a quick attack, an exponential fade, optionally gliding to `to` Hz. */
+  function tone(at, freq, dur, o = {}) {
+    const osc = actx.createOscillator(), g = actx.createGain(), vol = o.vol || 0.5;
+    osc.type = o.type || 'sine';
+    osc.frequency.setValueAtTime(freq, at);
+    if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, at + dur * (o.glide || 1));
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(vol, at + (o.attack || 0.006));
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(g);
+    g.connect(master);
+    osc.start(at);
+    osc.stop(at + dur + 0.03);
+  }
+  function hiss(at, dur, vol, freq) {
+    if (!noiseBuf) {
+      noiseBuf = actx.createBuffer(1, Math.round(actx.sampleRate * 0.25), actx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+    src.buffer = noiseBuf;
+    f.type = 'bandpass';
+    f.frequency.value = freq;
+    g.gain.setValueAtTime(vol, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    src.connect(f); f.connect(g); g.connect(master);
+    src.start(at);
+    src.stop(at + dur + 0.02);
+  }
+  const SFX = {
+    coin: (a) => { tone(a, 1318.5, 0.08, { type: 'triangle', vol: 0.5 }); tone(a + 0.065, 1975.5, 0.24, { type: 'triangle', vol: 0.42 }); },
+    coins: (a) => { for (let i = 0; i < 4; i++) tone(a + i * 0.055, 1318.5 * (1 + i * 0.12), 0.09, { type: 'triangle', vol: 0.36 }); tone(a + 0.24, 2093, 0.32, { type: 'triangle', vol: 0.36 }); },
+    grow: (a) => { tone(a, 392, 0.36, { to: 784, vol: 0.45 }); tone(a + 0.1, 587.3, 0.34, { type: 'triangle', to: 1174.7, vol: 0.2 }); },
+    claim: (a) => { tone(a, 196, 0.14, { to: 392, vol: 0.55 }); tone(a + 0.07, 659.3, 0.26, { type: 'triangle', vol: 0.3 }); tone(a + 0.07, 987.8, 0.3, { vol: 0.16 }); },
+    levelup: (a) => { [523.3, 659.3, 784, 1046.5].forEach((f, i) => tone(a + i * 0.085, f, 0.34, { type: 'triangle', vol: 0.4 })); tone(a + 0.34, 1568, 0.5, { vol: 0.18 }); },
+    unlock: (a) => { [784, 1046.5, 1318.5, 1568, 2093].forEach((f, i) => tone(a + i * 0.06, f, 0.5, { vol: 0.28 })); },
+    cat: (a) => { tone(a, 540, 0.16, { type: 'triangle', to: 880, vol: 0.32 }); tone(a + 0.14, 880, 0.3, { type: 'triangle', to: 500, vol: 0.28 }); },
+    hit: (a) => { hiss(a, 0.07, 0.5, 1800); tone(a, 150, 0.13, { to: 60, vol: 0.55 }); },
+    error: (a) => { tone(a, 233, 0.08, { type: 'square', vol: 0.07 }); tone(a + 0.1, 196, 0.11, { type: 'square', vol: 0.07 }); },
+  };
+  SFX.boss = SFX.hit;
+  function sfx(kind) {
+    const f = SFX[kind], a = f && audio();
+    if (!a) return;
+    try { f(a.currentTime + 0.01); } catch (e) { /* audio not ready */ }
+  }
+  function fillFeelSettings() {
+    $('soundSwitch').checked = soundOn();
+    $('hapticsRow').hidden = typeof navigator.vibrate !== 'function';
+    $('hapticsSwitch').checked = lsGet(HAPTIC_STORE) !== '0';
+    $('hapticsSwitch').disabled = RM;
+    setText($('hapticsSub'), RM ? t('Off while Reduce Motion is on') : t('A light tap when you collect, claim or level up'));
+  }
+  $('soundSwitch').addEventListener('change', (e) => { lsSet(SOUND_STORE, e.target.checked ? '1' : null); if (e.target.checked) sfx('coin'); });
+  $('hapticsSwitch').addEventListener('change', (e) => { lsSet(HAPTIC_STORE, e.target.checked ? null : '0'); fillFeelSettings(); if (e.target.checked) feel('claim'); });
+
+  // Coins fly from the plants to your credits, and the counter rolls up as they land.
+  const roll = { on: false, from: 0, shown: 0, t0: 0, dur: 520, raf: 0, bumped: false };
+  function coinsFly(ids, was) {
+    const now = credits();
+    if (now <= was) return;
+    if (RM || !map || !ids.length) return bumpCredits();
+    const box = $('coins'), dst = $('credits').getBoundingClientRect(), app = appEl.getBoundingClientRect();
+    const tx = dst.left + dst.width / 2 - app.left, ty = dst.top + dst.height / 2 - app.top;
+    const per = ids.length > 2 ? 2 : ids.length > 1 ? 3 : 5;
+    let n = 0;
+    for (const id of ids) {
+      const c = cell(id), p = map.toPx({ lat: c.lat, lng: c.lng });
+      if (!p) continue;
+      for (let i = 0; i < per && n < 14; i++, n++) {
+        const el = document.createElement('i');
+        el.textContent = '🪙';
+        box.appendChild(el);
+        const sx = p.x + (Math.random() - 0.5) * 16, sy = p.y - 8 + (Math.random() - 0.5) * 10;
+        const mx = (sx + tx) / 2 + (Math.random() - 0.5) * 70, my = Math.min(sy, ty) + (sy - ty) * 0.25 - 30 - Math.random() * 40;
+        const a = el.animate([
+          { transform: `translate(${sx}px, ${sy}px) scale(.5)`, opacity: 0 },
+          { transform: `translate(${sx}px, ${sy - 18}px) scale(1.1)`, opacity: 1, offset: 0.18 },
+          { transform: `translate(${mx}px, ${my}px) scale(1)`, opacity: 1, offset: 0.58 },
+          { transform: `translate(${tx}px, ${ty}px) scale(.6)`, opacity: 0.85 },
+        ], { duration: 640, delay: n * 38, easing: 'cubic-bezier(.4, 0, .6, 1)', fill: 'both' });
+        a.onfinish = () => el.remove();
+        a.oncancel = () => el.remove();
+      }
+    }
+    rollCredits(was, 560);
+  }
+  function bumpCredits() {
+    const st = $('credits').parentElement;
+    st.classList.add('bump');
+    setTimeout(() => st.classList.remove('bump'), 140);
+  }
+  function rollCredits(from, delay) {
+    roll.from = roll.on ? roll.shown : from;
+    roll.shown = roll.from;
+    roll.on = true;
+    roll.bumped = false;
+    roll.t0 = performance.now() + delay;
+    setText($('credits'), fmtShort(roll.shown));
+    if (!roll.raf) roll.raf = requestAnimationFrame(rollFrame);
+  }
+  function rollFrame(now) {
+    roll.raf = 0;
+    const to = credits(), k = Math.max(0, Math.min(1, (now - roll.t0) / roll.dur));
+    if (now >= roll.t0 && !roll.bumped) { roll.bumped = true; bumpCredits(); }
+    roll.shown = Math.round(roll.from + (to - roll.from) * (1 - (1 - k) ** 3));
+    setText($('credits'), fmtShort(roll.shown));
+    if (k < 1) roll.raf = requestAnimationFrame(rollFrame);
+    else { roll.on = false; refreshHud(); }
+  }
+  // Idle life runs on CSS animations (one clock for every marker); it rests while the page is hidden.
+  const phaseOf = (id, period) => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0; return ((performance.now() / 1000 + (Math.abs(h) % 997) / 7) % period).toFixed(2); };
+  document.addEventListener('visibilitychange', () => appEl.classList.toggle('idle-off', document.hidden));
 
   // ------------------------------------------------------------------ loop
   let last = performance.now(), lastFollow = 0;
@@ -9391,6 +10047,27 @@
     errTextFull: (e) => errText(e),
     get errCodes() { return Object.keys(ERR_TEXT); },
     get tips() { return [...document.querySelectorAll('#tips .tipcard')].map((x) => x._tip); },
+    // Polish: unlocks, the next best action, goals, game feel.
+    feat: (f) => feat(f),
+    setUnlockAll: (on) => { unlockAllOn = !!on; lsSet('coc.debugUnlockAll', on ? '1' : null); unlockKey = null; applyUnlocks(); refreshUi(); },
+    get hiddenFeats() { return [...document.querySelectorAll('.nofeat')].map((x) => x.id || x.dataset.go || x.dataset.tab || x.dataset.seg || x.dataset.ms || x.dataset.scope || x.dataset.feat); },
+    get nextUnlock() { return nextUnlockOf(); },
+    showUnlock: (u) => { unlockShown.delete(u && (u.feature || u)); queueUnlock(u); },
+    closeUnlock: (open) => closeUnlock(open),
+    get unlock() { return { open: !$('unlock').hidden, feature: unlockCur && unlockCur.feature, kicker: $('unlockKicker').textContent, title: $('unlockTitle').textContent, text: $('unlockText').textContent, go: $('unlockGo').textContent, later: !$('unlockLater').hidden, queued: unlockQ.length }; },
+    nextAction: () => { const a = nextAction(); return a && { key: a.key, emoji: a.emoji, text: a.text }; },
+    get actions() { return nbaCandidates(true).map((a) => a.key); },
+    nbaWhy: () => ({ started, me: !!me, pos: !!pos, intro: appEl.classList.contains('intro'), tour: tour.state, sheetOpen, homeDetent, placing: !!placing, photo: photo.on,
+      modal: !!document.querySelector('.modal.open'), unlock: !$('unlock').hidden, duel: !$('duel').hidden, alert: !$('alert').hidden, quiet: Math.max(0, nbaQuiet - Date.now()) }),
+    runNextAction: () => { const a = nextAction(); if (a) a.run(); return a && a.key; },
+    get nba() { const el = $('nba'); return { shown: !el.hidden && !el.classList.contains('out'), key: nbaCur && nbaCur.key, text: $('nbaText').textContent }; },
+    clearSnooze: () => { nbaSnooze = {}; nbaQuiet = 0; lsSet(NBA_STORE, null); },
+    snooze: (k, ms) => { nbaSnooze[k] = Date.now() + (ms || NBA_SNOOZE); nbaQuiet = 0; },
+    get goals() { const g = document.querySelector('#homeTab .goals'); return g ? [...g.querySelectorAll('.row')].map((r) => r.innerText.replace(/\s+/g, ' ').trim()) : null; },
+    get feelLog() { return feelLog.slice(); },
+    get creditsShown() { return $('credits').textContent; },
+    get missions() { return msState.data; },
+    fix: () => fix(),
   };
 
   boot();
