@@ -474,6 +474,18 @@
   .btn.plain { min-height: 44px; margin-top: 4px; background: none; color: var(--blue); font-weight: 400; }
   .btn.danger { color: var(--red); }
   .bi:empty { display: none; }
+  /* Quick actions in the hex sheet: Steal and Attack side by side, anything else full width. */
+  #sheetPrimary { display: flex; flex-wrap: wrap; column-gap: 10px; }
+  #sheetPrimary[hidden] { display: none; }
+  #sheetPrimary > div { flex: 1 1 100%; min-width: 0; }
+  #sheetPrimary > div.half { flex: 1 1 0; }
+  #sheetPrimary > div.half .bl { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  #sheetPrimary > div.half .btn { padding: 0 12px; }
+  .btn.steal { background: var(--yellow); color: #000; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; font-variant-numeric: tabular-nums; transition: transform .12s, filter .12s; }
+  .btn.steal.holding { transform: scale(.96); filter: brightness(.94); }
+  .btn.steal:disabled { background: var(--fill3); color: var(--label3); }
+  .btn.revive { background: var(--green); }
+  .btn.revive:disabled { background: var(--fill3); color: var(--label3); }
   .btn-why { margin: 6px 12px 0; text-align: center; font-size: 13px; line-height: 18px; color: var(--orange); }
   .pill { flex: none; min-width: 64px; height: 32px; padding: 0 13px; border: 0; border-radius: 16px; background: var(--blue-t); color: var(--blue); font-size: 15px; font-weight: 600; }
   .pill:active { opacity: .7; }
@@ -592,6 +604,12 @@
   .page-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 16px calc(var(--sb) + 28px); }
   .sec-h { margin: 24px 16px 7px; font-size: 13px; font-weight: 400; line-height: 18px; color: var(--label2); text-transform: uppercase; }
   .sec-f { margin: 7px 16px 0; font-size: 13px; line-height: 18px; color: var(--label2); }
+  .sec-h .sec-r { float: right; text-transform: none; font-weight: 600; color: var(--blue); font-variant-numeric: tabular-nums; }
+  .sec-h .sec-r.full { color: var(--orange); }
+  /* A booster roll's quality: a tiny capsule after "+3.4 % hit chance". */
+  .qbar { display: block; width: 44px; height: 4px; margin: 5px 0 2px; border-radius: 2px; background: var(--fill); overflow: hidden; }
+  .qbar i { display: block; height: 100%; border-radius: 2px; background: var(--blue); }
+  .qbar.hi i { background: var(--green); } .qbar.lo i { background: var(--label3); }
   .lead { margin: 8px 4px 0; font-size: 15px; line-height: 20px; color: var(--label2); }
   .center { text-align: center; }
   .page .group + .btn { margin-top: 24px; }
@@ -1095,6 +1113,23 @@
   .row-sub.tstats { font-size: 12px; color: var(--label3); }
   .army-cap .bar { margin-top: 6px; height: 5px; }
   .rm .cpf { display: none; }
+  /* Ground loot: a 🪙 pile with small item emojis beside it; constant size, never hidden. */
+  .lp, .lpa { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .lp::before { content: ''; position: absolute; left: -12px; top: 2px; width: 24px; height: 7px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0)); }
+  .lp .lc { position: absolute; left: -12px; top: -17px; width: 24px; height: 22px; display: grid; place-items: center; font: 19px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .4)); animation: lp-in .38s var(--spring) both, lp-glint 3.2s ease-in-out .4s infinite; }
+  .lp .lx { position: absolute; left: 6px; top: -27px; display: flex; align-items: center; height: 17px; padding: 0 4px; border-radius: 9px; background: rgba(255, 255, 255, .94); box-shadow: 0 1px 4px rgba(0, 0, 0, .25); font: 11px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; white-space: nowrap; }
+  .lp .lx b { margin-left: 1px; font: 700 10px var(--round); color: #1c1c1e; }
+  .lp.gone .lc, .lp.gone .lx { animation: lp-out .4s ease-in forwards; }
+  .lpa .ae { position: absolute; left: -12px; top: -22px; width: 24px; height: 24px; display: grid; place-items: center; font: 20px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .4)); transition: opacity .6s; }
+  .lpa.flip .ae { transform: scaleX(-1); }
+  .lpa.eat .ae { animation: lp-nibble .45s ease-in-out infinite alternate; }
+  .lpa.leave .ae { opacity: 0; }
+  @keyframes lp-in { from { transform: translateY(-10px) scale(.4); opacity: 0; } }
+  @keyframes lp-out { to { transform: translateY(-8px) scale(1.3); opacity: 0; } }
+  @keyframes lp-glint { 0%, 86%, 100% { scale: 1; } 92% { scale: 1.12; } }
+  @keyframes lp-nibble { to { translate: 0 2px; rotate: -8deg; } }
+  .rm .lp .lc, .rm .lpa .ae { animation: none; }
+  .btn.gold.revive { color: #fff; }
   .photo .bul, .photo .cpf, .photo .dropm { visibility: hidden; }
 </style>
 
@@ -1674,7 +1709,7 @@
   };
 
   /** Texts for the big update's error codes (and codes that gained a new meaning), in every language through t(). */
-  const untilWhen = (d) => (d.until ? fmtWhen(d.until) : '');
+  const untilWhen = (d) => { const u = d.until || d.protectedUntil || d.shieldedUntil; return u ? fmtWhen(u) : ''; };
   const ERR_TEXT = {
     // S1 engagement
     DEVICE_NOT_FOUND: () => t('This device isn’t registered for notifications any more.'),
@@ -1764,6 +1799,16 @@
     DROP_TOO_FAR: (d) => (d.maxRings ? t('Drop your animals close together: within {n} hexes.', { n: d.maxRings }) : t('Drop your animals closer together.')),
     NOTHING_TO_ATTACK: () => t('Nothing of theirs is close enough. Drop your animals near their base.'),
     TARGET_SHIELDED: (d) => (d.reason === 'newPlayer' ? t('New players are protected until {when}.', { when: untilWhen(d) || t('later') }) : t('Their base is shielded until {when}.', { when: untilWhen(d) || t('later') })),
+    // Stealing, revive, ground loot, booster allowance (docs/08)
+    TARGET_PROTECTED: (d) => (d.reason === 'newPlayer' || d.protectedUntil ? t('New players are protected until {when}.', { when: untilWhen(d) || t('later') }) : ''),
+    STEAL_COOLDOWN: (d) => (d.retryAfterMs > 1500 ? t('Not so fast. Again in {time}.', { time: fmtDur(Math.ceil(d.retryAfterMs / 1000)) }) : t('Not so fast: one steal at a time.')),
+    NOTHING_TO_STEAL: () => t('Nothing left to steal here.'),
+    TARGET_DOWN: (d) => (d.wilted ? t('This plant is wilted: what it held is on the ground.') : ''),
+    REVIVE_NOT_ALLOWED: () => t('You wilted this plant, so you can’t revive it.'),
+    NOT_WILTED: () => t('This plant isn’t wilted.'),
+    LOOT_GONE: () => t('Too late: the pile is gone.'),
+    BOOSTER_LIMIT: (d) => (d.max ? t('You can have {n} boosters on at once. Level up for more.', { n: d.max }) : t('All your booster spots are in use. Level up for more.')),
+    TOO_MANY_ACTIVE: (d) => (d.max ? t('You can have {n} boosters on at once. Level up for more.', { n: d.max }) : ''),
     TARGET_LEVEL: (d) => (d.theirLevel ? t('Pick on someone your size: they are level {a}, you are {b}.', { a: d.theirLevel, b: d.yourLevel }) : t('Pick on someone your size.')),
     TARGET_UNDER_ATTACK: (d) => (d.endsAt ? t('Someone is attacking them right now. Try again {when}.', { when: fmtWhen(d.endsAt) }) : t('Someone is attacking them right now.')),
     PICKUP_NOT_FOUND: () => t('Nothing of yours lies there any more.'),
@@ -2532,7 +2577,7 @@
       'Army {a}/{b}': 'Ordu {a}/{b}', '+{n} army space from this camp': 'Bu ordugâhtan +{n} ordu yeri',
       'range {dist}': 'menzil {dist}', 'air and ground': 'havaya ve karaya', 'air only': 'yalnızca havaya', 'ground only': 'yalnızca karaya', 'splash': 'alan hasarı', 'not closer than {dist}': '{dist} içine ateş etmez',
       '{name} repaired': '{name} onarıldı', 'Wild animal': 'Yabani hayvan',
-      'No animals yet: defeat wild animals and they join your army.': 'Henüz hayvanın yok: yabani hayvanları yen, orduna katılsınlar.',
+      'No animals yet: defeat wild animals, then pick up what they drop.': 'Henüz hayvanın yok: yabani hayvanları yen, düşürdüklerini topla.',
       'An army is fighting it already': 'Bir ordu zaten onunla savaşıyor', 'Send Your Army': 'Ordunu Gönder', 'Attack Their Base': 'Üssüne Saldır',
       '{n} animals ready · drop them outside their walls': { one: '{n} hayvan hazır · duvarlarının dışına bırak', other: '{n} hayvan hazır · duvarlarının dışına bırak' },
       'Attack': 'Saldır', 
@@ -2602,6 +2647,31 @@
       'Start Over': 'Baştan Başla', 'Start Over?': 'Baştan Başlansın mı?', 'You’re starting over': 'Baştan başlıyorsun',
       'Deletes your land, buildings, items and progress. Your name and avatar stay.': 'Arazini, binalarını, eşyalarını ve ilerlemeni siler. Adın ve avatarın kalır.',
       'This deletes your land, buildings, items and progress. Your name and avatar stay. This can’t be undone.': 'Bu, arazini, binalarını, eşyalarını ve ilerlemeni siler. Adın ve avatarın kalır. Geri alınamaz.',
+      // ---- stealing, revive, ground loot, booster allowance and rolls (docs/08)
+      'Steal': 'Çal', 'Steal · +{n}': 'Çal · +{n}', 'Attack · {pct}': 'Saldır · {pct}', 'Attack · {pct} to hit': 'Saldır · {pct} isabet',
+      '{n} credits stored': '{n} kredi birikmiş', 'Your storage is full': 'Depon dolu',
+      'Hold Steal to keep taking credits, twice a second.': 'Çal’a basılı tut: saniyede iki kez kredi alırsın.',
+      'You stole {n} credits': '{n} kredi çaldın',
+      'Not so fast. Again in {time}.': 'Bu kadar hızlı olmaz. {time} sonra yine dene.', 'Not so fast: one steal at a time.': 'Bu kadar hızlı olmaz: her seferinde bir kez çalabilirsin.',
+      'Nothing left to steal here.': 'Burada çalacak bir şey kalmadı.',
+      'Revive · Free': 'Canlandır · Ücretsiz', 'Revive · {coin} {n}': 'Canlandır · {coin} {n}',
+      'You wilted it, so someone else has to revive it': 'Onu sen soldurdun, başka biri canlandırmalı',
+      'You wilted this plant, so you can’t revive it.': 'Bu bitkiyi sen soldurdun, o yüzden canlandıramazsın.',
+      'This plant isn’t wilted.': 'Bu bitki solmamış.',
+      'Your plant is alive again': 'Bitkin yeniden canlandı', 'Revived! {name} will hear about it.': 'Canlandırdın! {name} bunu duyacak.',
+      'Wilted: revive it to make credits again': 'Soldu: yeniden kredi üretmesi için canlandır', 'Wilted: it makes nothing until you revive it': 'Soldu: canlandırana kadar bir şey üretmez',
+      'A wilted plant makes nothing until someone revives it.': 'Solmuş bir bitki, biri onu canlandırana kadar bir şey üretmez.',
+      'A wilted plant drops what it stored on the ground, for anyone to pick up.': 'Solan bir bitki biriktirdiklerini yere döker, isteyen alır.',
+      'The plant wilted. What it held fell on the ground.': 'Bitki soldu. İçindekiler yere döküldü.',
+      '{emoji} Defeated! It dropped a pile: tap it to pick it up': '{emoji} Yendin! Yere bir yığın bıraktı: almak için dokun',
+      'Walk closer to pick it up: {dist} away': 'Almak için yaklaş: {dist} uzakta', 'Nothing fits right now': 'Şu an hiçbir şey sığmıyor',
+      'Left on the pile: {what} ({why})': 'Yığında kalan: {what} ({why})', 'your storage is full': 'depon dolu', 'your bag is full': 'çantan dolu', 'your army is full': 'ordun dolu',
+      'Too late: the pile is gone.': 'Geç kaldın: yığın gitmiş.',
+      'Active {a}/{b}': 'Aktif {a}/{b}', 'Quality {p}': 'Kalite {p}', 'hit chance': 'isabet şansı', 'stolen credits': 'çalınan kredi', 'Pickpocket': 'Yankesici',
+      'You can have {n} boosters on at once. Level up for more.': 'Aynı anda {n} güçlendirici açık olabilir. Daha fazlası için seviye atla.',
+      'All your booster spots are in use. Level up for more.': 'Bütün güçlendirici yerlerin dolu. Daha fazlası için seviye atla.',
+      'You can’t steal from your crew.': 'Ekibinden çalamazsın.', 'That’s your own plant.': 'Bu senin kendi bitkin.',
+      'This plant is wilted: what it held is on the ground.': 'Bu bitki solmuş: içindekiler yerde.',
     },
     // Server errors by code, for messages with numbers in them (and anything new): a text, or a function of the error's details.
     errors: {
@@ -2831,7 +2901,7 @@
   let cfg = null; // GET /v1/config
   let me = null; // GET /v1/me (own state)
   let meAt = 0; // local time me was received
-  const world = { cells: new Map(), owners: {}, players: [], bots: [], battles: [], pickups: [], center: null, at: 0 };
+  const world = { cells: new Map(), owners: {}, players: [], bots: [], battles: [], pickups: [], loot: [], center: null, at: 0 };
   let version = 0; // bumps when territory or buildings change
   let RES = 12, REACH = 70;
   let mode = null; // 'gps' | 'sim'
@@ -2913,16 +2983,55 @@
       const k = (cfg.breeding && cfg.breeding.seeds && cfg.breeding.seeds[it.seed]) || (cfg.seeds && cfg.seeds.kinds && cfg.seeds.kinds[it.seed]) || {};
       return { ...k, name: k.name || it.seed, emoji: k.emoji || '🌰', for: 'seed', stat: k.stat || it.stat || 'speed' };
     }
-    return cfg.items.types[it.type] || { name: it.type, emoji: '❔', for: 'player', stat: '' };
+    return cfg.items.types[it.type] || ITEM_FALLBACK[it.type] || { name: it.type, emoji: '❔', for: 'player', stat: '' };
   };
+  // Booster types a server may send before its config lists them (docs/08: the Pickpocket).
+  const ITEM_FALLBACK = { pickpocket: { name: 'Pickpocket', nameTr: 'Yankesici', emoji: '🧤', for: 'player', stat: 'steal', range: [0.05, 0.5] } };
   const itemName = (it) => loc(itemType(it)) || it.type;
   const rarityName = (r) => loc(cfg.items.rarities[r]) || r;
-  const STAT_NAMES = { maxHp: 'health', damage: 'damage', fireRate: 'fire rate', range: 'range', defense: 'defense', speed: 'growth', capacity: 'capacity', health: 'health' };
+  const STAT_NAMES = { maxHp: 'health', damage: 'damage', fireRate: 'fire rate', range: 'range', defense: 'defense', speed: 'growth', capacity: 'capacity', health: 'health', accuracy: 'hit chance', steal: 'stolen credits' };
+  // Booster rolls (docs/08 §4): each item has its own power within its type's range; quality is where
+  // the roll sits in that range (0..1). Older servers send only the fixed bonus.
+  const itemRange = (it) => it.range || itemType(it).range || null;
+  function itemQuality(it) {
+    if (!it || it.type === 'seed') return null;
+    if (typeof it.quality === 'number') return Math.max(0, Math.min(1, it.quality));
+    const r = itemRange(it);
+    if (typeof it.power !== 'number' || !r || !(r[1] > r[0])) return null;
+    return Math.max(0, Math.min(1, (it.power - r[0]) / (r[1] - r[0])));
+  }
   const bonusText = (it) => {
-    const ty = itemType(it), n = Math.round(it.bonus * 100);
+    const ty = itemType(it);
+    if (typeof it.power === 'number' && it.type !== 'seed') {
+      // "+3.4 % hit chance": one decimal for small rolls, whole numbers from 10 %.
+      const v = it.power * 100, n = v < 10 ? NUM1.format(Math.round(v * 10) / 10) : fmtNum(Math.round(v));
+      return `+${pct(n)} ${STAT_NAMES[ty.stat] ? t(STAT_NAMES[ty.stat]) : ty.stat}`;
+    }
+    const n = Math.round((it.bonus || 0) * 100);
     return ty.stat === 'accuracy' ? t('+{n} pts accuracy', { n }) : `+${pct(n)} ${STAT_NAMES[ty.stat] ? t(STAT_NAMES[ty.stat]) : ty.stat}`;
   };
-  const bagItems = () => (me.items || []).filter((i) => i.place !== 'plant');
+  /** A small quality bar after the roll (empty for items without a roll). */
+  const qualityHtml = (it) => {
+    const q = itemQuality(it);
+    if (q === null) return '';
+    const p = Math.round(q * 100);
+    return `<span class="qbar${q >= 0.8 ? ' hi' : q < 0.34 ? ' lo' : ''}" role="img" aria-label="${esc(t('Quality {p}', { p: pct(p) }))}" data-q="${q.toFixed(3)}"><i style="width:${Math.max(6, p)}%"></i></span>`;
+  };
+  const bonusHtml = (it) => `${esc(bonusText(it))}${qualityHtml(it)}`;
+  /** Boosters sorted by type (player, plant, seeds; in the config's order), then the best roll first. */
+  function sortItems(list) {
+    const keys = Object.keys((cfg && cfg.items && cfg.items.types) || {}), grp = { player: 0, plant: 1, seed: 2 };
+    const rank = (it) => (grp[itemType(it).for] ?? 3) * 1000 + (keys.includes(it.type) ? keys.indexOf(it.type) : 999);
+    const rar = Object.keys((cfg && cfg.items && cfg.items.rarities) || {});
+    return list.slice().sort((a, b) => rank(a) - rank(b) || (itemQuality(b) ?? -1) - (itemQuality(a) ?? -1) || rar.indexOf(b.rarity) - rar.indexOf(a.rarity) || String(a.id).localeCompare(String(b.id)));
+  }
+  const bagItems = () => sortItems((me.items || []).filter((i) => i.place !== 'plant'));
+  /** Active booster allowance (docs/08 §3): { active, max } from the server, else counted here. */
+  function boosters() {
+    const b = me && me.boosters, act = ((me && me.items) || []).filter((i) => i.place === 'active').length;
+    const max = b && typeof b.max === 'number' ? b.max : (me && me.bag && me.bag.maxActive) || (cfg && cfg.items && cfg.items.maxActive) || 3;
+    return { active: b && typeof b.active === 'number' ? b.active : act, max };
+  }
   function setMe(state) {
     const before = me ? `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}:${b.broken ? 1 : 0}`).join()}|${wallSig(me)}` : '';
     const prev = me;
@@ -3123,6 +3232,7 @@
       world.bots = w.bots || [];
       world.battles = w.battles || [];
       world.pickups = w.pickups || [];
+      world.loot = Array.isArray(w.loot) ? w.loot : [];
       world.center = { ...center };
       world.at = Date.now();
       version++;
@@ -3224,7 +3334,7 @@
     const el = document.createElement('div'), c = cell(id);
     el.className = 'op';
     el.innerHTML = `<div class="gain">+${fmtNum(n)}</div>`;
-    const h = map.addMarker(el, { lat: c.lat, lng: c.lng }, 12);
+    const h = map.addMarker(el, { lat: c.lat, lng: c.lng }, Z.float);
     setTimeout(() => h.remove(), 900);
   }
   function canCollectHere(id) {
@@ -3379,7 +3489,7 @@
     const el = document.createElement('div');
     el.className = 'op';
     el.innerHTML = `<div class="dmg${miss ? ' miss' : ''}">${esc(text)}</div>`;
-    const h = map.addMarker(el, info.at, 12);
+    const h = map.addMarker(el, info.at, Z.float);
     setTimeout(() => h.remove(), 1000);
   }
   async function doShoot(tg) {
@@ -3399,7 +3509,7 @@
         if (res.target.defeated) world.bots = world.bots.filter((x) => x.id !== tg.id);
       }
       if (tg.kind === 'player') { const p = world.players.find((x) => x.id === tg.id); if (p) { p.hp = res.target.hp; p.knockedOut = !!res.target.knockedOut; } }
-      if (tg.kind === 'plant' || tg.kind === 'building') { const wc = world.cells.get(tg.cell); const o = wc && (tg.kind === 'plant' ? wc.plant : wc.building); if (o) { o.hp = res.target.hp; if (res.target.wilted) o.wilted = true; if (res.target.broken) o.broken = true; } }
+      if (tg.kind === 'plant' || tg.kind === 'building') { const wc = world.cells.get(tg.cell); const o = wc && (tg.kind === 'plant' ? wc.plant : wc.building); if (o) { o.hp = res.target.hp; if (res.target.wilted) { o.wilted = true; o.wiltedBy = me.player.id; o.stored = 0; if (tg.kind === 'plant' && cfg && cfg.revive && cfg.revive.cost) o.reviveCost = (cfg.revive.cost.base || 0) + (cfg.revive.cost.perLevel || 0) * (o.level || 1); } if (res.target.broken) o.broken = true; } }
       if (tg.kind === 'boss') {
         const b = bossById(tg.id);
         if (b) { b.hp = res.target.hp; if (b.you) b.you.damage = res.yourDamage != null ? res.yourDamage : b.you.damage; if (res.beaten) b.state = 'beaten'; }
@@ -3408,13 +3518,20 @@
       }
       if (res.thorns) setTimeout(() => toast(t('Thorns! You lost {n} health.', { n: fmtNum(res.thorns.damage || 0) }), true, '🌵'), 1200);
       else if (res.guarded && res.hit) setTimeout(() => toast(t('A watchtower took part of the damage'), false, '🗼'), 1200);
-      const loot = res.loot && res.loot.credits ? t(' · +{n} credits', { n: fmtNum(res.loot.credits) }) : '';
-      const killed = tg.kind === 'bot' && res.target.defeated && (res.troop || res.xp);
-      if (killed) killToast(res);
+      // A pile on the ground (docs/08 §5): killed animals and wilted plants drop their loot there.
+      const pile = res.pile || res.groundLoot || res.lootPile || (res.loot && res.loot.id ? res.loot : null);
+      if (pile && pile.id && !(world.loot || []).some((x) => x.id === pile.id)) {
+        const at = targetInfo(tg) && targetInfo(tg).at;
+        world.loot = [...(world.loot || []), { ...pile, center: pile.center || (at ? [at.lat, at.lng] : null) }];
+        syncLoot();
+      }
+      const loot = res.loot && res.loot.credits && !pile ? t(' · +{n} credits', { n: fmtNum(res.loot.credits) }) : '';
+      const killed = tg.kind === 'bot' && res.target.defeated && (res.troop || res.xp || pile || lootOn());
+      if (killed) killToast(res, pile);
       else if (res.drop) toast(t("{emoji} {rarity} {name} found! It's in your bag.", { emoji: itemType(res.drop).emoji, rarity: rarityName(res.drop.rarity), name: itemName(res.drop) }), false, '🎁');
       else if (res.bagFull) toast(t('Defeated, but your bag is full. Make room for the next drop.'), true);
       else if (res.target.knockedOut) toast(t('{name} is knocked out', { name: targetInfo(tg) ? targetInfo(tg).name : t('Player') }) + loot, false, '💥');
-      else if (res.target.wilted) toast(t('The plant wilted') + loot, false, '🥀');
+      else if (res.target.wilted) toast(pile || lootOn() ? t('The plant wilted. What it held fell on the ground.') : t('The plant wilted') + loot, false, '🥀');
       else if (res.target.broken) toast(t('Building broken. It stops working until it recovers.'), false, '💥');
       if (res.target.defeated || res.target.knockedOut) { target = null; if (!selected) select(null); loadWorld(pos); }
     } catch (e) {
@@ -3471,7 +3588,7 @@
   function plantSection(out, id, p, reachWhy, act) {
     const st = stageOf(p.level), stored = Math.floor(plantStoredNow(p));
     out.title = t('{name} · Level {n}', { name: loc(st), n: p.level });
-    out.sub = p.wilted ? t('Wilted: it heals over time, then grows again') : t('{n} credits per hour · holds {cap}', { n: fmtNum(p.ratePerHour), cap: fmtNum(p.capacity) });
+    out.sub = p.wilted ? (reviveOn(p) ? t('Wilted: revive it to make credits again') : t('Wilted: it heals over time, then grows again')) : t('{n} credits per hour · holds {cap}', { n: fmtNum(p.ratePerHour), cap: fmtNum(p.capacity) });
     out.tile = { icon: p.emoji, tint: 'green' };
     out.progress = { label: t('Credits'), value: t('{a} of {b}', { a: fmtNum(stored), b: fmtNum(p.capacity) }), frac: stored / p.capacity, tint: 'yellow' };
     out.progress.label = stored >= 1 && !reachWhy ? t('Credits · tap the plant to collect') : t('Credits');
@@ -3598,20 +3715,30 @@
       out.sub = b ? t("{name}'s level {n} building", { name: rivalName(owner), n: b.level }) : t("{name}'s plant", { name: rivalName(owner) });
       out.tile = { icon: b ? emojiFor(b.type) : pl ? pl.emoji : E.rival, tint: 'red' };
       out.tags.push({ tint: 'red', icon: E.rival, text: t('Rival territory') });
+      // Quick actions right in the sheet (docs/08 §1): Steal (hold to repeat) and Attack; Revive on a wilted plant.
+      const stealA = stealAction(id, pl, reachWhy, blocked);
+      const reviveA = !aimB && reviveAction(id, pl, reachWhy);
+      if (stealA) out.primary.push(stealA);
+      if (reviveA) out.primary.push(reviveA);
+      if (pl && typeof pl.stored === 'number' && !pl.wilted && Math.floor(pl.stored) >= 1) out.tags.push({ tint: 'orange', icon: E.coin, text: t('{n} credits stored', { n: fmtNum(pl.stored) }) });
       if (info) {
         out.progress = { label: pl && pl.wilted && !aimB ? t('Wilted') : t('Health'), value: t('{a} of {b}', { a: fmtNum(info.hp), b: fmtNum(info.maxHp) }), frac: info.hp / info.maxHp, tint: info.hp / info.maxHp < 0.35 ? 'red' : 'green' };
         const dist = distM(pos, info.at), inRange = dist <= me.combat.rangeMeters, down = tg.kind === 'plant' ? pl.wilted : bInfo && bInfo.broken;
         let why = blocked || (down ? (tg.kind === 'plant' ? t('Already wilted') : t('Already broken')) : !inRange ? t('Out of range: {dist} (range {n} m)', { dist: fmtDist(dist), n: me.combat.rangeMeters }) : null);
         if (!why && me.combat.knockedOut) why = t('You are knocked out');
         if (!why && !me.player.showOnMap) why = t('Show yourself on the map to fight (Settings)');
-        out.primary.push({ key: 'fire', kind: 'fire', target: tg, label: t('Fire · {pct} to hit', { pct: pct(Math.round(hitChanceAt(dist) * 100)) }), icon: '🎯', why, enabled: !why, cls: 'fire' });
+        const hit = pct(Math.round(hitChanceAt(dist) * 100));
+        // A wilted plant with Revive: no second, disabled Attack button next to it.
+        if (!(reviveA && down)) out.primary.push({ key: 'fire', kind: 'fire', target: tg, label: stealA ? t('Attack · {pct}', { pct: hit }) : t('Attack · {pct} to hit', { pct: hit }), icon: '🎯', why, enabled: !why, cls: `fire${stealA ? ' half' : ''}`, half: !!stealA });
         if (bInfo && bInfo.protected) out.note = t('Headquarters can’t be damaged. You can shoot the plant under it.');
       }
       const ow = world.owners[owner];
       out.rows.push({ key: 'profile', kind: 'profile', owner, icon: (ow && ow.avatar) || E.user, tint: 'blue', title: t('View Profile'),
         sub: ow && ow.hqLevel ? t('Headquarters level {n}', { n: ow.hqLevel }) : t('Commander'), button: t('View'), enabled: true });
       rivalExtras(out, id, owner, pl, reachWhy);
-      if (!out.note) out.note = tg && tg.kind === 'plant' ? t('A wilted plant stops making credits until it heals. You take half of what it stored.') : t('A broken building stops working until it recovers.');
+      if (!out.note) out.note = stealA ? t('Hold Steal to keep taking credits, twice a second.')
+        : pl && pl.wilted && reviveA ? t('A wilted plant makes nothing until someone revives it.')
+        : tg && tg.kind === 'plant' ? (lootOn() ? t('A wilted plant drops what it stored on the ground, for anyone to pick up.') : t('A wilted plant stops making credits until it heals. You take half of what it stored.')) : t('A broken building stops working until it recovers.');
     } else {
       const b = myByCell.get(id), p = myPlants.get(id);
       out.tags.push({ tint: 'green', icon: E.mine, text: t('Your territory') });
@@ -3675,6 +3802,135 @@
         : { key: 'walk', kind: 'walk', label: t('Walk Here'), icon: E.walk, enabled: true });
     }
     return out;
+  }
+
+  // ------------------------------------------------------------------ stealing and reviving (docs/08 §2, §5)
+  const lootOn = () => !!(cfg && cfg.loot) || (Array.isArray(world.loot) && world.loot.length > 0);
+  const reviveOn = (p) => !!(cfg && cfg.revive) || !!(p && ('reviveCost' in p || 'wiltedBy' in p));
+  const stealGap = () => (cfg && cfg.steal && cfg.steal.intervalMs) || 500;
+  /** Steal from a rival's plant: only when it holds credits (the world view's `stored`). Hold to repeat. */
+  function stealAction(id, pl, reachWhy, blocked) {
+    if (!pl || pl.wilted || typeof pl.stored !== 'number' || Math.floor(pl.stored) < 1) return null;
+    let why = blocked || reachWhy;
+    if (!why && credits() >= capacity()) why = t('Your storage is full');
+    if (!why && me.combat && me.combat.knockedOut) why = t('You are knocked out');
+    if (!why && !me.player.showOnMap) why = t('Show yourself on the map to fight (Settings)');
+    const live = stl.cell === id && stl.total > 0 && (stl.on || Date.now() < stl.shownUntil);
+    return { key: 'steal', kind: 'steal', cell: id, label: live ? t('Steal · +{n}', { n: fmtNum(stl.total) }) : t('Steal'), icon: '🤏', why, enabled: !why,
+      reachOnly: !!why && why === reachWhy && !blocked, cls: `steal half${stl.on && stl.cell === id ? ' holding' : ''}`, half: true };
+  }
+  /** Revive a wilted plant: free for its owner, `reviveCost` for anyone else, never for the one who broke it. */
+  function reviveAction(id, pl, reachWhy) {
+    if (!pl || !pl.wilted || !reviveOn(pl)) return null;
+    const mine = myPlants.has(id), cost = mine ? 0 : Math.max(0, pl.reviveCost || 0);
+    let why = null;
+    if (!mine && me && pl.wiltedBy && pl.wiltedBy === me.player.id) why = t('You wilted it, so someone else has to revive it');
+    if (!why && cost && credits() < cost) why = t('Need {n} credits', { n: fmtNum(cost) });
+    why = why || reachWhy;
+    return { key: 'revive', kind: 'revive', cell: id, label: cost ? t('Revive · {coin} {n}', { coin: E.coin, n: fmtNum(cost) }) : t('Revive · Free'), icon: '🌱', why, enabled: !why,
+      reachOnly: !!why && why === reachWhy, cls: 'revive', run: () => doRevive(id) };
+  }
+  async function doRevive(id) {
+    const mine = myPlants.has(id), was = credits();
+    const r = await run('POST', `/v1/plants/${encodeURIComponent(id)}/revive`, { location: fix() },
+      () => (mine ? t('Your plant is alive again') : t('Revived! {name} will hear about it.', { name: rivalName(ownerOf(id)) })), '🌱');
+    if (!r) { loadWorld(pos); return null; }
+    const wc = world.cells.get(id);
+    if (wc && wc.plant) { wc.plant.wilted = false; delete wc.plant.wiltedBy; if (r.plant && typeof r.plant.hp === 'number') wc.plant.hp = r.plant.hp; }
+    feel('grow');
+    if (!mine && credits() < was) bumpCredits();
+    syncTiles();
+    renderSheet();
+    loadWorld(pos);
+    if (mine) loadMe().then(() => { syncTiles(); renderSheet(); });
+    return r;
+  }
+  // Hold to steal: one POST per tap or per tick of the hold (every steal.intervalMs), never faster than
+  // the server allows (STEAL_COOLDOWN's retryAfterMs, the result's nextAt). Coins fly from the plant to
+  // your counter on every steal; the button counts the haul ("Steal · +350").
+  const stl = { on: false, cell: null, busy: false, timer: 0, total: 0, n: 0, sent: 0, notBefore: 0, shownUntil: 0, calls: [], errors: [] };
+  function stealStart(id) {
+    if (stl.on && stl.cell === id) return;
+    stealStop(true);
+    if (stl.cell !== id || Date.now() > stl.shownUntil) { stl.total = 0; stl.n = 0; }
+    stl.cell = id;
+    stl.on = true;
+    stl.errors = [];
+    renderSheet();
+    stealTick();
+  }
+  function stealStop(quiet) {
+    if (!stl.on) return;
+    stl.on = false;
+    clearTimeout(stl.timer);
+    stl.timer = 0;
+    stl.shownUntil = Date.now() + 2500;
+    if (!quiet && !stl.busy) stealDone();
+    renderSheet();
+    setTimeout(() => { if (!stl.on) renderSheet(); }, 2600);
+  }
+  function stealDone() {
+    if (stl.total > 0 && stl.n > 1 && !stl.told) { stl.told = true; toast(t('You stole {n} credits', { n: fmtNum(stl.total) }), false, '🤏'); }
+  }
+  function stealTick() {
+    stl.timer = 0;
+    if (!stl.on || stl.busy) return;
+    stl.told = false;
+    // A few ms over the interval: the server measures it on its own clock.
+    const wait = Math.max(stl.sent + stealGap() + 15, stl.notBefore) - Date.now();
+    if (wait > 0) { stl.timer = setTimeout(stealTick, wait); return; }
+    stealOnce(stl.cell);
+  }
+  async function stealOnce(id) {
+    if (stl.busy || !id) return null;
+    if (!stl.on && (stl.cell !== id || Date.now() > stl.shownUntil)) { stl.total = 0; stl.n = 0; } // a single tap starts a new count
+    stl.cell = id;
+    stl.busy = true;
+    stl.sent = Date.now();
+    stl.calls.push(stl.sent);
+    if (stl.calls.length > 60) stl.calls.shift();
+    const was = credits(), wc = world.cells.get(id), pl = wc && wc.plant;
+    let res = null;
+    try {
+      const r = await api('POST', `/v1/plants/${encodeURIComponent(id)}/steal`, { location: fix() }, { idem: newKey() });
+      res = (r && r.result) || r || {};
+      if (r && r.state) setMe(r.state);
+      const got = Math.max(0, Math.floor(res.stolen || 0));
+      if (got > 0) {
+        stl.total += got;
+        stl.n++;
+        if (credits() > was) coinsFly([id], was, 3);
+        else bumpCredits();
+        gainAt(id, got);
+        feel('coin');
+      }
+      if (pl && typeof res.plantLeft === 'number') pl.stored = res.plantLeft;
+      if (res.nextAt) stl.notBefore = Date.now() + Math.max(0, Math.min(5000, Date.parse(res.nextAt) - serverNow()));
+      if ((pl && typeof res.plantLeft === 'number' && res.plantLeft < 1) || !got) stl.on = false; // emptied, or nothing fits any more
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      stl.errors.push(e.code);
+      if (e.code === 'STEAL_COOLDOWN') {
+        // Too early: wait as long as the server says and go on (silent while holding).
+        stl.notBefore = Date.now() + Math.min(5000, (e.details && e.details.retryAfterMs) || stealGap());
+        if (!stl.on) toast(errText(e), true);
+      } else {
+        stl.on = false;
+        if (e.code === 'NOTHING_TO_STEAL') { if (pl) pl.stored = 0; if (stl.total <= 0) toast(errText(e), true, E.coin); }
+        else if (e.code === 'TARGET_FRIENDLY') toast(t('You can’t steal from your crew.'), true);
+        else if (e.code === 'TARGET_INVALID') toast(t('That’s your own plant.'), true);
+        else toast(errText(e), true);
+        if (e.code === 'TARGET_DOWN' && pl) { pl.wilted = true; loadWorld(pos); }
+        if (e.code === 'LOCATION_STALE') syncLocation(true);
+      }
+    } finally {
+      stl.busy = false;
+    }
+    if (stl.on) stealTick();
+    else { if (stl.shownUntil < Date.now() + 2000) stl.shownUntil = Date.now() + 2500; stealDone(); }
+    refreshUi();
+    renderSheet();
+    return res;
   }
 
   // ------------------------------------------------------------------ map: one interface, two engines
@@ -3875,6 +4131,15 @@
         const a = new mk.Annotation(coord(p), () => elm, { calloutEnabled: false, enabled: false, animates: false, displayPriority: 1000, anchorOffset: new DOMPoint(0, 0), size: { width: 0, height: 0 } });
         if (z) a.zIndex = z;
         m.addAnnotation(a);
+        // Stacking: MapKit draws annotations in the order they were added; the layer order (your avatar
+        // on top) comes from the element's z-index, and its own box's when MapKit wraps it in one.
+        const stack = () => {
+          elm.style.zIndex = String(z || 0);
+          const box = elm.parentElement;
+          if (box && box.childElementCount === 1 && box !== el) box.style.zIndex = String(z || 0);
+        };
+        stack();
+        requestAnimationFrame(stack);
         return { move(q) { a.coordinate = coord(q); }, remove() { m.removeAnnotation(a); } };
       },
       tokenOk: () => tokenOk,
@@ -4020,7 +4285,7 @@
           return new gm.Polygon({ ...o, paths: x.rings.map((r, i) => ring(r, i === 0)) });
         });
       },
-      addMarker(elm, p) {
+      addMarker(elm, p, z) {
         elm.setAttribute('aria-hidden', 'true');
         let ll = new gm.LatLng(p.lat, p.lng);
         const mk = {
@@ -4030,6 +4295,7 @@
           remove() { markers.delete(mk); elm.remove(); },
         };
         elm.style.position = 'absolute';
+        elm.style.zIndex = String(z || 0); // the layer order (your avatar on top), not the order pins were added
         ov.root.appendChild(elm);
         markers.add(mk);
         mk.place();
@@ -4237,6 +4503,9 @@
       if (mapPref === 'apple') map = await tryEngine(() => appleEngine(el, center));
       if (!map) map = (await tryEngine(google)) || (await osm());
     }
+    // Every marker remembers its layer (data-z): the tests and __coc.avatarZ read the order from it.
+    const addM = map.addMarker;
+    map.addMarker = (elm, p, z) => { elm.dataset.z = String(z || 0); return addM.call(map, elm, p, z); };
     map.on('tap', (lat, lng) => {
       lastTapAt = Date.now();
       if (!me || !pos || Date.now() - heldAt < 1200) return;
@@ -4244,6 +4513,8 @@
       if (wm.on) return wallTap(id);
       if (dp.on) return deployTap(id);
       if (placing) return placeAt(id);
+      const lp = lootAt(lat, lng);
+      if (lp) return tapLoot(lp);
       const pk = pickupAt(lat, lng);
       if (pk) return tapPickup(pk);
       if (tapCollect(id)) { if (selected !== id) select(id); return; } // collect and show it
@@ -4340,6 +4611,7 @@
     syncBots();
     syncWalls();
     syncPickups();
+    syncLoot();
   }
   function updateReach(force) {
     if (!me || !map || !pos) return;
@@ -4563,6 +4835,9 @@
     return best;
   }
   // You: your avatar stands exactly on your position (no location dot), with a thin ring around it.
+  // Map layers, bottom to top: …, battle units 7, animals 4, plants 2, … and your avatar above all of
+  // them. Only short effects (bullets, puffs, floating numbers) and the tour's pointer may pass over it.
+  const Z = { me: 40, fx: 45, float: 46, coach: 48 };
   const meEl = document.createElement('div');
   meEl.className = 'op me';
   meEl.innerHTML = '<div class="pi"><div class="ring"></div><div class="spark">✨</div><div class="bubble"></div><div class="pe"></div><span class="hat"></span><div class="on"></div></div>';
@@ -4581,7 +4856,7 @@
   let meMarker = null, circlesAt = null, circlesKey = '';
   function updatePlayerVisuals() {
     if (!map || !pos) return;
-    if (!meMarker) meMarker = map.addMarker(meEl, pos, 11);
+    if (!meMarker) meMarker = map.addMarker(meEl, pos, Z.me);
     else meMarker.move(pos);
     setText(mePe, avatarOf(me && me.player));
     setText(meHat, cosEmoji(me && myCos().hat));
@@ -4873,14 +5148,15 @@
       const row = (it) => {
         const ty = itemType(it), on = it.place === 'active';
         const ctl = ty.for === 'seed' ? `<span class="row-value">${t('Seed')}</span>` : ty.for === 'player'
-          ? `<label class="switch toggle"><input type="checkbox" data-toggle="${it.id}"${on ? ' checked' : ''}${!on && act.length >= bag.maxActive ? ' disabled' : ''} aria-label="${esc(t('Use {name}', { name: itemName(it) }))}"><span></span></label>`
+          ? `<label class="switch toggle"><input type="checkbox" data-toggle="${it.id}"${on ? ' checked' : ''}${!on && boosters().active >= boosters().max ? ' disabled' : ''} aria-label="${esc(t('Use {name}', { name: itemName(it) }))}"><span></span></label>`
           : `<span class="row-value">${t('Plant')}</span>`;
-        return `<div class="row t"><div class="tile sm tint-${ty.for === 'player' ? 'red' : 'green'}">${ty.emoji}</div><div class="row-main"><div class="row-title">${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${esc(bonusText(it))}</div></div>` +
+        return `<div class="row t"><div class="tile sm tint-${ty.for === 'player' ? 'red' : 'green'}">${ty.emoji}</div><div class="row-main"><div class="row-title">${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${bonusHtml(it)}</div></div>` +
           `${ctl}<button class="pill" type="button" data-discard="${it.id}" aria-label="${esc(t('Throw away'))}">🗑️</button></div>`;
       };
-      html += `<h4 class="sec-h">${esc(t('Bag · {a} of {b}', { a: bag.used, b: bag.slots }))}</h4>`;
+      const al = boosters();
+      html += `<h4 class="sec-h">${esc(t('Bag · {a} of {b}', { a: bag.used, b: bag.slots }))}<span class="sec-r${al.active >= al.max ? ' full' : ''}" id="boostAllow">${esc(t('Active {a}/{b}', { a: al.active, b: al.max }))}</span></h4>`;
       html += items.length ? `<div class="group">${items.map(row).join('')}</div>` : `<div class="group"><div class="row"><div class="row-main row-sub">${esc(t('Empty. Defeat animals on the map ({animals}) to find boosters.', { animals: Object.values(cfg.bots.species).filter((x) => !x.friendly && !x.eventOnly).map((x) => x.emoji).join(' ') }))}</div></div></div>`;
-      html += `<p class="sec-f">${esc(t('Turn on up to {max} player boosters at a time ({n} on). Plant boosters go into a plant: tap one of your plants.', { max: bag.maxActive, n: act.length }) + (bag.upgradeCost ? t(' A bigger bag is in the shop.') : ''))}</p>`;
+      html += `<p class="sec-f">${esc(t('Turn on up to {max} player boosters at a time ({n} on). Plant boosters go into a plant: tap one of your plants.', { max: boosters().max, n: boosters().active }) + (bag.upgradeCost ? t(' A bigger bag is in the shop.') : ''))}</p>`;
       const seeds = pouch();
       if (seeds.length) {
         html += `<h4 class="sec-h">${esc(t('Seed Pouch · {a} of {b}', { a: seeds.length, b: wi.maxHeld }))}</h4><div class="group">` + seeds.map((sd) =>
@@ -5066,11 +5342,27 @@
   function makePrimary() {
     const wrap = document.createElement('div');
     wrap.innerHTML = '<button class="btn" type="button"><span class="bi"></span><span class="bl"></span></button><div class="btn-why"></div>';
-    wrap.firstElementChild.addEventListener('click', () => onAction(wrap._item));
+    const btn = wrap.firstElementChild;
+    btn.addEventListener('click', (e) => {
+      const a = wrap._item;
+      if (a && a.kind === 'steal') { if (e.detail === 0 && a.enabled) stealOnce(a.cell); return; } // pointers steal on press (below); keyboards once per click
+      onAction(a);
+    });
+    // Steal: press and hold to keep stealing (one steal right away, then every half second).
+    btn.addEventListener('pointerdown', (e) => {
+      const a = wrap._item;
+      if (!a || a.kind !== 'steal' || !a.enabled || e.button > 0) return;
+      e.preventDefault();
+      try { btn.setPointerCapture(e.pointerId); } catch (err) { /* released already */ }
+      stealStart(a.cell);
+    });
+    for (const k of ['pointerup', 'pointercancel', 'lostpointercapture']) btn.addEventListener(k, () => { if (stl.on) stealStop(); });
+    btn.addEventListener('contextmenu', (e) => { if (wrap._item && wrap._item.kind === 'steal') e.preventDefault(); });
     return wrap;
   }
   function updatePrimary(wrap, a) {
     wrap._item = a;
+    wrap.className = a.half ? 'half' : '';
     const btn = wrap.firstElementChild, bi = btn.firstElementChild, why = wrap.lastElementChild;
     const reloading = a.kind === 'fire' && a.enabled && reloadLeft() > 0;
     btn.disabled = !a.enabled || reloading;
@@ -5244,6 +5536,7 @@
     const raid = raidOn(id);
     const full = p.full || (p.storedMax ? stored >= p.storedMax : stored >= p.capacity);
     if (raid && raid.role === 'owner' && raid.canDefend) grow = `<button class="btn gold" type="button" data-defend="${esc(raid.id)}" style="background:var(--red);color:#fff"${reachWhy ? ' disabled' : ''}>🛡️ ${esc(t('Defend · {time}', { time: fmtClock(Date.parse(raid.windowEndsAt) - serverNow()) }))}</button>`;
+    else if (p.wilted && reviveOn(p)) grow = `<button class="btn gold revive" type="button" data-revive="1"${reachWhy ? ' disabled' : ''}>🌱 ${esc(t('Revive · Free'))}</button>`;
     else if (p.growTo && growLeft > 0) grow = `<button class="btn gold" type="button" disabled>${E.timer} ${esc(t('Level {n} in {time}', { n: p.growTo, time: fmtLeft(growLeft) }))}</button>`;
     else if (p.upgradeCost === null) grow = `<button class="btn gold" type="button" disabled>${t('Fully Grown')}</button>`;
     else {
@@ -5253,14 +5546,14 @@
     }
     if (grow !== psGrowKey) { psGrowKey = grow; $('psGrow').innerHTML = grow; }
     const branchDue = cfg.branches && p.level >= cfg.branches.atLevel && !p.branch;
-    setText($('psHint'), raid && raid.role === 'owner' ? `🏴 ${t('{name} is raiding it! Defend it on the spot.', { name: playerName(raid.raider) })}` : reachWhy ? `${E.walk} ${reachWhy}` : full ? t('Full: it stopped making credits. Tap it on the map to collect.') : stored >= 1 ? t('Tap the plant on the map to collect') : psDetent ? '' : branchDue ? t('Level {n}: swipe up to choose its branch', { n: cfg.branches.atLevel }) : invTotal() ? t('Swipe up to build here, or for {emoji} boosters', { emoji: p.emoji }) : t('Swipe up for {emoji} boosters and more', { emoji: p.emoji }));
+    setText($('psHint'), raid && raid.role === 'owner' ? `🏴 ${t('{name} is raiding it! Defend it on the spot.', { name: playerName(raid.raider) })}` : reachWhy ? `${E.walk} ${reachWhy}` : p.wilted && reviveOn(p) ? t('Wilted: it makes nothing until you revive it') : full ? t('Full: it stopped making credits. Tap it on the map to collect.') : stored >= 1 ? t('Tap the plant on the map to collect') : psDetent ? '' : branchDue ? t('Level {n}: swipe up to choose its branch', { n: cfg.branches.atLevel }) : invTotal() ? t('Swipe up to build here, or for {emoji} boosters', { emoji: p.emoji }) : t('Swipe up for {emoji} boosters and more', { emoji: p.emoji }));
     // The expanded part.
     const inPlant = p.items.map((i) => itemsById.get(i)).filter(Boolean);
     const forPlants = bagItems().filter((x) => itemType(x).for === 'plant');
     const free = p.slots - inPlant.length;
     const row = (it, btn) => {
       const ty = itemType(it);
-      return `<div class="row t"><div class="tile sm tint-${ty.for === 'plant' ? 'green' : 'red'}">${ty.emoji}</div><div class="row-main"><div class="row-title">${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${esc(bonusText(it))}</div></div>${btn}</div>`;
+      return `<div class="row t"><div class="tile sm tint-${ty.for === 'plant' ? 'green' : 'red'}">${ty.emoji}</div><div class="row-main"><div class="row-title">${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small></div><div class="row-sub">${bonusHtml(it)}</div></div>${btn}</div>`;
     };
     let html = !feat('bag') ? '' : `<p class="ps-hint">${t('Use ＋ and − to move boosters')}</p>` +
       `<div class="seg wide ps-seg" id="psSeg"><button type="button" data-ps="slots"${psTab === 'slots' ? ' class="on"' : ''}>${p.emoji} ${inPlant.length}/${p.slots}</button>` +
@@ -5314,6 +5607,8 @@
   $('psGrow').addEventListener('click', (e) => {
     const df = e.target.closest('[data-defend]');
     if (df && !df.disabled) return doRaidDefend(df.dataset.defend);
+    const rv = e.target.closest('[data-revive]');
+    if (rv && !rv.disabled && selected) return doRevive(selected);
     const b = e.target.closest('[data-grow]');
     if (b && !b.disabled && selected) return doGrow(selected, Number(b.dataset.grow));
     const u = e.target.closest('[data-bup]');
@@ -5498,7 +5793,7 @@
         if (rows.length) sections.push(`<h4 class="sec-h">${t(label)}</h4><div class="group">${rows.join('')}</div>`);
       }
       sections.push(`<p class="sec-f">${esc(t("Boosters can't be bought: animals drop them when you defeat them. {common}, {rare} and {epic} ones are stronger. Turn player boosters on in your bag (up to {max}); plant boosters go into a plant's slots.",
-        { common: cap1(rarityName('common')), rare: rarityName('rare'), epic: rarityName('epic'), max: cfg.items.maxActive }))}</p>`);
+        { common: cap1(rarityName('common')), rare: rarityName('rare'), epic: rarityName('epic'), max: boosters().max }))}</p>`);
       $('shopNext').innerHTML = '';
     }
     $('shopInv').innerHTML = invRows.length ? `<h4 class="sec-h">${t('Ready to Place')}</h4><div class="group">${invRows.join('')}</div><p class="sec-f">${t('Place moves you to the map: tap one of your plants within reach.')}</p>` : '';
@@ -5735,7 +6030,7 @@
   function pickBooster(cellId) {
     const have = bagItems().filter((x) => itemType(x).for === 'plant');
     showAlert(t('Add a Booster'), t('It stays in this plant until you take it out.'), [
-      ...have.slice(0, 6).map((it) => ({ label: `${itemType(it).emoji} ${itemName(it)} · ${rarityName(it.rarity)}`, onTap: () => doItem(`/v1/items/${it.id}/plant`, { cell: cellId, location: fix() }, t('{name} is working in the plant', { name: itemName(it) })) })),
+      ...have.slice(0, 6).map((it) => ({ label: `${itemType(it).emoji} ${itemName(it)} · ${typeof it.power === 'number' ? bonusText(it) : rarityName(it.rarity)}`, onTap: () => doItem(`/v1/items/${it.id}/plant`, { cell: cellId, location: fix() }, t('{name} is working in the plant', { name: itemName(it) })) })),
       { label: t('Cancel'), style: 'strong' },
     ]);
   }
@@ -6293,7 +6588,7 @@
       const ty = cfg.items.types[it.type] || { emoji: '❔', for: 'player' }, r = cfg.items.rarities[it.rarity] || { multiplier: 1 };
       const sold = it.left < 1, why = !m.open ? '' : sold ? t('Sold out for today') : credits() < it.price ? t('Need {n} credits', { n: fmtNum(it.price) }) : '';
       return shopRow(ty.emoji, ty.for === 'player' ? 'red' : 'green', `${esc(itemName(it))} <small class="rar-${esc(it.rarity)}">${esc(rarityName(it.rarity))}</small>`,
-        `${bonusText({ type: it.type, rarity: it.rarity, bonus: (ty.value || 0) * r.multiplier })} · ${tn(it.left, '{n} left today', '{n} left today')}`,
+        `${bonusText(ty.range && r.band ? { type: it.type, rarity: it.rarity, power: ty.range[0] + (ty.range[1] - ty.range[0]) * (r.band[0] + r.band[1]) / 2 } : { type: it.type, rarity: it.rarity, bonus: (ty.value || 0) * (r.multiplier || 1) })} · ${tn(it.left, '{n} left today', '{n} left today')}`,
         priceBtn(`data-mbuy="${esc(it.id)}"`, it.price, !m.open || sold || credits() < it.price), why ? `<div class="row-sub warn">${esc(why)}</div>` : '').replace('row t card', `row t card${m.open ? '' : ' mk-closed'}`);
     });
     return `<div class="group"><div class="row t"><div class="tile lg tint-${m.open ? 'green' : 'gray'}">🧺</div><div class="row-main"><div class="row-title">${esc(rule ? loc(rule, 'title') : m.open ? t('The market is open') : t('The market is closed'))}</div>` +
@@ -7170,7 +7465,7 @@
     if (!id || id === coachPin.cell) return;
     coachPin.cell = id;
     const c = cell(id);
-    if (!coachPin.handle) coachPin.handle = map.addMarker(coachPin.el, { lat: c.lat, lng: c.lng }, 10);
+    if (!coachPin.handle) coachPin.handle = map.addMarker(coachPin.el, { lat: c.lat, lng: c.lng }, Z.coach);
     else coachPin.handle.move({ lat: c.lat, lng: c.lng });
   }
   function ringFrame() {
@@ -9732,6 +10027,7 @@
     raid: 'raids', raidrun: 'raids', finish: 'raids', duel: 'duels', trade: 'trades', gift: 'gifts', shop: 'shop', ach: 'achievements', ms: 'missions' };
   function actionFeat(a) {
     if (a.kind === 'fire' || a.key === 'fire') return a.target && a.target.kind === 'boss' ? 'bosses' : 'combat';
+    if (a.kind === 'steal') return 'combat';
     if (a.kind === 'boost' || a.kind === 'unplant') return 'bag';
     return KEY_FEAT[a.key] || null;
   }
@@ -10138,13 +10434,13 @@
 
   // Coins fly from the plants to your credits, and the counter rolls up as they land.
   const roll = { on: false, from: 0, shown: 0, t0: 0, dur: 520, raf: 0, bumped: false };
-  function coinsFly(ids, was) {
+  function coinsFly(ids, was, perOne) {
     const now = credits();
     if (now <= was) return;
     if (RM || !map || !ids.length) return bumpCredits();
     const box = $('coins'), dst = $('credits').getBoundingClientRect(), app = appEl.getBoundingClientRect();
     const tx = dst.left + dst.width / 2 - app.left, ty = dst.top + dst.height / 2 - app.top;
-    const per = ids.length > 2 ? 2 : ids.length > 1 ? 3 : 5;
+    const per = perOne || (ids.length > 2 ? 2 : ids.length > 1 ? 3 : 5);
     let n = 0;
     for (const id of ids) {
       const c = cell(id), p = map.toPx({ lat: c.lat, lng: c.lng });
@@ -10471,7 +10767,7 @@
     const bot = tg.kind === 'bot' && (world.bots || []).find((b) => b.id === tg.id);
     if (bot && (bot.friendly || !troopOf(bot.species) && !speciesOf(bot.species))) return;
     const n = armyCount();
-    const why = !hqLevel() ? t('Found your Headquarters first.') : !n ? t('No animals yet: defeat wild animals and they join your army.')
+    const why = !hqLevel() ? t('Found your Headquarters first.') : !n ? t('No animals yet: defeat wild animals, then pick up what they drop.')
       : activeAttack() ? t('Your army is still out') : bot && bot.battleId ? t('An army is fighting it already') : null;
     out.rows.push({ key: 'attack', icon: '🐾', tint: 'red', title: tg.kind === 'bot' ? t('Send Your Army') : t('Attack Their Base'),
       sub: why || tn(n, '{n} animal ready · drop it outside their walls', '{n} animals ready · drop them outside their walls'), why: !!why,
@@ -10479,7 +10775,7 @@
   }
   function deployStart(tg) {
     if (!me || !feat('army') || !tg) return;
-    if (!armyCount()) return toast(t('No animals yet: defeat wild animals and they join your army.'), true, '🐾');
+    if (!armyCount()) return toast(t('No animals yet: defeat wild animals, then pick up what they drop.'), true, '🐾');
     if (wm.on) wallStop();
     if (placing) stopPlacing();
     if (pgOpen()) closeModal('pg');
@@ -10662,7 +10958,7 @@
         const el = document.createElement('div');
         el.className = 'bul';
         el.innerHTML = '<i></i>';
-        b = { el, h: map.addMarker(el, from, 9) };
+        b = { el, h: map.addMarker(el, from, Z.fx) };
         bullets.made++;
       }
     }
@@ -10710,7 +11006,7 @@
     let el = puffFree.pop();
     if (!el) { el = document.createElement('div'); el.className = 'cpf'; el.innerHTML = '<i></i>'; }
     el.firstChild.textContent = emoji;
-    const h = map.addMarker(el, at, 10);
+    const h = map.addMarker(el, at, Z.fx);
     puffLive++;
     const done = () => { h.remove(); puffFree.push(el); puffLive--; };
     if (!el.firstChild.animate) return setTimeout(done, 600);
@@ -10773,8 +11069,15 @@
     }
   }
   /** A wild animal you defeated: it joins your army (or waits on the ground), an XP star, maybe a booster. */
-  function killToast(res) {
+  function killToast(res, pile) {
     const tr = res.troop, sp = (tr && tr.species) || (res.target && res.target.species);
+    if (!tr && (pile || lootOn())) {
+      // The animal, its XP star and maybe a booster lie on the ground now, for anyone to pick up.
+      const pt = pile && pile.troop, s2 = sp || (pt && (pt.species || pt));
+      toast(t('{emoji} Defeated! It dropped a pile: tap it to pick it up', { emoji: (pt && pt.emoji) || (s2 ? spEmoji(s2) : '🐾') }), false, '🪙');
+      feel('coin');
+      return;
+    }
     const xp = res.xp ? ` · ${t('+{n} XP', { n: fmtNum(res.xp) })} ⭐` : '';
     const msg = !tr ? t('Defeated!') : tr.to === 'army' ? t('{emoji} {name} joined your army', { emoji: spEmoji(sp), name: spName(sp) })
       : t('Your army is full: {emoji} waits on the ground for you', { emoji: spEmoji(sp) });
@@ -10821,6 +11124,164 @@
     return r;
   }
 
+
+  // ---------------- ground loot (docs/08 §5): piles anyone within reach can pick up; a cleanup animal
+  // walks to an old pile during its last minute, and the pile is gone when it expires.
+  const lootPins = new Map(); // id -> { el, handle, key }
+  const lootAnimals = new Map(); // id -> { el, handle, at, from, sp }
+  const CLEANUP_EMOJI = { raccoon: '🦝', rat: '🐀', mouse: '🐁', crow: '🐦‍⬛', pigeon: '🐦', seagull: '🕊️', squirrel: '🐿️', hedgehog: '🦔', badger: '🦡', fox: '🦊' };
+  const lootLL = (l) => (Array.isArray(l.center) ? llOf(l.center) : l.center && typeof l.center.lat === 'number' ? l.center : l.cell ? cell(l.cell) : null);
+  const lootItems = (l) => (l.items || []).map((x) => (typeof x === 'string' ? { type: x } : x)).filter(Boolean);
+  const lootTroop = (l) => (!l.troop ? null : typeof l.troop === 'string' ? { species: l.troop, n: 1 } : { n: 1, ...l.troop });
+  const lootHas = (l) => !!l && ((l.credits || 0) >= 1 || (l.xp || 0) > 0 || lootItems(l).length > 0 || !!lootTroop(l));
+  const cleanupEmoji = (sp) => (!sp ? '🦝' : /^[a-z_]+$/i.test(sp) ? (speciesOf(sp) && speciesOf(sp).emoji) || CLEANUP_EMOJI[sp] || '🦝' : sp);
+  /** The small emojis beside the 🪙: the items, the animal, an XP star. */
+  function lootExtras(l) {
+    const out = lootItems(l).map((it) => itemType(it).emoji);
+    const tr = lootTroop(l);
+    if (tr) out.push(tr.emoji || spEmoji(tr.species));
+    if ((l.xp || 0) > 0) out.push('⭐');
+    return out;
+  }
+  function syncLoot() {
+    if (!map) return;
+    const seen = new Set(), now = serverNow();
+    for (const l of world.loot || []) {
+      if (l.expiresAt && Date.parse(l.expiresAt) <= now) continue;
+      const at = lootLL(l);
+      if (!at) continue;
+      seen.add(l.id);
+      let pin = lootPins.get(l.id);
+      if (!pin) {
+        const el = document.createElement('div');
+        el.className = 'lp';
+        el.dataset.loot = l.id;
+        pin = { el, handle: map.addMarker(el, at, 5), key: '', at };
+        lootPins.set(l.id, pin);
+      }
+      // The server's emoji list (credits, XP star, animal, boosters) when it sends one.
+      const ex = Array.isArray(l.emoji) && l.emoji.length ? l.emoji.slice() : lootExtras(l);
+      const main = Array.isArray(l.emoji) && l.emoji.length ? ex.shift() : (l.credits || 0) >= 1 || !ex.length ? '🪙' : ex.shift();
+      const key = `${main}|${ex.join('')}|${Math.floor(l.credits || 0)}`;
+      if (pin.key !== key) {
+        pin.key = key;
+        pin.el.innerHTML = `<i class="lc">${esc(main)}</i>${ex.length ? `<span class="lx">${esc(ex.slice(0, 3).join(''))}${ex.length > 3 ? '<b>…</b>' : ''}</span>` : ''}`;
+      }
+    }
+    for (const [id, pin] of lootPins) if (!seen.has(id)) lootGone(id, pin);
+  }
+  /** A pile goes away: a small pop, then the marker is removed. */
+  function lootGone(id, pin) {
+    lootPins.delete(id);
+    const a = lootAnimals.get(id);
+    if (a) { lootAnimals.delete(id); a.el.classList.add('leave'); setTimeout(() => a.handle.remove(), 700); }
+    if (RM) return pin.handle.remove();
+    pin.el.classList.add('gone');
+    setTimeout(() => pin.handle.remove(), 420);
+  }
+  function lootAt(lat, lng) {
+    if (!lootPins.size) return null;
+    const q0 = map.toPx({ lat, lng });
+    let best = null, bd = 26;
+    for (const l of world.loot || []) {
+      if (!lootPins.has(l.id)) continue;
+      const q = map.toPx(lootLL(l));
+      const d = q && Math.hypot(q.x - q0.x, q.y + 6 - q0.y);
+      if (d < bd) { bd = d; best = l; }
+    }
+    return best;
+  }
+  /** "+120 credits · +5 XP ⭐ · 🎯 Scope" */
+  function lootText(x) {
+    if (!x) return '';
+    const parts = [];
+    if ((x.credits || 0) >= 1) parts.push(t('+{n} credits', { n: fmtNum(x.credits) }));
+    if ((x.xp || 0) > 0) parts.push(`${t('+{n} XP', { n: fmtNum(x.xp) })} ⭐`);
+    for (const it of lootItems(x)) parts.push(`${itemType(it).emoji} ${itemName(it)}`);
+    const tr = lootTroop(x);
+    if (tr) parts.push(`${tr.emoji || spEmoji(tr.species)} ${loc(tr) || spName(tr.species)}`);
+    return parts.join(' · ');
+  }
+  const lootBusy = new Set();
+  async function tapLoot(l) {
+    const at = lootLL(l), d = pos && at ? distM(pos, at) : Infinity;
+    if (d > REACH) { toast(t('Walk closer to pick it up: {dist} away', { dist: fmtDist(d) }), true, E.walk); return null; }
+    if (lootBusy.has(l.id)) return null;
+    lootBusy.add(l.id);
+    const was = credits();
+    try {
+      const r = await api('POST', `/v1/loot/${encodeURIComponent(l.id)}/collect`, { location: fix() }, { idem: newKey() });
+      if (r && r.state) setMe(r.state);
+      const res = (r && r.result) || r || {};
+      const got = res.collected || res.got || res.taken || {}, left = res.left || res.remaining || null;
+      const gotText = lootText(got);
+      let msg = gotText || t('Nothing fits right now');
+      if (lootHas(left)) {
+        const why = [], flags = 'storageFull' in res || 'bagFull' in res || 'armyFull' in res;
+        if (flags ? res.storageFull : (left.credits || 0) >= 1) why.push(t('your storage is full'));
+        if (flags ? res.bagFull : lootItems(left).length) why.push(t('your bag is full'));
+        if (flags ? res.armyFull : lootTroop(left)) why.push(t('your army is full'));
+        msg += ` · ${t('Left on the pile: {what} ({why})', { what: lootText(left), why: why.join(', ') })}`;
+      }
+      toast(msg, !gotText, lootTroop(got) ? '🐾' : '🪙');
+      if (credits() > was) coinsFly([l.cell || cellAt(at.lat, at.lng)], was, 4);
+      else if (gotText) bumpCredits();
+      if (gotText) feel('coins');
+      if (lootHas(left)) Object.assign(l, { credits: 0, xp: 0, items: [], troop: null, emoji: null }, left, { id: l.id });
+      else world.loot = (world.loot || []).filter((x) => x.id !== l.id);
+      syncLoot();
+      refreshUi();
+      return res;
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      toast(errText(e), true);
+      if (e.code === 'LOOT_GONE' || e.code === 'NOT_FOUND') { world.loot = (world.loot || []).filter((x) => x.id !== l.id); syncLoot(); }
+      if (e.code === 'LOCATION_STALE') syncLocation(true);
+      return null;
+    } finally {
+      lootBusy.delete(l.id);
+    }
+  }
+  /** Cleanup animals: during a pile's last minute its animal walks in from ~40 m away, nibbles, and the
+   *  pile is gone at expiresAt. Only drawn here; the server just drops the row. */
+  function lootFrame() {
+    const L = world.loot;
+    if (!L || !L.length) { for (const [id, a] of lootAnimals) { a.handle.remove(); lootAnimals.delete(id); } return; }
+    const now = serverNow();
+    let gone = false;
+    for (const l of L) {
+      const exp = l.expiresAt ? Date.parse(l.expiresAt) : Infinity;
+      if (now >= exp) { gone = true; continue; }
+      const c = l.cleanup, pile = lootLL(l);
+      if (!c || !c.arrivesAt || !pile) continue;
+      // From startsAt (else the last minute) to arrivesAt; when it arrives only as the pile goes, it gets
+      // there a few seconds early to nibble.
+      const arr0 = Date.parse(c.arrivesAt), start = c.startsAt ? Date.parse(c.startsAt) : Math.min(arr0 - 20000, (exp === Infinity ? arr0 : exp) - 60000);
+      const arr = arr0 >= exp - 1000 ? arr0 - Math.min(8000, (arr0 - start) * 0.15) : arr0;
+      if (now < start) continue;
+      let a = lootAnimals.get(l.id);
+      if (!a) {
+        // From a direction of its own (the pile's id), so two piles' animals don't walk the same line.
+        let h = 0;
+        for (const ch of String(l.id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+        const ang = ((h % 360) * Math.PI) / 180, r = 40;
+        const from = { lat: pile.lat + (r * Math.cos(ang)) / MLAT, lng: pile.lng + (r * Math.sin(ang)) / (MLAT * Math.cos(pile.lat * RAD)) };
+        const el = document.createElement('div');
+        el.className = 'lpa';
+        el.dataset.cleanup = l.id;
+        el.innerHTML = `<i class="ae">${esc(c.emoji || cleanupEmoji(c.species))}</i>`;
+        // Emojis face left: walking east they turn around.
+        if (pile.lng > from.lng) el.classList.add('flip');
+        a = { el, handle: map.addMarker(el, from, 4), at: from, from, sp: c.species };
+        lootAnimals.set(l.id, a);
+      }
+      const k = Math.max(0, Math.min(1, (now - start) / Math.max(1, arr - start)));
+      const q = lerpLL(a.from, pile, k * 0.9); // stops just beside the pile
+      if (q.lat !== a.at.lat || q.lng !== a.at.lng) { a.at = q; a.el._ll = q; a.handle.move(q); }
+      a.el.classList.toggle('eat', k >= 1);
+    }
+    if (gone) { world.loot = L.filter((l) => !(l.expiresAt && Date.parse(l.expiresAt) <= now)); syncLoot(); }
+  }
   // ---------------- battles: the server's timeline, played on the map in real time (or as a replay)
   const bt = { plays: new Map(), seen: new Set(), results: new Set(), stats: new Map(), last: null, mine: null };
   const unitFree = [], barFree = [];
@@ -11145,7 +11606,7 @@
       return rowHtml({ icon: spEmoji(k), tint: T.air ? 'blue' : 'orange', titleHtml: `${esc(spName(k))} <small>${esc(roleName(T.role))}${T.air ? ' · ' + esc(t('flies')) : ''}</small>`,
         sub: loc(T, 'description') || t(GOES_FOR[T.targets] || 'goes for anything'), extra: `<div class="row-sub tstats">${esc(statsText(T))} · ${esc(t(GOES_FOR[T.targets] || 'goes for anything'))}</div>`, value: n ? `×${n}` : undefined, cls: n ? '' : 'dim' });
     };
-    html += owned.length ? group(owned.map((k) => row(k, tr[k])), t('Your Animals')) : `<h4 class="sec-h">${esc(t('Your Animals'))}</h4>` + emptyRow(t('No animals yet: defeat wild animals and they join your army.'));
+    html += owned.length ? group(owned.map((k) => row(k, tr[k])), t('Your Animals')) : `<h4 class="sec-h">${esc(t('Your Animals'))}</h4>` + emptyRow(t('No animals yet: defeat wild animals, then pick up what they drop.'));
     const pk = (world.pickups || []).map((p) => {
       const d = pos ? distM(pos, llOf(p.center)) : 0, far = d > collectM();
       return rowHtml({ icon: (p.emoji || [])[0] || '🐾', tint: 'green', title: troopsText(p.troops), sub: `${p.source === 'battle' ? t('Back from battle') : t('From a hunt')} · ${fmtDist(d)}${p.expiresAt ? ' · ' + t('gone in {time}', { time: leftText(p.expiresAt) }) : ''}`,
@@ -11204,6 +11665,7 @@
     // While the map runs a zoom animation, pins glide with it; moving one now would leave its spot.
     if (map.busy && map.busy()) return;
     botsFrame(now);
+    lootFrame();
     if (bt.plays.size) for (const pb of [...bt.plays.values()]) pbFrame(pb, now);
     if (bullets.live.length) bulletsFrame(now);
   }
@@ -11855,6 +12317,30 @@
     get army() { return myArmy(); },
     get frames() { return cfFrames; },
     buildFeat: (type) => buildFeat(type),
+    // Steal, revive, ground loot, booster allowance and rolls (docs/08).
+    steal: {
+      get state() { return { on: stl.on, cell: stl.cell, busy: stl.busy, total: stl.total, n: stl.n, calls: stl.calls.slice(), errors: stl.errors.slice(), notBefore: stl.notBefore }; },
+      start: (id) => stealStart(id),
+      stop: () => stealStop(),
+      once: (id) => stealOnce(id),
+      reset: () => { stealStop(true); stl.total = 0; stl.n = 0; stl.calls = []; stl.errors = []; stl.shownUntil = 0; stl.notBefore = 0; stl.sent = 0; },
+    },
+    revive: (id) => doRevive(id),
+    loot: {
+      get piles() { return (world.loot || []).map((l) => { const a = lootAnimals.get(l.id), pin = lootPins.get(l.id); return { id: l.id, pin: !!pin, html: pin ? pin.el.innerHTML : '', gone: pin ? pin.el.classList.contains('gone') : false, animal: a ? { lat: a.at.lat, lng: a.at.lng, eat: a.el.classList.contains('eat'), emoji: a.el.textContent } : null }; }); },
+      collect: (id) => { const l = (world.loot || []).find((x) => x.id === id); return l ? tapLoot(l).then((r) => r) : Promise.resolve(null); },
+      sync: () => { syncLoot(); lootFrame(); },
+      at: (x, y) => { const ll = map.fromPx(x, y), l = ll && lootAt(ll.lat, ll.lng); return l ? l.id : null; },
+    },
+    get boosters() { return me ? boosters() : null; },
+    itemRoll: (it) => ({ text: bonusText(it), quality: itemQuality(it) }),
+    sortItems: (list) => sortItems(list).map((x) => x.id),
+    /** Your avatar's layer against every other marker on the map (effects and the tour pointer aside). */
+    avatarZ: () => {
+      let other = -Infinity;
+      for (const el of document.querySelectorAll('#map [data-z]')) { const z = Number(el.dataset.z); if (el !== meEl && z < Z.fx && z > other) other = z; }
+      return { engine: map && map.kind, me: Number(meEl.dataset.z || 0), others: other, top: Number(meEl.dataset.z || 0) > other, css: getComputedStyle(meEl).zIndex };
+    },
   };
 
   boot();
