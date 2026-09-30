@@ -856,6 +856,36 @@
   .pctbar b { flex: none; min-width: 42px; text-align: right; font: 600 13px var(--round); font-variant-numeric: tabular-nums; color: var(--label2); }
   /* switches in a list (notification kinds) */
   .row .field.time { width: auto; flex: none; height: 32px; padding: 0 8px; border-radius: 8px; background: var(--fill3); font: 500 16px var(--round); font-variant-numeric: tabular-nums; }
+  /* debug page: switches, steppers, pop-up menus and inline fields in grouped lists */
+  .dbg-chiprow { align-items: flex-start; padding-top: 11px; padding-bottom: 12px; }
+  .dbg-chiprow .tile { margin-top: 1px; }
+  .dbg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .dbg-chips .pill { min-width: 0; height: 30px; padding: 0 14px; font-variant-numeric: tabular-nums; }
+  .row .dbg-in { flex: 1; min-width: 0; }
+  .row .dbg-in::-webkit-search-cancel-button { display: none; }
+  .row .pill + .pill { margin-left: -4px; }
+  .dbg-pick { cursor: pointer; }
+  .dbg-pick select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; font-size: 16px; cursor: pointer; -webkit-appearance: none; appearance: none; }
+  .dbg-pick:active { background: var(--row-hi); }
+  .dbg-pick.off { cursor: default; }
+  .dbg-pick.off .row-title, .dbg-pick.off .row-value, .dbg-pick.off .dbg-ud { opacity: .45; }
+  .dbg-pick .row-value { max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dbg-ud { flex: none; width: 13px; height: 17px; margin-left: -8px; color: var(--label3); }
+  .dbg-ud svg { display: block; width: 100%; height: 100%; }
+  .dbg-n { flex: none; min-width: 22px; text-align: right; font: 600 17px var(--round); font-variant-numeric: tabular-nums; color: var(--label2); }
+  .dbg-step { flex: none; display: flex; align-items: center; height: 32px; border-radius: 9px; background: var(--fill3); overflow: hidden; }
+  .dbg-step button { width: 46px; height: 32px; border: 0; background: none; color: var(--label); font: 400 23px/1 var(--font); }
+  .dbg-step button:disabled { color: var(--label3); }
+  .dbg-step button:active:not(:disabled) { background: var(--fill); }
+  .dbg-step i { width: .5px; height: 18px; background: var(--sep); }
+  button.row:disabled .row-title, button.row:disabled .row-sub, button.row:disabled .tile { opacity: .45; }
+  .dbg-spin { flex: none; width: 17px; height: 17px; border: 2px solid var(--fill); border-top-color: var(--label2); border-radius: 50%; animation: dbgspin .8s linear infinite; }
+  @keyframes dbgspin { to { transform: rotate(360deg); } }
+  .dbg-foot { margin-top: 20px; text-align: center; }
+  .group.dbg-more { margin-top: 20px; }
+  /* while the Debug page is open, its toasts show above it */
+  #app:has(#pg.open .dbg-page) #toast { z-index: 21; }
+  .dbg-warn { color: var(--orange); }
   /* chat */
   .chat { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 12px; }
   .msg { display: flex; align-items: flex-end; gap: 8px; max-width: 86%; }
@@ -1389,6 +1419,12 @@
           <div class="row t" id="speedRow"><div class="tile sm tint-gray">⏩</div><div class="row-main"><div class="row-title" data-i18n>Speed</div></div><div class="seg" id="speedSeg"><button type="button" data-speed="walk" data-i18n>1.4 m/s</button><button type="button" data-speed="fast" data-i18n>7 m/s</button></div></div>
         </div>
         <p class="sec-f" id="locFoot"></p>
+        <div id="debugBox" hidden>
+          <h4 class="sec-h" data-i18n>Debug</h4>
+          <div class="group">
+            <button class="row t" id="debugRow" type="button"><div class="tile sm tint-gray">🛠️</div><div class="row-main"><div class="row-title" data-i18n>Debug</div><div class="row-sub" data-i18n>Cheats for testing</div></div><span class="row-chev" data-icon="chev"></span></button>
+          </div>
+        </div>
         <div id="testingBox">
           <h4 class="sec-h" data-i18n>Testing</h4>
           <div class="group">
@@ -2446,7 +2482,7 @@
       '{emoji} {name} unlocks at level {n}.': '{emoji} {name}, seviye {n} olunca açılır.', 'This unlocks at level {n}.': 'Bu, seviye {n} olunca açılır.',
       'This isn’t unlocked yet. Keep playing!': 'Bu henüz açılmadı. Oynamaya devam et!',
       'Open your profile': 'Profilini aç', 'Tap your player card or swipe it up: your record, your profile and your goals.': 'Oyuncu kartına dokun ya da yukarı kaydır: kayıtların, profilin ve hedeflerin.',
-      'Level {n}!': 'Seviye {n}!', 'New at level {n}': 'Seviye {n} ile yeni', 'New': 'Yeni', 'Open {name}': 'Aç: {name}', 'Got It': 'Anladım', 'Later': 'Sonra',
+      'Level {n}!': 'Seviye {n}!', '{n} new feature': '{n} yeni özellik', '{n} new features': '{n} yeni özellik', 'New at level {n}': 'Seviye {n} ile yeni', 'New': 'Yeni', 'Open {name}': 'Aç: {name}', 'Got It': 'Anladım', 'Later': 'Sonra',
       'Goals': 'Hedefler', 'Next unlock: {name}': 'Sıradaki yenilik: {name}', 'At level {n} · {p} score to go': 'Seviye {n} · {p} puan kaldı', 'At level {n}': 'Seviye {n}',
       '#{n}': '#{n}', 'Also: {list}': 'Ayrıca: {list}', 'ring|{name} at level {n}': '{name} · seviye {n}', '{c} credits, health {h}': '{c} kredi, sağlık {h}', 'top {n} win {what}': 'ilk {n} kazanır: {what}', 'Season: {name}': 'Sezon: {name}', 'Next achievement: {name}': 'Sıradaki başarım: {name}',
       'Tier {n} · {a} of {b}': 'Kademe {n} · {a} / {b}',
@@ -2528,6 +2564,44 @@
       // server messages that share a code with other meanings
       'That player is in your crew': 'Bu oyuncu senin ekibinde', 'Friendly animals can’t be attacked. Feed it instead!': 'Dost hayvanlara saldırılmaz. Onu besle!',
       'Their base is shielded': 'Üsleri kalkanlı', 'New players are protected for a while': 'Yeni oyuncular bir süre korunur',
+      // debug page (cheats for testing)
+      'Debug': 'Hata Ayıklama', 'Cheats for testing': 'Test için hileler', 'Debug actions are recorded with your account.': 'Hata ayıklama işlemlerin hesabınla birlikte kaydedilir.',
+      'Debug is turned off on this server': 'Bu sunucuda hata ayıklama kapalı', 'Debug isn’t available for you': 'Hata ayıklama sana açık değil', 'verb|Set': 'Ayarla', 'Reset': 'Sıfırla', 'Go': 'Git',
+      'Money': 'Para', 'Add Credits': 'Kredi Ekle', 'You have {n}': 'Sende {n} var', 'Custom Amount': 'Özel Miktar', 'Credits set to {n}': 'Kredin {n} oldu',
+      'Infinite Money': 'Sonsuz Para', 'Nothing costs anything': 'Hiçbir şey para tutmaz', 'Infinite money is on': 'Sonsuz para açık', 'Infinite money is off': 'Sonsuz para kapalı',
+      'Progress': 'İlerleme', 'Level Up': 'Seviye Atla', 'Set Level…': 'Seviyeyi Ayarla…', 'Unlock Everything': 'Her Şeyi Aç', 'Every feature, whatever your level': 'Seviyen ne olursa olsun her özellik',
+      'Everything is unlocked': 'Her şey açıldı', 'Features unlock with your level again': 'Özellikler yine seviyenle açılıyor', 'Type a number first': 'Önce bir sayı yaz',
+      'Time': 'Zaman', 'Skip Time': 'Zamanı İleri Al', 'Your plants, builds and cooldowns move on. Nobody else’s.': 'Bitkilerin, inşaatların ve bekleme sürelerin ilerler. Başkalarınınki değil.',
+      '10 min': '10 dk', '1 h': '1 sa', '8 h': '8 sa', '1 day': '1 gün', 'Minutes (1–10080)': 'Dakika (1–10080)', 'Skip': 'Atla', 'Skipped {n} days': '{n} gün atlandı',
+      'Finish All Now': 'Hepsini Şimdi Bitir', 'Construction, upgrades and growing': 'İnşaat, yükseltme ve büyüme', 'Everything is finished': 'Her şey bitti', 'Fill Plants': 'Bitkileri Doldur', 'Your plants are full': 'Bitkilerin dolu',
+      'Heal': 'İyileş', 'Full health, back on your feet': 'Tam can, yeniden ayaktasın', 'You’re fully healed': 'Tamamen iyileştin',
+      'God Mode': 'Ölümsüzlük', 'You take no damage': 'Hiç hasar almazsın', 'God mode is on': 'Ölümsüzlük açık', 'God mode is off': 'Ölümsüzlük kapalı',
+      'Reach in meters, e.g. 500': 'Metre olarak menzil, ör. 500', 'Reach: {n} m': 'Menzil: {n} m', 'Your reach is {n} m': 'Menzilin {n} m', 'Your reach is back to normal': 'Menzilin normale döndü',
+      'Teleport': 'Işınlan', 'To a place, coordinates or the map center': 'Bir yere, koordinatlara ya da haritanın ortasına', 'Teleported': 'Işınlandın', 'Teleported to {place}': 'Işınlandın: {place}',
+      'Search': 'Ara', 'A place, e.g. Galata Tower': 'Bir yer, ör. Galata Kulesi', 'Searching…': 'Aranıyor…', 'Nothing found': 'Hiçbir şey bulunamadı', 'Couldn’t search right now': 'Şu an aranamadı',
+      'Coordinates': 'Koordinatlar', 'Latitude and longitude, like in a map link.': 'Enlem ve boylam, bir harita bağlantısındaki gibi.', 'Type latitude, longitude': 'Enlem, boylam yaz', 'Those aren’t coordinates': 'Bunlar koordinat değil',
+      'To the Map Center': 'Haritanın Ortasına', 'the map center': 'haritanın ortası',
+      'Moves you there at once, without the usual location checks. Simulated walking turns on so your GPS doesn’t pull you back.': 'Seni hemen oraya götürür, her zamanki konum kontrolleri olmadan. GPS seni geri çekmesin diye sanal yürüme açılır.',
+      'Items': 'Eşyalar', 'Booster': 'Güçlendirici', 'Rarity': 'Nadirlik', 'How Many': 'Kaç Tane', 'Fewer': 'Daha az', 'Give Boosters': 'Güçlendirici Ver',
+      '{n} boosters in your bag': 'Çantanda {n} güçlendirici', 'Fill Bag': 'Çantayı Doldur', 'Your bag is full': 'Çantan dolu',
+      'Animal': 'Hayvan', 'Give Animals': 'Hayvan Ver', '+{n} {what}': '+{n} {what}', 'Fill Army': 'Orduyu Doldur', 'Your army is full': 'Ordun dolu',
+      'All Cosmetics': 'Bütün Kozmetikler', 'Every cosmetic is yours': 'Bütün kozmetikler artık senin', 'One Cosmetic': 'Tek Kozmetik', '{name} is yours': '{name} artık senin',
+      'Buildings': 'Binalar', 'HQ Level': 'Karargâh Seviyesi', 'Found your Headquarters first': 'Önce Karargâhını kur', 'Headquarters level {n}': 'Karargâh seviyesi {n}',
+      'Repair All': 'Hepsini Onar', 'Buildings and walls': 'Binalar ve duvarlar', 'Everything is repaired': 'Her şey onarıldı',
+      'Spawn an Animal Here': 'Buraya Hayvan Çıkar', 'Spawn a Boss Here': 'Buraya Boss Çıkar', 'Any Boss': 'Herhangi Bir Boss', 'Spawn a Treasure Here': 'Buraya Hazine Çıkar', 'Spawn a Seed Here': 'Buraya Tohum Çıkar',
+      '{what} is next to you': '{what} hemen yanında', 'A boss is next to you': 'Bir boss hemen yanında', 'A treasure is next to you': 'Bir hazine hemen yanında', 'A seed is next to you': 'Bir tohum hemen yanında',
+      'Force Event': 'Etkinlik Başlat', 'None': 'Yok', 'For you only, for an hour': 'Yalnızca senin için, bir saatliğine', 'Stop the Event': 'Etkinliği Durdur', '{name} is on for you': '{name} senin için başladı', 'The forced event stopped': 'Başlatılan etkinlik durdu',
+      'Real': 'Gerçek', 'Real Weather': 'Gerçek Hava', 'Clear Sky': 'Açık Hava', 'Rain': 'Yağmur', 'Snow': 'Kar', 'Wind': 'Rüzgâr', 'Weather: {w}': 'Hava: {w}', 'Real weather again': 'Yine gerçek hava',
+      'Day and Night': 'Gece ve Gündüz', 'Real Time': 'Gerçek Saat', 'Day': 'Gündüz', 'Dusk': 'Akşam', 'Night': 'Gece', 'Dawn': 'Şafak', 'It’s {phase} for you now': 'Senin için artık {phase}', 'Real time of day again': 'Yine gerçek saat',
+      'Spawned things appear next to you for a while. Forced events, weather and time of day are only for you.': 'Çıkardıkların bir süre yanında durur. Başlattığın etkinlik, hava ve saat yalnızca senin için.',
+      'Combat': 'Savaş', 'Make a Rival Base': 'Rakip Üs Kur', '150 m away, to attack and test': '150 m ötede, saldırıp denemek için', 'A rival base is 150 m away': 'Bir rakip üs 150 m ötede',
+      'Remove Shield': 'Kalkanı Kaldır', 'And new-player protection': 'Yeni oyuncu korumasıyla birlikte', 'Your shield is gone': 'Kalkanın kalktı', 'Give Shield': 'Kalkan Ver', 'You’re shielded': 'Kalkanın var',
+      'Finish Battles': 'Savaşları Bitir', 'Your battles in progress end now': 'Süren savaşların şimdi biter', 'Your battles are over': 'Savaşların bitti',
+      'Resets': 'Sıfırlamalar', 'Reset Cooldowns': 'Bekleme Sürelerini Sıfırla', 'Streak, missions, landmarks, remote harvest, market': 'Seri, görevler, simgeler, uzaktan hasat, pazar', 'Cooldowns are reset': 'Bekleme süreleri sıfırlandı',
+      'Complete Missions': 'Görevleri Tamamla', 'Missions, quests and close achievements': 'Görevler, maceralar ve yakın başarımlar', 'Missions are ready to claim': 'Görevler alınmaya hazır',
+      'Start Over': 'Baştan Başla', 'Start Over?': 'Baştan Başlansın mı?', 'You’re starting over': 'Baştan başlıyorsun',
+      'Deletes your land, buildings, items and progress. Your name and avatar stay.': 'Arazini, binalarını, eşyalarını ve ilerlemeni siler. Adın ve avatarın kalır.',
+      'This deletes your land, buildings, items and progress. Your name and avatar stay. This can’t be undone.': 'Bu, arazini, binalarını, eşyalarını ve ilerlemeni siler. Adın ve avatarın kalır. Geri alınamaz.',
     },
     // Server errors by code, for messages with numbers in them (and anything new): a text, or a function of the error's details.
     errors: {
@@ -6608,7 +6682,8 @@
     $('locFoot').textContent = mode === 'sim'
       ? t('Walk with the joystick or with Walk Here on a hex. Arrow keys and WASD work too. The server pauses actions above 8 m/s.')
       : t('With real GPS you can act on hexes within {n} m of where you are. Turn on simulated walking to test without moving.', { n: REACH });
-    $('testingBox').hidden = !devTools;
+    $('debugBox').hidden = !debugOn();
+    $('testingBox').hidden = !devTools || debugOn(); // the Debug page skips time too
     $('mapValue').textContent = map ? map.attribution : '–';
     $('keyRow').hidden = !map || map.kind === 'apple';
     $('keyValue').textContent = gAuthFailed ? t('Rejected') : gKey ? t('Set') : t('Not Set');
@@ -6830,6 +6905,7 @@
       select(cellAt(pos.lat, pos.lng));
       toast(mode === 'gps' ? t('You are here. Found your Headquarters!') : t('Walk with the joystick'), false, mode === 'gps' ? E.here : E.sim);
     }
+    debugUrlOpen();
   }
 
   // ------------------------------------------------------------------ accessibility: text size, reduce motion, color-blind-safe colors, VoiceOver
@@ -9712,7 +9788,7 @@
 
   // ---------------- the unlock moment: "New: 🎯 Missions", one card at a time
   const unlockQ = [], unlockShown = new Set();
-  let unlockCur = null;
+  let unlockCur = null, unlockTimer = 0;
   function noteUnlocks(lists) {
     for (const l of lists) if (Array.isArray(l)) for (const u of l) queueUnlock(u);
   }
@@ -9721,7 +9797,8 @@
     if (!u || !u.feature || unlockShown.has(u.feature)) return;
     unlockShown.add(u.feature);
     unlockQ.push({ ...(unlockDef(u.feature) || {}), ...u });
-    showNextUnlock();
+    // A moment later: the unlocks of one answer arrive together and can share one card.
+    if (!unlockTimer) unlockTimer = setTimeout(() => { unlockTimer = 0; showNextUnlock(); }, 60);
   }
   /** Your state moved on: a level up, and features that opened since the last state. */
   function progressed(prev, next) {
@@ -9765,6 +9842,12 @@
   function showNextUnlock() {
     if (unlockCur || !unlockQ.length) return;
     if (!started || $('welcome').classList.contains('open') || $('setup').classList.contains('open')) return; // the tick tries again
+    // Several at once (a big level jump): one card that lists them, not a long row of cards.
+    if (unlockQ.length >= 3) {
+      const all = unlockQ.splice(0), top = Math.max(0, ...all.map((x) => x.level || 0));
+      unlockQ.push({ feature: '_many', emoji: '✨', level: top, title: { en: tn(all.length, '{n} new feature', '{n} new features') },
+        text: { en: all.map((x) => `${x.emoji || '✨'} ${loc(x, 'title') || x.feature}`).join(' · ') } });
+    }
     const u = unlockCur = unlockQ.shift(), name = loc(u, 'title') || u.feature, text = loc(u, 'text');
     u.go = UNLOCK_OPEN[u.feature] ? UNLOCK_OPEN[u.feature]() : null;
     setText($('unlockEmo'), u.emoji || '✨');
@@ -11235,8 +11318,406 @@
     document.addEventListener('visibilitychange', () => { weatherFx.update(); if (!document.hidden && me) { loadMe(); syncLocation(true); applySun(); } });
   }
 
+  // ------------------------------------------------------------------ Debug page: cheats for testing (docs/07-debug-plan.md)
+  // Shown in Settings when the server says you may use it (me.debugAvailable), or on this device with
+  // localStorage coc.debugForce=1 (for testing the page before the server has it). Every action is a
+  // POST /v1/debug/… that answers {result, state}; the switches and pickers come from GET /v1/debug/state.
+  // Nothing here moves the map, except Teleport, which moves you (the camera follows you as usual).
+  const DBG_FORCE = 'coc.debugForce';
+  const dbg = { state: null, off: false, busy: {}, step: { items: 1, troops: 5 }, pick: { item: '', rarity: '', species: '' }, found: null, searching: false, urlDone: false };
+  const debugOn = () => !dbg.off && (mget('debugAvailable', false) === true || lsGet(DBG_FORCE) === '1');
+  const debugFromUrl = (() => {
+    try {
+      const u = new URL(location.href);
+      if (u.searchParams.get('debug') === null) return false;
+      const on = u.searchParams.get('debug') === '1';
+      u.searchParams.delete('debug');
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+      return on;
+    } catch (e) { return false; }
+  })();
+  const DBG_UPDOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7.5 9.5 4.5-4.5 4.5 4.5M7.5 14.5l4.5 4.5 4.5-4.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  /** The flags of GET /v1/debug/state (at its top level or under `flags`). */
+  const dbgFlags = () => { const s = dbg.state || {}; return (s.flags && typeof s.flags === 'object' ? s.flags : s) || {}; };
+  const dbgFlag = (...keys) => { const f = dbgFlags(); for (const k of keys) if (f[k] !== undefined && f[k] !== null) return f[k]; return null; };
+  /** A picker list as [{id, label}]: from the debug state (array or map, strings or objects), else from the config. */
+  function dbgOpts(v) {
+    if (!v) return [];
+    const arr = Array.isArray(v) ? v : Object.entries(v).map(([id, o]) => (o && typeof o === 'object' ? { id, ...o } : { id, name: o }));
+    return arr.map((o) => {
+      if (typeof o === 'string' || typeof o === 'number') return { id: String(o), label: String(o) };
+      const id = String(o.id ?? o.type ?? o.key ?? o.species ?? o.ruleId ?? '');
+      const name = loc(o) || loc(o, 'title') || loc(o, 'label') || id;
+      return { id, label: `${o.emoji ? o.emoji + ' ' : ''}${name}` };
+    }).filter((o) => o.id);
+  }
+  function dbgList(keys, fallback) {
+    const s = dbg.state || {}, L = (s.lists && typeof s.lists === 'object' && s.lists) || (s.pickers && typeof s.pickers === 'object' && s.pickers) || {};
+    for (const k of keys) { const v = L[k] || s[k]; if (v && (Array.isArray(v) ? v.length : Object.keys(v).length)) return dbgOpts(v); }
+    return dbgOpts(fallback);
+  }
+  const dbgItemTypes = () => dbgList(['itemTypes', 'items', 'boosters'], cfg && cfg.items && cfg.items.types);
+  const dbgRarities = () => dbgList(['rarities'], cfg && cfg.items && cfg.items.rarities);
+  const dbgSpecies = () => dbgList(['species', 'troops', 'animals'], cfg && cfg.bots && cfg.bots.species);
+  const dbgBosses = () => dbgList(['bosses'], cfgOf('bosses') && (cfgOf('bosses').list || cfgOf('bosses').bosses));
+  const dbgEvents = () => dbgList(['eventRules', 'events', 'rules'], null);
+  const dbgCosmetics = () => dbgList(['cosmetics'], (cosmeticsCache.list && cosmeticsCache.list.length && cosmeticsCache.list) || (cfg && cfg.cosmetics));
+  /** What a flag is set to: a string or {condition|phase|ruleId|id}. */
+  const dbgVal = (v, ...keys) => { if (v === null || v === undefined || v === false) return ''; if (typeof v !== 'object') return String(v); for (const k of keys) if (v[k]) return String(v[k]); return ''; };
+  const WEATHER_OPTS = [['clear', '☀️', 'Clear Sky'], ['rain', '🌧️', 'Rain'], ['snow', '❄️', 'Snow'], ['wind', '💨', 'Wind']];
+  const SUN_OPTS = [['day', '☀️', 'Day'], ['dusk', '🌇', 'Dusk'], ['night', '🌙', 'Night'], ['dawn', '🌅', 'Dawn']];
+
+  async function loadDebugState() {
+    try { dbg.state = await api('GET', '/v1/debug/state'); } catch (e) { if (dbgDisabled(e)) return; throw e; }
+  }
+  /** 403 DEBUG_DISABLED: the server turned debug off for you. Hide the page. */
+  function dbgDisabled(e) {
+    if (!e || e.code !== 'DEBUG_DISABLED') return false;
+    const first = !dbg.off;
+    dbg.off = true;
+    $('debugBox').hidden = true;
+    const p = pgTop();
+    if (pgOpen() && p && (p.id === 'debug' || p.id === 'debugTp')) closeModal('pg');
+    if (first) toast(t('Debug is turned off on this server'), true, '🛠️');
+    return true;
+  }
+  /** Reloads what an action changed: your state (from the answer), the world around you, events, finds. */
+  function dbgReload(what) {
+    if (what.includes('world') && pos) { world.at = 0; loadWorld(pos); }
+    if (what.includes('finds')) loadWorldItems(true);
+    if (what.includes('events')) { live.eventsAt = 0; loadEvents(); }
+    if (what.includes('missions')) loadMissions();
+    if (what.includes('me')) loadMe();
+  }
+  /** One debug action: POST /v1/debug/<path>, then a toast. Resolves with the result (null on failure). */
+  async function dbgDo(path, body, msg, emoji, reload) {
+    if (dbg.busy[path]) return null;
+    dbg.busy[path] = true;
+    pageRefresh();
+    try {
+      const r = await api('POST', `/v1/debug/${path}`, body || {}, { idem: newKey() });
+      if (r && r.state && r.state.player) setMe(r.state);
+      const res = r && r.result !== undefined ? r.result : r || {};
+      if (r && r.debug) dbg.state = r.debug;
+      const m = typeof msg === 'function' ? msg(res || {}) : msg;
+      if (m) toast(m, false, emoji);
+      if (reload) dbgReload(reload);
+      refreshUi();
+      return res || {};
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      if (!dbgDisabled(e)) toast(errText(e), true);
+      return null;
+    } finally {
+      dbg.busy[path] = false;
+      if (!dbg.off) loadDebugState().catch(() => {}).then(pageRefresh);
+      pageRefresh();
+    }
+  }
+  /** A switch: shows the new value at once, and the server's once it answers. */
+  async function dbgSwitch(path, flag, on, msgOn, msgOff, emoji, reload) {
+    if (!dbg.state) dbg.state = {};
+    const f = dbgFlags();
+    const was = f[flag];
+    if (dbg.state) f[flag] = on;
+    const r = await dbgDo(path, { on }, on ? msgOn : msgOff, emoji, reload);
+    if (!r && dbg.state) dbgFlags()[flag] = was;
+    pageRefresh();
+  }
+  const dbgNum = (id) => { const el = $(id), v = el ? String(el.value).replace(/[\s,.](?=\d{3}\b)/g, '').trim() : ''; return v && /^-?\d+$/.test(v) ? Number(v) : null; };
+  const dbgBad = (id) => { toast(t('Type a number first'), true); const el = $(id); if (el) el.focus(); };
+  const dbgClear = (id) => { const el = $(id); if (el) el.value = ''; };
+  function dbgCredits(n) {
+    return dbgDo('credits', { amount: n, ignoreCap: true }, n >= 0 ? t('+{n} credits', { n: fmtNum(n) }) : t('{n} credits', { n: `−${fmtNum(-n)}` }), E.coin);
+  }
+  function dbgSkip(minutes) {
+    const text = minutes % 1440 === 0 ? tn(minutes / 1440, 'Skipped {n} day', 'Skipped {n} days') : minutes % 60 === 0 ? tn(minutes / 60, 'Skipped {n} hour', 'Skipped {n} hours') : t('Skipped {n} minutes', { n: minutes });
+    return dbgDo('time', { minutes }, text, E.skip, ['world', 'finds', 'missions']);
+  }
+  /** Moves you there: the server takes it without the usual checks; the page closes so you see where you are. */
+  async function dbgTeleport(lat, lng, label) {
+    if (!(Math.abs(lat) <= 90 && Math.abs(lng) <= 180)) { toast(t('Those aren’t coordinates'), true); return null; }
+    const r = await dbgDo('teleport', { lat, lng }, label ? t('Teleported to {place}', { place: label }) : t('Teleported'), '✨');
+    if (!r) return null;
+    closeModal('pg');
+    pos = { lat, lng };
+    if (mode === 'sim') lsSet(SIM_POS, JSON.stringify(pos));
+    if (mode !== 'sim') enterSim(); // real GPS would pull you straight back
+    else playerMoved(false);
+    lastSent = { at: 0, pos: null };
+    updateReach(true);
+    syncLocation(true);
+    cityAt = null;
+    dbgReload(['world', 'finds', 'events']);
+    refreshUi();
+    return r;
+  }
+  /** The middle of what you see of the map (above the sheet), not the middle of the screen. */
+  function visibleCenter() {
+    if (!map) return pos;
+    return map.fromPx(appEl.clientWidth / 2, visibleBand().center) || map.center();
+  }
+  async function dbgSearch(q) {
+    q = (q || '').trim();
+    if (!q) return;
+    const ll = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if (ll) { dbgTeleport(+ll[1], +ll[2], `${(+ll[1]).toFixed(4)}, ${(+ll[2]).toFixed(4)}`); return; }
+    dbg.searching = true;
+    dbg.found = null;
+    pageRefresh();
+    try {
+      const near = pos ? `&viewbox=${(pos.lng - 1).toFixed(3)},${(pos.lat + 1).toFixed(3)},${(pos.lng + 1).toFixed(3)},${(pos.lat - 1).toFixed(3)}` : '';
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q=${encodeURIComponent(q)}${near}&accept-language=${encodeURIComponent(LANG === 'en' ? navigator.language || 'en' : LANG)}`);
+      const list = await r.json();
+      dbg.found = (Array.isArray(list) ? list : []).filter((x) => x && x.lat && x.lon).map((x) => {
+        const parts = String(x.display_name || x.name || '').split(',').map((s) => s.trim()).filter(Boolean);
+        return { lat: +x.lat, lng: +x.lon, name: x.name || parts[0] || q, sub: parts.slice(x.name ? 1 : 1, 4).join(', ') };
+      });
+    } catch (e) {
+      dbg.found = [];
+      toast(t('Couldn’t search right now'), true);
+    }
+    dbg.searching = false;
+    pageRefresh();
+  }
+
+  // Rows of the page (native grouped lists).
+  const dbgTile = (icon, tint) => `<div class="tile sm tint-${tint || 'gray'}">${esc(icon)}</div>`;
+  const dbgSub = (s) => (s ? `<div class="row-sub">${esc(s)}</div>` : '');
+  const dbgBusy = (k) => !!dbg.busy[k];
+  function dbgAct(o) { // {icon, tint, title, sub, a, v, busy, danger}
+    return `<button class="row t ${o.danger ? 'danger' : 'action'}" type="button" data-a="${o.a}"${o.v !== undefined ? ` data-v="${esc(o.v)}"` : ''}${o.busy ? ' disabled' : ''}>${dbgTile(o.icon, o.tint)}` +
+      `<div class="row-main"><div class="row-title">${esc(o.title)}</div>${dbgSub(o.sub)}</div>${o.busy ? '<span class="dbg-spin" aria-hidden="true"></span>' : ''}</button>`;
+  }
+  function dbgToggle(o) { // {icon, tint, title, sub, change, on, busy}
+    return `<div class="row t">${dbgTile(o.icon, o.tint)}<div class="row-main"><div class="row-title">${esc(o.title)}</div>${dbgSub(o.sub)}</div>` +
+      `<label class="switch"><input type="checkbox" data-change="${o.change}"${o.on ? ' checked' : ''}${o.busy ? ' disabled' : ''} aria-label="${esc(o.title)}"><span></span></label></div>`;
+  }
+  function dbgChips(o) { // {icon, tint, title, sub, chips: [[label, a, v]], busy}
+    return `<div class="row t dbg-chiprow">${dbgTile(o.icon, o.tint)}<div class="row-main"><div class="row-title">${esc(o.title)}</div>${dbgSub(o.sub)}` +
+      `<div class="dbg-chips">${o.chips.map(([label, a, v]) => `<button class="pill" type="button" data-a="${a}" data-v="${esc(v)}"${o.busy ? ' disabled' : ''}>${esc(label)}</button>`).join('')}</div></div></div>`;
+  }
+  function dbgField(o) { // {icon, tint, id, ph, mode, enter, btns: [[label, a, v]], busy}
+    return `<div class="row t">${dbgTile(o.icon, o.tint)}<input class="field dbg-in" id="${o.id}" data-keep data-enter="${o.enter}" type="text"${o.mode ? ` inputmode="${o.mode}"` : ''} placeholder="${esc(o.ph)}" aria-label="${esc(o.ph)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">` +
+      o.btns.map(([label, a, v]) => `<button class="pill" type="button" data-a="${a}"${v !== undefined ? ` data-v="${esc(v)}"` : ''}${o.busy ? ' disabled' : ''}>${esc(label)}</button>`).join('') + '</div>';
+  }
+  function dbgPicker(o) { // {icon, tint, title, sub, change, opts, cur, value, prompt, busy}: a native pop-up menu over the row
+    const opts = (o.prompt !== undefined ? `<option value="" disabled${o.cur ? '' : ' selected'} hidden>${esc(o.prompt)}</option>` : '') +
+      o.opts.map((x) => `<option value="${esc(x.id)}"${x.id === o.cur ? ' selected' : ''}>${esc(x.label)}</option>`).join('');
+    return `<label class="row t dbg-pick${o.busy || !o.opts.length ? ' off' : ''}">${dbgTile(o.icon, o.tint)}<div class="row-main"><div class="row-title">${esc(o.title)}</div>${dbgSub(o.sub)}</div>` +
+      `<span class="row-value">${esc(o.value || '')}</span><span class="dbg-ud">${DBG_UPDOWN}</span>` +
+      `<select data-change="${o.change}"${o.busy || !o.opts.length ? ' disabled' : ''} aria-label="${esc(o.title)}">${opts}</select></label>`;
+  }
+  function dbgStepper(o) { // {icon, tint, title, key, min, max}
+    const n = dbg.step[o.key];
+    return `<div class="row t">${dbgTile(o.icon, o.tint)}<div class="row-main"><div class="row-title">${esc(o.title)}</div></div><b class="dbg-n">${fmtNum(n)}</b>` +
+      `<div class="dbg-step"><button type="button" data-a="step" data-v="${o.key}|-1"${n <= o.min ? ' disabled' : ''} aria-label="${esc(t('Fewer'))}">−</button><i></i><button type="button" data-a="step" data-v="${o.key}|1"${n >= o.max ? ' disabled' : ''} aria-label="${esc(t('More'))}">+</button></div></div>`;
+  }
+  const dbgGroup = (h, rows, f) => `${h ? `<h4 class="sec-h">${esc(h)}</h4>` : ''}<div class="group${h ? '' : ' dbg-more'}">${rows.join('')}</div>${f ? `<p class="sec-f">${esc(f)}</p>` : ''}`;
+  const labelOf = (list, id) => { const x = list.find((o) => o.id === id); return x ? x.label : id; };
+
+  function debugHtml(p) {
+    if (!dbg.state && p.loading) return loadingHtml();
+    const B = dbgBusy, lv = (me && me.level) || 1;
+    const infinite = !!dbgFlag('infinite', 'infiniteMoney'), god = !!dbgFlag('god', 'godMode'), unlockAll = !!dbgFlag('unlockAll', 'unlockEverything');
+    const reach = dbgFlag('reach', 'reachMeters', 'reachOverride');
+    const ev = dbgFlag('event', 'forcedEvent'), evId = dbgVal(ev, 'ruleId', 'id'), wxF = dbgVal(dbgFlag('weather', 'forcedWeather'), 'condition'), sunF = dbgVal(dbgFlag('sun', 'forcedSun'), 'phase');
+    const hq = me && me.buildings.find((b) => b.type === 'hq'), hqMax = (cfg && cfg.buildings.hq && cfg.buildings.hq.levels.length) || 10;
+    const items = dbgItemTypes(), rar = dbgRarities(), sp = dbgSpecies(), bosses = dbgBosses(), evs = dbgEvents(), cos = dbgCosmetics();
+    if (!dbg.pick.item || !items.some((x) => x.id === dbg.pick.item)) dbg.pick.item = items[0] ? items[0].id : '';
+    if (!dbg.pick.rarity || !rar.some((x) => x.id === dbg.pick.rarity)) dbg.pick.rarity = rar[0] ? rar[0].id : '';
+    if (!dbg.pick.species || !sp.some((x) => x.id === dbg.pick.species)) dbg.pick.species = sp[0] ? sp[0].id : '';
+    let html = '<i class="dbg-page" hidden></i>' + (p.err && !dbg.state ? `<p class="sec-f dbg-warn">${esc(errText(p.err) || t("Couldn't load"))}</p>` : '');
+    html += dbgGroup(t('Money'), [
+      dbgChips({ icon: E.coin, tint: 'yellow', title: t('Add Credits'), sub: t('You have {n}', { n: fmtNum(credits()) }), busy: B('credits'), chips: [['+1K', 'credits', 1000], ['+10K', 'credits', 10000], ['+100K', 'credits', 100000]] }),
+      dbgField({ icon: '✏️', tint: 'gray', id: 'dbgCredits', ph: t('Custom Amount'), mode: 'text', enter: 'creditsAdd', busy: B('credits'), btns: [[t('Add'), 'creditsAdd'], [tc('verb', 'Set'), 'creditsSet']] }),
+      dbgToggle({ icon: '♾️', tint: 'orange', title: t('Infinite Money'), sub: t('Nothing costs anything'), change: 'infinite', on: infinite, busy: B('infinite') }),
+    ]);
+    html += dbgGroup(t('Progress'), [
+      dbgAct({ icon: '⬆️', tint: 'blue', title: t('Level Up'), sub: t('Level {n}', { n: lv }), a: 'levelUp', busy: B('level') }),
+      dbgField({ icon: '🎚️', tint: 'blue', id: 'dbgLevel', ph: t('Set Level…'), mode: 'numeric', enter: 'levelSet', busy: B('level'), btns: [[tc('verb', 'Set'), 'levelSet']] }),
+      dbgToggle({ icon: '🔓', tint: 'green', title: t('Unlock Everything'), sub: t('Every feature, whatever your level'), change: 'unlockAll', on: unlockAll, busy: B('unlock-all') }),
+    ]);
+    html += dbgGroup(t('Time'), [
+      dbgChips({ icon: '⏩', tint: 'indigo', title: t('Skip Time'), sub: t('Your plants, builds and cooldowns move on. Nobody else’s.'), busy: B('time'), chips: [[t('10 min'), 'skip', 10], [t('1 h'), 'skip', 60], [t('8 h'), 'skip', 480], [t('1 day'), 'skip', 1440]] }),
+      dbgField({ icon: '⏱️', tint: 'indigo', id: 'dbgMinutes', ph: t('Minutes (1–10080)'), mode: 'numeric', enter: 'skipCustom', busy: B('time'), btns: [[t('Skip'), 'skipCustom']] }),
+      dbgAct({ icon: '🏁', tint: 'green', title: t('Finish All Now'), sub: t('Construction, upgrades and growing'), a: 'finish', busy: B('finish') }),
+      dbgAct({ icon: '🌿', tint: 'green', title: t('Fill Plants'), a: 'fillPlants', busy: B('fill-plants') }),
+    ]);
+    html += dbgGroup(t('Player'), [
+      dbgAct({ icon: '❤️', tint: 'red', title: t('Heal'), sub: t('Full health, back on your feet'), a: 'heal', busy: B('heal') }),
+      dbgToggle({ icon: '🛡️', tint: 'red', title: t('God Mode'), sub: t('You take no damage'), change: 'god', on: god, busy: B('god') }),
+      dbgField({ icon: E.reach, tint: 'teal', id: 'dbgReach', ph: reach ? t('Reach: {n} m', { n: fmtNum(+reach) }) : t('Reach in meters, e.g. 500'), mode: 'numeric', enter: 'reachSet', busy: B('reach'),
+        btns: reach ? [[tc('verb', 'Set'), 'reachSet'], [t('Reset'), 'reachReset']] : [[tc('verb', 'Set'), 'reachSet']] }),
+      `<button class="row t" type="button" data-a="tpPage">${dbgTile('✨', 'indigo')}<div class="row-main"><div class="row-title">${esc(t('Teleport'))}</div>${dbgSub(t('To a place, coordinates or the map center'))}</div><span class="row-chev">${svg('chev')}</span></button>`,
+    ]);
+    html += dbgGroup(t('Items'), [
+      dbgPicker({ icon: '🧪', tint: 'blue', title: t('Booster'), change: 'pickItem', opts: items, cur: dbg.pick.item, value: labelOf(items, dbg.pick.item) }),
+      ...(rar.length ? [dbgPicker({ icon: '💎', tint: 'indigo', title: t('Rarity'), change: 'pickRarity', opts: rar, cur: dbg.pick.rarity, value: labelOf(rar, dbg.pick.rarity) })] : []),
+      dbgStepper({ icon: '🔢', tint: 'gray', title: t('How Many'), key: 'items', min: 1, max: 50 }),
+      dbgAct({ icon: '🎁', tint: 'blue', title: t('Give Boosters'), a: 'giveItems', busy: B('items') || !items.length }),
+      dbgAct({ icon: '🎒', tint: 'orange', title: t('Fill Bag'), a: 'fillBag', busy: B('items') }),
+    ]);
+    html += dbgGroup('', [ // the army and cosmetics: more of Items
+      dbgPicker({ icon: '🐾', tint: 'orange', title: t('Animal'), change: 'pickSpecies', opts: sp, cur: dbg.pick.species, value: labelOf(sp, dbg.pick.species) }),
+      dbgStepper({ icon: '🔢', tint: 'gray', title: t('How Many'), key: 'troops', min: 1, max: 100 }),
+      dbgAct({ icon: '➕', tint: 'orange', title: t('Give Animals'), a: 'giveTroops', busy: B('troops') || !sp.length }),
+      dbgAct({ icon: '🦁', tint: 'orange', title: t('Fill Army'), a: 'fillArmy', busy: B('troops') }),
+    ]);
+    html += dbgGroup('', [
+      dbgAct({ icon: '🎩', tint: 'indigo', title: t('All Cosmetics'), sub: t('Hats, trails and pots'), a: 'allCosmetics', busy: B('cosmetics') }),
+      ...(cos.length ? [dbgPicker({ icon: '👒', tint: 'indigo', title: t('One Cosmetic'), change: 'giveCosmetic', opts: cos, prompt: t('Choose'), busy: B('cosmetics') })] : []),
+    ]);
+    html += dbgGroup(t('Buildings'), [
+      dbgPicker({ icon: E.hq, tint: 'blue', title: t('HQ Level'), change: 'hqLevel', opts: Array.from({ length: hqMax }, (_, i) => ({ id: String(i + 1), label: t('Level {n}', { n: i + 1 }) })), cur: hq ? String(hq.level) : '', prompt: t('Choose'), value: hq ? String(hq.level) : '–', busy: B('hq') || !hq, sub: hq ? '' : t('Found your Headquarters first') }),
+      dbgAct({ icon: '🔧', tint: 'gray', title: t('Repair All'), sub: t('Buildings and walls'), a: 'repair', busy: B('repair') }),
+    ]);
+    html += dbgGroup(t('World'), [
+      dbgPicker({ icon: '🐺', tint: 'orange', title: t('Spawn an Animal Here'), change: 'spawnAnimal', opts: sp, prompt: t('Choose'), busy: B('spawn') }),
+      dbgPicker({ icon: '👹', tint: 'red', title: t('Spawn a Boss Here'), change: 'spawnBoss', opts: [{ id: '*', label: t('Any Boss') }, ...bosses], prompt: t('Choose'), busy: B('spawn') }),
+      dbgAct({ icon: '💰', tint: 'yellow', title: t('Spawn a Treasure Here'), a: 'spawnTreasure', busy: B('spawn') }),
+      dbgAct({ icon: '🌰', tint: 'green', title: t('Spawn a Seed Here'), a: 'spawnSeed', busy: B('spawn') }),
+      dbgPicker({ icon: '🎉', tint: 'orange', title: t('Force Event'), sub: evId ? t('For you only, for an hour') : '', change: 'event', opts: [...(evId ? [{ id: '-', label: t('Stop the Event') }] : []), ...evs], cur: evId, prompt: t('None'), value: evId ? labelOf(evs, evId) : t('None'), busy: B('event') }),
+      dbgPicker({ icon: '🌦️', tint: 'teal', title: t('Weather'), change: 'weather', opts: [{ id: '-', label: t('Real Weather') }, ...WEATHER_OPTS.map(([id, e, l]) => ({ id, label: `${e} ${t(l)}` }))], cur: wxF || '-', value: wxF ? t((WEATHER_OPTS.find((x) => x[0] === wxF) || [0, 0, wxF])[2]) : t('Real'), busy: B('weather') }),
+      dbgPicker({ icon: '🌗', tint: 'indigo', title: t('Day and Night'), change: 'sun', opts: [{ id: '-', label: t('Real Time') }, ...SUN_OPTS.map(([id, e, l]) => ({ id, label: `${e} ${t(l)}` }))], cur: sunF || '-', value: sunF ? t((SUN_OPTS.find((x) => x[0] === sunF) || [0, 0, sunF])[2]) : t('Real'), busy: B('sun') }),
+    ], t('Spawned things appear next to you for a while. Forced events, weather and time of day are only for you.'));
+    html += dbgGroup(t('Combat'), [
+      dbgAct({ icon: '🏯', tint: 'red', title: t('Make a Rival Base'), sub: t('150 m away, to attack and test'), a: 'rival', busy: B('rival') }),
+      dbgAct({ icon: '🛡️', tint: 'blue', title: t('Remove Shield'), sub: t('And new-player protection'), a: 'shield', v: 'off', busy: B('shield') }),
+      dbgAct({ icon: '🔰', tint: 'blue', title: t('Give Shield'), a: 'shield', v: 'on', busy: B('shield') }),
+      dbgAct({ icon: '⚔️', tint: 'gray', title: t('Finish Battles'), sub: t('Your battles in progress end now'), a: 'battleFinish', busy: B('battle-finish') }),
+    ]);
+    html += dbgGroup(t('Resets'), [
+      dbgAct({ icon: '🔁', tint: 'gray', title: t('Reset Cooldowns'), sub: t('Streak, missions, landmarks, remote harvest, market'), a: 'cooldowns', busy: B('reset-cooldowns') }),
+      dbgAct({ icon: '✅', tint: 'green', title: t('Complete Missions'), sub: t('Missions, quests and close achievements'), a: 'missions', busy: B('complete-missions') }),
+    ]);
+    html += `<div class="group" style="margin-top:32px"><button class="row danger" type="button" data-a="startOver"${B('reset') ? ' disabled' : ''}><div class="row-main"><div class="row-title">${esc(t('Start Over'))}</div></div></button></div>` +
+      `<p class="sec-f">${esc(t('Deletes your land, buildings, items and progress. Your name and avatar stay.'))}</p>` +
+      `<p class="sec-f dbg-foot">${esc(t('Debug actions are recorded with your account.'))}</p>`;
+    return html;
+  }
+  function stepBy(v) {
+    const [k, d] = v.split('|'), lim = k === 'items' ? [1, 50] : [1, 100], n = dbg.step[k] || 1;
+    const by = n >= 20 ? 10 : n >= 10 ? 5 : 1; // bigger steps once it's bigger, like a stepper held down
+    dbg.step[k] = Math.max(lim[0], Math.min(lim[1], d === '1' ? (n < 10 && n + by > 10 ? 10 : n + by) : n - (n > 20 ? 10 : n > 10 ? 5 : 1)));
+    pageRefresh();
+  }
+  function debugPage() {
+    return {
+      id: 'debug', title: () => t('Debug'),
+      load: () => loadDebugState(),
+      render: debugHtml,
+      acts: {
+        credits: (v) => dbgCredits(+v),
+        creditsAdd: () => { const n = dbgNum('dbgCredits'); if (n === null) return dbgBad('dbgCredits'); dbgClear('dbgCredits'); dbgCredits(n); },
+        creditsSet: () => { const n = dbgNum('dbgCredits'); if (n === null || n < 0) return dbgBad('dbgCredits'); dbgClear('dbgCredits'); dbgDo('credits', { set: n, ignoreCap: true }, t('Credits set to {n}', { n: fmtNum(n) }), E.coin); },
+        infinite: (on) => dbgSwitch('infinite', 'infinite', on, t('Infinite money is on'), t('Infinite money is off'), '♾️'),
+        levelUp: () => dbgDo('level', { up: 1 }, () => t('Level {n}!', { n: (me && me.level) || '' }), '⬆️'),
+        levelSet: () => { const n = dbgNum('dbgLevel'); if (n === null || n < 1) return dbgBad('dbgLevel'); dbgClear('dbgLevel'); dbgDo('level', { level: n }, t('Level {n}!', { n }), '🎚️'); },
+        unlockAll: (on) => dbgSwitch('unlock-all', 'unlockAll', on, t('Everything is unlocked'), t('Features unlock with your level again'), '🔓', ['me']),
+        skip: (v) => dbgSkip(+v),
+        skipCustom: () => { const n = dbgNum('dbgMinutes'); if (n === null || n < 1 || n > 10080) return dbgBad('dbgMinutes'); dbgClear('dbgMinutes'); dbgSkip(n); },
+        finish: () => dbgDo('finish', {}, t('Everything is finished'), '🏁', ['world']),
+        fillPlants: () => dbgDo('fill-plants', {}, t('Your plants are full'), '🌿'),
+        heal: () => dbgDo('heal', {}, t('You’re fully healed'), '❤️'),
+        god: (on) => dbgSwitch('god', 'god', on, t('God mode is on'), t('God mode is off'), '🛡️'),
+        reachSet: () => { const n = dbgNum('dbgReach'); if (n === null || n < 1) return dbgBad('dbgReach'); dbgClear('dbgReach'); dbgDo('reach', { meters: n }, t('Your reach is {n} m', { n: fmtNum(n) }), E.reach, ['me']).then(() => updateReach(true)); },
+        reachReset: () => { dbgClear('dbgReach'); dbgDo('reach', { reset: true }, t('Your reach is back to normal'), E.reach, ['me']).then(() => updateReach(true)); },
+        tpPage: () => { dbg.found = null; openPage(teleportPage(), true); },
+        pickItem: (v) => { dbg.pick.item = v; pageRefresh(); },
+        pickRarity: (v) => { dbg.pick.rarity = v; pageRefresh(); },
+        pickSpecies: (v) => { dbg.pick.species = v; pageRefresh(); },
+        step: (v) => stepBy(v),
+        giveItems: () => {
+          const n = dbg.step.items, it = dbg.pick.item, body = { type: it, count: n };
+          if (dbg.pick.rarity) body.rarity = dbg.pick.rarity;
+          dbgDo('items', body, tn(n, '{n} booster in your bag', '{n} boosters in your bag'), '🎁');
+        },
+        fillBag: () => dbgDo('items', { fillBag: true }, t('Your bag is full'), '🎒'),
+        giveTroops: () => { const n = dbg.step.troops; dbgDo('troops', { species: dbg.pick.species, count: n }, t('+{n} {what}', { n, what: labelOf(dbgSpecies(), dbg.pick.species) }), '🐾'); },
+        fillArmy: () => dbgDo('troops', { fillArmy: true }, t('Your army is full'), '🦁'),
+        allCosmetics: () => dbgDo('cosmetics', { all: true }, t('Every cosmetic is yours'), '🎩').then(() => { wardrobe.data = null; }),
+        giveCosmetic: (v) => v && dbgDo('cosmetics', { id: v }, t('{name} is yours', { name: labelOf(dbgCosmetics(), v) }), '👒').then(() => { wardrobe.data = null; }),
+        hqLevel: (v) => v && dbgDo('hq', { level: +v }, t('Headquarters level {n}', { n: +v }), E.hq, ['world']),
+        repair: () => dbgDo('repair', {}, t('Everything is repaired'), '🔧', ['world']),
+        spawnAnimal: (v) => v && dbgDo('spawn', { kind: 'animal', species: v }, t('{what} is next to you', { what: labelOf(dbgSpecies(), v) }), '🐾', ['world', 'finds']),
+        spawnBoss: (v) => v && dbgDo('spawn', v === '*' ? { kind: 'boss' } : { kind: 'boss', id: v }, t('A boss is next to you'), '👹', ['world', 'finds']),
+        spawnTreasure: () => dbgDo('spawn', { kind: 'treasure' }, t('A treasure is next to you'), '💰', ['finds']),
+        spawnSeed: () => dbgDo('spawn', { kind: 'seed' }, t('A seed is next to you'), '🌰', ['finds']),
+        event: (v) => (v === '-' ? dbgDo('event', { clear: true }, t('The forced event stopped'), '🎉', ['events', 'me'])
+          : v && dbgDo('event', { ruleId: v, minutes: 60 }, t('{name} is on for you', { name: labelOf(dbgEvents(), v) }), '🎉', ['events', 'me'])),
+        weather: (v) => (v === '-' ? dbgDo('weather', { clear: true }, t('Real weather again'), '🌦️', ['events'])
+          : dbgDo('weather', { condition: v }, t('Weather: {w}', { w: t((WEATHER_OPTS.find((x) => x[0] === v) || [0, 0, v])[2]) }), (WEATHER_OPTS.find((x) => x[0] === v) || [0, '🌦️'])[1], ['events'])),
+        sun: (v) => (v === '-' ? dbgDo('sun', { clear: true }, t('Real time of day again'), '🌗', ['events', 'me'])
+          : dbgDo('sun', { phase: v }, t('It’s {phase} for you now', { phase: t((SUN_OPTS.find((x) => x[0] === v) || [0, 0, v])[2]).toLowerCase() }), (SUN_OPTS.find((x) => x[0] === v) || [0, '🌗'])[1], ['events', 'me'])),
+        rival: () => dbgDo('rival', {}, t('A rival base is 150 m away'), '🏯', ['world']),
+        shield: (v) => dbgDo('shield', { on: v === 'on' }, v === 'on' ? t('You’re shielded') : t('Your shield is gone'), v === 'on' ? '🔰' : '🛡️', ['me']),
+        battleFinish: () => dbgDo('battle-finish', {}, t('Your battles are over'), '⚔️', ['world', 'me']),
+        cooldowns: () => dbgDo('reset-cooldowns', {}, t('Cooldowns are reset'), '🔁', ['missions']),
+        missions: () => dbgDo('complete-missions', {}, t('Missions are ready to claim'), '✅', ['missions']),
+        startOver: () => showAlert(t('Start Over?'), t('This deletes your land, buildings, items and progress. Your name and avatar stay. This can’t be undone.'), [
+          { label: t('Cancel') },
+          { label: t('Start Over'), style: 'destructive', onTap: () => dbgDo('reset', { keepAccount: true }, t('You’re starting over'), '🌱', ['world', 'finds', 'missions', 'me']) },
+        ]),
+      },
+    };
+  }
+  function teleportPage() {
+    return {
+      id: 'debugTp', title: () => t('Teleport'),
+      render: () => {
+        const c = visibleCenter();
+        let html = `<i class="dbg-page" hidden></i><h4 class="sec-h">${esc(t('Search'))}</h4><div class="group"><div class="row t">${dbgTile('🔎', 'gray')}<input class="field dbg-in" id="dbgPlace" data-keep data-enter="search" type="search" placeholder="${esc(t('A place, e.g. Galata Tower'))}" aria-label="${esc(t('Search'))}" autocomplete="off" enterkeyhint="search">` +
+          `<button class="pill" type="button" data-a="search"${dbg.searching ? ' disabled' : ''}>${esc(t('Search'))}</button></div>` +
+          (dbg.searching ? `<div class="row"><div class="row-main row-sub">${esc(t('Searching…'))}</div></div>` : '') +
+          (dbg.found && !dbg.searching ? (dbg.found.length ? dbg.found.map((x, i) => `<button class="row t" type="button" data-a="goFound" data-v="${i}">${dbgTile('📍', 'red')}<div class="row-main"><div class="row-title">${esc(x.name)}</div>${dbgSub(x.sub)}</div><span class="row-value">${esc(pos ? fmtDist(distM(pos, x)) : '')}</span></button>`).join('')
+            : `<div class="row"><div class="row-main row-sub">${esc(t('Nothing found'))}</div></div>`) : '') + '</div>';
+        html += dbgGroup(t('Coordinates'), [dbgField({ icon: '🧭', tint: 'blue', id: 'dbgCoords', ph: '41.0082, 28.9784', mode: 'text', enter: 'coords', busy: dbgBusy('teleport'), btns: [[t('Go'), 'coords']] })], t('Latitude and longitude, like in a map link.'));
+        html += dbgGroup(t('Map'), [dbgAct({ icon: '🎯', tint: 'green', title: t('To the Map Center'), sub: c ? `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}${pos ? ' · ' + fmtDist(distM(pos, c)) : ''}` : '', a: 'center', busy: dbgBusy('teleport') || !c })],
+          t('Moves you there at once, without the usual location checks. Simulated walking turns on so your GPS doesn’t pull you back.'));
+        return html;
+      },
+      acts: {
+        search: () => dbgSearch($('dbgPlace') ? $('dbgPlace').value : ''),
+        goFound: (v) => { const x = dbg.found && dbg.found[+v]; if (x) dbgTeleport(x.lat, x.lng, x.name); },
+        coords: () => {
+          const m = String(($('dbgCoords') || {}).value || '').match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*$/);
+          if (!m) { toast(t('Type latitude, longitude'), true); return; }
+          dbgTeleport(+m[1], +m[2], `${(+m[1]).toFixed(4)}, ${(+m[2]).toFixed(4)}`);
+        },
+        center: () => { const c = visibleCenter(); if (c) dbgTeleport(c.lat, c.lng, t('the map center')); },
+      },
+    };
+  }
+  function openDebug() {
+    if (!debugOn()) return false;
+    closeModal('settings');
+    openPage(debugPage());
+    return true;
+  }
+  $('debugRow').addEventListener('click', openDebug);
+  /** ?debug=1 opens the page once the game has started (when debug is available). */
+  function debugUrlOpen() {
+    if (!debugFromUrl || dbg.urlDone || !me || !started) return;
+    dbg.urlDone = true;
+    setTimeout(() => { if (!openDebug()) toast(t('Debug isn’t available for you'), true, '🛠️'); }, 700);
+  }
+
   // Hooks used by the automated browser tests.
   window.__coc = {
+    // Debug page (docs/07-debug-plan.md)
+    debug: {
+      get available() { return debugOn(); },
+      get off() { return dbg.off; },
+      get state() { return dbg.state; },
+      get found() { return dbg.found; },
+      open: () => openDebug(),
+      loadState: () => loadDebugState(),
+      act: (path, body) => dbgDo(path, body),
+      teleport: (lat, lng, label) => dbgTeleport(lat, lng, label),
+      search: (q) => dbgSearch(q),
+      visibleCenter: () => visibleCenter(),
+    },
     get me() { return me; },
     get world() { return world; },
     get pos() { return pos; },
