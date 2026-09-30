@@ -1006,20 +1006,66 @@
   .tt.wilted i, .tt.under i { animation: none; }
   .tt.pop i { animation: pluck .35s var(--spring); }
   @keyframes sway { 0%, 100% { rotate: -2.4deg; } 50% { rotate: 2.4deg; } }
-  .bot .be, .bot .hpbar { animation: wander var(--wd, 19s) ease-in-out var(--d, 0s) infinite; }
-  .bot .aim { animation: aim 1.2s ease-in-out infinite, wander var(--wd, 19s) ease-in-out var(--d, 0s) infinite; }
-  @keyframes wander {
-    0%, 100% { translate: 0 0; } 18% { translate: 7px -2px; } 34% { translate: 11px 3px; } 52% { translate: 4px 7px; }
-    70% { translate: -6px 4px; } 86% { translate: -8px -3px; }
-  }
-  .idle-off .tt i, .idle-off .bot .be, .idle-off .bot .hpbar, .idle-off .bot .aim { animation-play-state: paused; }
-  .rm .tt i, .rm .bot .be, .rm .bot .hpbar, .rm .nba-go, .rm .unlock-emo span, .rm .unlock-emo i { animation: none !important; }
+  /* Animals really walk now (their anchored marker moves along their path, frame by frame); they only
+     turn to face where they go. */
+  .idle-off .tt i { animation-play-state: paused; }
+  .rm .tt i, .rm .nba-go, .rm .unlock-emo span, .rm .unlock-emo i { animation: none !important; }
   /* Press states: a quick, restrained spring. */
   .btn, .pill, .price, .nba-go, .nba-x { transition: transform .4s var(--spring), opacity .2s, background-color .2s; }
   .btn:active:not(:disabled), .pill:active:not(:disabled), .price:active:not(:disabled), .nba-go:active, .nba-x:active { transform: scale(.96); transition-duration: .08s; }
   .rbtn { transition: transform .4s var(--spring); }
   .rbtn:active { transition-duration: .08s; }
   .seg button { transition: background-color .25s, color .25s; }
+  /* ---------------------------------------------------------------- combat update: walls, defenses, the army, battles */
+  .modebar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .modebar .mb-top { display: flex; align-items: center; gap: 12px; }
+  .modebar .titles { flex: 1; min-width: 0; }
+  .modebar h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+  .mb-chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; }
+  .mb-chips::-webkit-scrollbar { display: none; }
+  .mb-chips[hidden] { display: none; }
+  .dchip { flex: none; display: inline-flex; align-items: center; gap: 5px; height: 40px; padding: 0 13px 0 9px; border: 0; border-radius: 20px; background: var(--fill3); color: var(--label); font: 600 15px var(--round); font-variant-numeric: tabular-nums; transition: background-color .2s, transform .4s var(--spring); }
+  .dchip .emo { font: 22px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .dchip.on { background: var(--blue); color: #fff; }
+  .dchip.all { padding: 0 13px; color: var(--blue); background: var(--blue-t); font-size: 14px; }
+  .dchip:disabled { opacity: .35; }
+  .dchip:active:not(:disabled) { transform: scale(.95); transition-duration: .08s; }
+  .mb-acts { display: flex; gap: 10px; }
+  .mb-acts .btn { margin: 0; min-height: 46px; border-radius: 23px; }
+  .mb-acts .btn.gray { flex: none; width: auto; padding: 0 20px; }
+  .mb-acts .btn[hidden] { display: none; }
+  /* Everything of a battle on the map: constant size, anchored at its exact spot. */
+  .bu, .bul, .cpf, .pk, .bhp, .dropm, .bst { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  .bu .ue { position: absolute; left: -12px; top: -13px; width: 24px; height: 24px; display: grid; place-items: center; font: 20px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .45)); }
+  .bu.air .ue { top: -22px; filter: drop-shadow(0 9px 2px rgba(0, 0, 0, .25)); }
+  .bu .ub { position: absolute; left: -10px; top: 12px; width: 20px; height: 3px; border-radius: 2px; background: rgba(0, 0, 0, .45); overflow: hidden; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .6); }
+  .bu .ub i { display: block; height: 100%; width: 100%; background: #34c759; }
+  .bu.foe .ub i { background: #ff3b30; }
+  .bu .ub[hidden] { display: none; }
+  .bu.lie .ue { rotate: 90deg; top: -9px; opacity: .92; }
+  .bul { z-index: 1; }
+  .bul i { position: absolute; left: -2.5px; top: -2.5px; width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .75px rgba(0, 0, 0, .5), 0 0 5px rgba(255, 255, 255, .85); }
+  .cpf i { position: absolute; left: -12px; top: -14px; width: 24px; height: 24px; display: grid; place-items: center; font: 21px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; }
+  .bhp .hpbar { top: 13px; }
+  .bst i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; display: grid; place-items: center; font: 20px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); }
+  [data-bdown] .pb, [data-bdown] > i, [data-bdown] .be, .bst[data-bdown] i { filter: grayscale(1) brightness(.75); opacity: .5; transition: opacity .3s; }
+  .pin.broken .pb { filter: grayscale(1) drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); opacity: .62; }
+  .pin .hpb .hpbar { top: 13px; }
+  .t-hq .hpb .hpbar { top: 16px; }
+  .bot.angry .be { filter: drop-shadow(0 0 3px rgba(255, 59, 48, .95)) drop-shadow(0 2px 2px rgba(0, 0, 0, .45)); }
+  /* your animals lying on the ground, waiting to be picked up */
+  .pk::before { content: ''; position: absolute; left: -13px; top: 1px; width: 26px; height: 8px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .28), rgba(0, 0, 0, 0)); }
+  .pk i { position: absolute; left: -14px; top: -12px; width: 28px; height: 22px; display: grid; place-items: center; font: 18px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-style: normal; letter-spacing: -4px; rotate: 90deg; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
+  .pk b { position: absolute; left: 7px; top: -18px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--green); color: #fff; font: 700 10px/16px var(--round); text-align: center; box-shadow: 0 0 0 1.5px #fff; }
+  .dropm span { position: absolute; left: 0; top: -15px; display: flex; align-items: center; gap: 1px; height: 26px; padding: 0 8px; border-radius: 13px; transform: translateX(-50%); background: rgba(255, 255, 255, .94); box-shadow: 0 2px 8px rgba(0, 0, 0, .28); font: 17px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; white-space: nowrap; }
+  .dropm b { margin: 0 3px 0 1px; font: 700 12px var(--round); color: #1c1c1e; }
+  .bchip .stars { color: #ff9500; letter-spacing: -1px; }
+  .bchip .clk { font-variant-numeric: tabular-nums; }
+  .row.dim .tile { opacity: .55; }
+  .row-sub.tstats { font-size: 12px; color: var(--label3); }
+  .army-cap .bar { margin-top: 6px; height: 5px; }
+  .rm .cpf { display: none; }
+  .photo .bul, .photo .cpf, .photo .dropm { visibility: hidden; }
 </style>
 
 <div id="app">
@@ -1095,10 +1141,11 @@
         <button class="btn" type="button" data-go="today"><span class="bi">📅</span><span data-i18n>Today</span></button>
         <button class="btn" type="button" data-go="journey" data-feat="achievements collection explorer"><span class="bi">🏅</span><span data-i18n>Achievements &amp; Collection</span><span class="badge go-badge" id="achBadge" hidden></span></button>
         <button class="btn" type="button" data-go="inbox"><span class="bi">📬</span><span data-i18n>Rewards</span><span class="badge go-badge" id="inboxBadge" hidden></span></button>
-        <h4 class="sec-h go-h" data-feat="crews gifts trades mentor duels seasons legends citywar combat raids bounties" data-i18n>Together</h4>
+        <h4 class="sec-h go-h" data-feat="crews gifts trades mentor duels seasons legends citywar combat raids bounties army" data-i18n>Together</h4>
         <button class="btn" type="button" data-go="crew" data-feat="crews"><span class="bi">👥</span><span data-i18n>Crew</span></button>
         <button class="btn" type="button" data-go="social" data-feat="gifts trades mentor duels"><span class="bi">🤝</span><span data-i18n>Friends &amp; Trades</span></button>
         <button class="btn" type="button" data-go="season" data-feat="seasons legends citywar"><span class="bi" id="seasonGoEmo">🏅</span><span data-i18n>Season &amp; Legends</span></button>
+        <button class="btn" type="button" data-go="army" data-feat="army"><span class="bi">🐾</span><span data-i18n>Army</span><span class="badge go-badge" id="armyBadge" hidden></span></button>
         <button class="btn" type="button" data-go="defense" data-feat="combat raids bounties"><span class="bi">🛡️</span><span data-i18n>Defense &amp; Raids</span><span class="badge go-badge" id="defBadge" hidden></span></button>
         <h4 class="sec-h go-h" data-i18n>More</h4>
         <button class="btn" type="button" data-go="leaders"><span class="bi">🔍</span><span data-i18n>Area &amp; Rankings</span></button>
@@ -1113,6 +1160,12 @@
     <div class="tile lg" id="placeTile"></div>
     <div class="titles"><h2 id="placeTitle"></h2><p id="placeSub"></p></div>
     <button class="pill" id="placeCancel" type="button" data-i18n>Cancel</button>
+  </section>
+  <!-- Wall mode and the army's deploy mode: a bar at the bottom while you tap hexes on the map. -->
+  <section class="placebar modebar glass" id="modeBar" hidden>
+    <div class="mb-top"><div class="tile lg" id="modeTile"></div><div class="titles"><h2 id="modeTitle"></h2><p id="modeSub"></p></div><button class="pill" id="modeCancel" type="button" data-i18n>Cancel</button></div>
+    <div class="mb-chips" id="modeChips" hidden></div>
+    <div class="mb-acts"><button class="btn gray" id="modeAlt" type="button" hidden></button><button class="btn" id="modeGo" type="button"></button></div>
   </section>
 
   <section class="sheet off" id="sheet" aria-live="polite">
@@ -1607,7 +1660,6 @@
     FORBIDDEN: () => t('You’re not allowed to do that.'),
     // S4 strategy
     ACCOUNT_TOO_NEW: (d) => (d.retryAfterSeconds ? t('Your account is too new for this. Try again in {time}.', { time: fmtDur(d.retryAfterSeconds) }) : t('Your account is too new for this. Play a little longer first.')),
-    PAIR_LIMIT: (d) => (d.maxPerWeek ? t('You two did this {n} times this week. Pick someone else.', { n: d.maxPerWeek }) : t('You two did this often this week. Pick someone else.')),
     RAID_NOT_FOUND: () => t('This raid doesn’t exist any more.'),
     RAID_NOT_WEAK: (d) => (d.needBelow ? t('Too strong to raid: weaken the plant below {p} health first.', { p: pct(Math.round(d.needBelow * 100)) }) : t('Too strong to raid. Weaken the plant first.')),
     RAID_ACTIVE: () => t('A raid is already running on this hex.'),
@@ -1664,7 +1716,25 @@
       const u = unlockDef(d.feature), n = d.level || (u && u.level);
       if (u && n) return t('{emoji} {name} unlocks at level {n}.', { emoji: u.emoji || '🔒', name: loc(u, 'title'), n });
       return n ? t('This unlocks at level {n}.', { n }) : t('This isn’t unlocked yet. Keep playing!');
-    },
+    },    // Combat update: walls, battles, the army
+    WALL_LIMIT: (d) => (d.max ? t('You can have {n} wall segments at this Headquarters level. Upgrade it for more.', { n: d.max }) : t('You have all the walls this Headquarters level allows.')),
+    WALL_EXISTS: () => t('There is a wall there already.'),
+    WALL_NOT_FOUND: () => t('You have no wall there.'),
+    TARGET_WALLED: (d) => (d.reason === 'wall' ? t('You can’t raid a standing wall.') : t('That hex is behind their walls. Break in with your army first.')),
+    NOT_ENOUGH_TROOPS: (d) => (d.species ? t('You have {have} {emoji}, not {need}.', { have: d.have || 0, need: d.need || 0, emoji: spEmoji(d.species) }) : t('You don’t have those animals.')),
+    BATTLE_ACTIVE: (d) => (d.endsAt ? t('Your army is still out. It’s back {when}.', { when: fmtWhen(d.endsAt) }) : t('Your army is still out.')),
+    BATTLE_NOT_FOUND: () => t('This battle isn’t around any more.'),
+    DROP_FORBIDDEN: (d) => (d.reason === 'wall' ? t('You can’t drop animals on a wall.') : t('You can’t drop animals inside their walls. Drop them outside.')),
+    DROP_TOO_FAR: (d) => (d.maxRings ? t('Drop your animals close together: within {n} hexes.', { n: d.maxRings }) : t('Drop your animals closer together.')),
+    NOTHING_TO_ATTACK: () => t('Nothing of theirs is close enough. Drop your animals near their base.'),
+    TARGET_SHIELDED: (d) => (d.reason === 'newPlayer' ? t('New players are protected until {when}.', { when: untilWhen(d) || t('later') }) : t('Their base is shielded until {when}.', { when: untilWhen(d) || t('later') })),
+    TARGET_LEVEL: (d) => (d.theirLevel ? t('Pick on someone your size: they are level {a}, you are {b}.', { a: d.theirLevel, b: d.yourLevel }) : t('Pick on someone your size.')),
+    TARGET_UNDER_ATTACK: (d) => (d.endsAt ? t('Someone is attacking them right now. Try again {when}.', { when: fmtWhen(d.endsAt) }) : t('Someone is attacking them right now.')),
+    PICKUP_NOT_FOUND: () => t('Nothing of yours lies there any more.'),
+    ARMY_FULL: (d) => (d.capacity ? t('Your army is full ({a} of {b}). Build an Army Camp or send some animals out.', { a: d.used || 0, b: d.capacity }) : t('Your army is full.')),
+    NOT_BROKEN: () => t('This building isn’t broken.'),
+    PAIR_LIMIT: (d) => (d.maxPerDay ? t('You fought this player enough today. Pick someone else.') : d.maxPerWeek ? t('You two did this {n} times this week. Pick someone else.', { n: d.maxPerWeek }) : t('You two did this often this week. Pick someone else.')),
+    CELL_OCCUPIED: (d) => (d.wall ? t('A wall stands on this hex.') : ''),
   };
 
   /*__LANGS_START__*/
@@ -2387,6 +2457,77 @@
       'Not now': 'Şimdi değil',
       'Sound &amp; Haptics': 'Ses ve Titreşim', 'Sounds': 'Sesler', 'Coins, growing and level-ups': 'Krediler, büyüme ve seviye atlama', 'Haptics': 'Titreşim',
       'A light tap when you collect, claim or level up': 'Toplarken, sahiplenirken ve seviye atlarken hafif bir titreşim',
+      // ---- combat update: walls, defenses, the army, battles, live animals
+      'You can have {n} wall segments at this Headquarters level. Upgrade it for more.': 'Bu Karargâh seviyesinde en fazla {n} duvar parçan olabilir. Daha fazlası için yükselt.',
+      'You have all the walls this Headquarters level allows.': 'Bu Karargâh seviyesinin izin verdiği bütün duvarlar sende.',
+      'There is a wall there already.': 'Orada zaten bir duvar var.', 'You have no wall there.': 'Orada duvarın yok.',
+      'You can’t raid a standing wall.': 'Ayakta duran bir duvara baskın yapamazsın.',
+      'That hex is behind their walls. Break in with your army first.': 'Bu altıgen duvarlarının arkasında. Önce ordunla içeri gir.',
+      'You have {have} {emoji}, not {need}.': 'Sende {have} {emoji} var, {need} değil.', 'You don’t have those animals.': 'O hayvanlar sende yok.',
+      'Your army is still out. It’s back {when}.': 'Ordun hâlâ dışarıda. Dönüşü: {when}.', 'Your army is still out.': 'Ordun hâlâ dışarıda.', 'Your army is still out': 'Ordun hâlâ dışarıda',
+      'This battle isn’t around any more.': 'Bu savaş artık yok.',
+      'You can’t drop animals on a wall.': 'Hayvanlarını duvarın üstüne bırakamazsın.',
+      'You can’t drop animals inside their walls. Drop them outside.': 'Hayvanlarını duvarlarının içine bırakamazsın. Dışarıya bırak.',
+      'Drop your animals close together: within {n} hexes.': 'Hayvanlarını birbirine yakın bırak: en fazla {n} altıgen arayla.', 'Drop your animals closer together.': 'Hayvanlarını birbirine daha yakın bırak.',
+      'Nothing of theirs is close enough. Drop your animals near their base.': 'Yakınlarda onlara ait bir şey yok. Hayvanlarını üslerinin yanına bırak.',
+      'New players are protected until {when}.': 'Yeni oyuncular şu zamana kadar korunuyor: {when}.', 'later': 'daha sonra',
+      'Their base is shielded until {when}.': 'Üsleri şu zamana kadar kalkanlı: {when}.',
+      'Pick on someone your size: they are level {a}, you are {b}.': 'Dengi biriyle uğraş: o seviye {a}, sen {b}.', 'Pick on someone your size.': 'Dengi biriyle uğraş.',
+      'Someone is attacking them right now. Try again {when}.': 'Şu an başka biri saldırıyor. Tekrar dene: {when}.', 'Someone is attacking them right now.': 'Şu an başka biri saldırıyor.',
+      'Nothing of yours lies there any more.': 'Orada artık sana ait bir şey yok.',
+      'Your army is full ({a} of {b}). Build an Army Camp or send some animals out.': 'Ordun dolu ({a} / {b}). Bir Ordugâh kur ya da birkaç hayvanı savaşa gönder.', 'Your army is full.': 'Ordun dolu.',
+      'This building isn’t broken.': 'Bu bina bozuk değil.', 'You fought this player enough today. Pick someone else.': 'Bugün bu oyuncuyla yeterince savaştın. Başka birini seç.',
+      'A wall stands on this hex.': 'Bu altıgende bir duvar var.',
+      'An army is fighting it': 'Bir ordu onunla savaşıyor', 'It’s chasing you!': 'Seni kovalıyor!', 'Wall': 'Duvar', 'Behind their walls': 'Duvarlarının arkasında',
+      '{a} of {b} built · {coin} {n} each. Walls around your hexes make them your base.': '{a} / {b} kuruldu · tanesi {coin} {n}. Duvarla çevrilen altıgenlerin üssün olur.',
+      '{name} attacked your base': '{name} üssüne saldırdı', '{n} buildings down': '{n} bina yıkıldı', 'Buildings went down': 'Binalar yıkıldı', 'Your base held': 'Üssün dayandı',
+      'Replay': 'Tekrar İzle', '{n}/s': '{n}/sn',
+      'Walls go on your own hexes.': 'Duvarlar kendi altıgenlerine kurulur.', 'A building stands here. Walls go on free hexes.': 'Burada bir bina var. Duvarlar boş altıgenlere kurulur.',
+      'Built {n} walls for {c} credits': '{c} krediye {n} duvar kuruldu', 'Removed {n} walls': '{n} duvar kaldırıldı', 'your base: {n} hexes': 'üssün: {n} altıgen',
+      'Walls {a}/{b}': 'Duvarlar {a}/{b}', 'Tap your hexes to add or remove walls · {coin} {n} each': 'Duvar eklemek ya da kaldırmak için altıgenlerine dokun · tanesi {coin} {n}',
+      'Saving…': 'Kaydediliyor…', 'Save · {coin} {n}': 'Kaydet · {coin} {n}',
+      'Send your army: {name}': 'Ordunu gönder: {name}', 'Attack {name}': 'Saldır: {name}',
+      'Tap hexes near it to drop · {a} of {b} placed': 'Bırakmak için yakınındaki altıgenlere dokun · {a} / {b} yerleşti',
+      'Tap outside their walls to drop · {a} of {b} placed': 'Bırakmak için duvarlarının dışına dokun · {a} / {b} yerleşti',
+      'All here': 'Hepsi Buraya', 'Undo': 'Geri Al', 'Sending…': 'Gönderiliyor…', 'Send · {n}': 'Gönder · {n}', 'Attack · {n}': 'Saldır · {n}', 'Tap the map to drop': 'Bırakmak için haritaya dokun',
+      'Repair Now · {coin} {n}': 'Hemen Onar · {coin} {n}', 'Broken: it doesn’t work until it recovers, or until you repair it.': 'Bozuk: kendine gelene ya da sen onarana kadar çalışmaz.', 'Repair': 'Onar',
+      'Shoots {n} damage per second': 'Saniyede {n} hasar atar', 'Wall in your hexes: inside, they are your base': 'Altıgenlerini duvarla çevir: içerisi üssün olur',
+      'Your base: {n} hexes inside your walls': 'Üssün: duvarlarının içinde {n} altıgen',
+      'Army {a}/{b}': 'Ordu {a}/{b}', '+{n} army space from this camp': 'Bu ordugâhtan +{n} ordu yeri',
+      'range {dist}': 'menzil {dist}', 'air and ground': 'havaya ve karaya', 'air only': 'yalnızca havaya', 'ground only': 'yalnızca karaya', 'splash': 'alan hasarı', 'not closer than {dist}': '{dist} içine ateş etmez',
+      '{name} repaired': '{name} onarıldı', 'Wild animal': 'Yabani hayvan',
+      'No animals yet: defeat wild animals and they join your army.': 'Henüz hayvanın yok: yabani hayvanları yen, orduna katılsınlar.',
+      'An army is fighting it already': 'Bir ordu zaten onunla savaşıyor', 'Send Your Army': 'Ordunu Gönder', 'Attack Their Base': 'Üssüne Saldır',
+      '{n} animals ready · drop them outside their walls': { one: '{n} hayvan hazır · duvarlarının dışına bırak', other: '{n} hayvan hazır · duvarlarının dışına bırak' },
+      'Attack': 'Saldır', 
+      'Too far from you: drop within {n} m.': 'Senden çok uzak: en fazla {n} m içine bırak.', 'Drop them within {n} hexes of it.': 'Ona en fazla {n} altıgen yakına bırak.',
+      'Pick an animal below first.': 'Önce aşağıdan bir hayvan seç.', 'Tap a hex on the map first.': 'Önce haritada bir altıgene dokun.', 'Tap hexes on the map to drop your animals.': 'Hayvanlarını bırakmak için haritada altıgenlere dokun.',
+      'Your army is on its way!': 'Ordun yola çıktı!', 'Attack! Your animals are going in.': 'Saldırı! Hayvanların içeri dalıyor.',
+      '+{n} XP': '+{n} TP', 'Defeated!': 'Yenildi!', '{emoji} {name} joined your army': '{emoji} {name} orduna katıldı',
+      'Your army is full: {emoji} waits on the ground for you': 'Ordun dolu: {emoji} yerde seni bekliyor',
+      'Walk closer to pick them up: {dist} away': 'Almak için yaklaş: {dist} uzakta', '{what} back in your army': '{what} yeniden ordunda', ' · the rest waits: your army is full': ' · kalanı bekliyor: ordun dolu',
+      'This battle is over. Watch the replay.': 'Bu savaş bitti. Tekrarını izle.', 'The replay plays at the battle: {dist} away': 'Tekrar, savaşın olduğu yerde oynuyor: {dist} uzakta',
+      'survivors wait at the drop hex': 'hayatta kalanlar bırakıldıkları altıgende bekliyor',
+      '{name} attacked your base: {n} buildings down': '{name} üssüne saldırdı: {n} bina yıkıldı', 'Your army won!': 'Ordun kazandı!', 'It got away.': 'Kaçıp kurtuldu.', 'It got away': 'Kaçtı',
+      'Attack over: {stars} · {pct} destroyed': 'Saldırı bitti: {stars} · {pct} yıkıldı', 'Returning': 'Dönüyor', 'Battle over': 'Savaş bitti', 'a wild animal': 'yabani bir hayvan',
+      '{name} attacks your base': '{name} üssüne saldırıyor', 'Your army vs {name}': 'Ordun, rakip: {name}', 'Your attack on {name}': 'Saldırın: {name}', '{a} attacks {b}': '{a}, {b} üssüne saldırıyor',
+      '{time} left in the fight': 'Savaşın bitmesine {time}', 'The survivors walk back': 'Hayatta kalanlar geri yürüyor', 'Its health': 'Sağlığı', 'Destroyed': 'Yıkılan',
+      '{n} fighting': '{n} savaşıyor', '{n} lost': '{n} kayıp', 'Show on the Map': 'Haritada Göster', 'Stop the Replay': 'Tekrarı Durdur', 'Stop Watching': 'İzlemeyi Bırak',
+      'Army Space': 'Ordu Yeri', 'flies': 'uçar', 'Your Animals': 'Hayvanların', 'Back from battle': 'Savaştan döndü', 'From a hunt': 'Avdan', 'gone in {time}': '{time} sonra gidiyor',
+      'Collect': 'Topla', 'On the Ground': 'Yerde', 'Walk within {n} m of them, then tap them on the map or here.': 'Onlara {n} m kadar yaklaş, sonra haritada ya da burada dokun.',
+      'More Animals': 'Diğer Hayvanlar', 'Defeat them in the wild and they join you.': 'Onları doğada yen, sana katılsınlar.',
+      'To attack, open a rival’s base or a wild animal and tap Attack. Drop your animals outside their walls: each kind goes for its favourite target and breaks walls in its way.':
+        'Saldırmak için bir rakibin üssünü ya da yabani bir hayvanı aç ve Saldır’a dokun. Hayvanlarını duvarlarının dışına bırak: her tür en sevdiği hedefe gider ve yolundaki duvarları kırar.',
+      '{name} attacked you': '{name} sana saldırdı', 'Your army vs a wild animal': 'Ordun, rakip: yabani bir hayvan', 'You attacked {name}': 'Saldırdın: {name}', 'Fighting now': 'Şu an savaşıyor',
+      '{pct} destroyed': '{pct} yıkıldı', 'Watch': 'İzle', 'Your Attacks': 'Saldırıların', 'No attacks this week.': 'Bu hafta saldırı yok.', 'On Your Base': 'Üssüne', 'Nobody attacked your base this week.': 'Bu hafta kimse üssüne saldırmadı.',
+      'Army': 'Ordu', 'Animals': 'Hayvanlar', 'Battles': 'Savaşlar', 
+      'Raider': 'Yağmacı', 'Tank': 'Tank', 'Swarm': 'Sürü', 'Bomber': 'Bombacı', 'Flyer': 'Uçucu', 'Wall Breaker': 'Duvar Kırıcı', 'Wizard': 'Büyücü', 'Dragon': 'Ejderha',
+      'goes for plants': 'bitkilere gider', 'goes for defenses': 'savunmalara gider', 'goes for walls': 'duvarlara gider', 'goes for anything': 'her şeye gider',
+      'You fought this player enough today.': 'Bugün bu oyuncuyla yeterince savaştın.',
+      'That’s {n} drop groups already: add these animals to a hex you used.': 'Zaten {n} bırakma grubu var: bu hayvanları kullandığın bir altıgene ekle.',
+      // server messages that share a code with other meanings
+      'That player is in your crew': 'Bu oyuncu senin ekibinde', 'Friendly animals can’t be attacked. Feed it instead!': 'Dost hayvanlara saldırılmaz. Onu besle!',
+      'Their base is shielded': 'Üsleri kalkanlı', 'New players are protected for a while': 'Yeni oyuncular bir süre korunur',
     },
     // Server errors by code, for messages with numbers in them (and anything new): a text, or a function of the error's details.
     errors: {
@@ -2616,7 +2757,7 @@
   let cfg = null; // GET /v1/config
   let me = null; // GET /v1/me (own state)
   let meAt = 0; // local time me was received
-  const world = { cells: new Map(), owners: {}, players: [], bots: [], center: null, at: 0 };
+  const world = { cells: new Map(), owners: {}, players: [], bots: [], battles: [], pickups: [], center: null, at: 0 };
   let version = 0; // bumps when territory or buildings change
   let RES = 12, REACH = 70;
   let mode = null; // 'gps' | 'sim'
@@ -2709,7 +2850,7 @@
   };
   const bagItems = () => (me.items || []).filter((i) => i.place !== 'plant');
   function setMe(state) {
-    const before = me ? `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}` : '';
+    const before = me ? `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}:${b.broken ? 1 : 0}`).join()}|${wallSig(me)}` : '';
     const prev = me;
     me = state;
     progressed(prev, state);
@@ -2717,7 +2858,7 @@
     indexMe();
     reapplyCollects();
     if (me.reachMeters && me.reachMeters !== REACH) setReach(me.reachMeters);
-    const after = `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}`).join()}`;
+    const after = `${me.territory.cells.join()}|${me.buildings.map((b) => `${b.id}@${b.cell}:${b.state}${b.level}:${b.broken ? 1 : 0}`).join()}|${wallSig(me)}`;
     if (before !== after) {
       version++;
       territoryChanged();
@@ -2761,7 +2902,7 @@
   /** Why a building can't be bought right now (null = fine). The server checks again. */
   function buyBlock(type) {
     const bd = bdef(type);
-    if (!bd || !bd.buildable) return t("That can't be bought.");
+    if (!bd || !bd.buildable || !buildFeat(type)) return t("That can't be bought.");
     if (!hqLevel()) return t('Found your Headquarters first.');
     const l = bd.levels[0];
     if (l.requiredHq > hqLevel()) return t('Requires Headquarters level {n}.', { n: l.requiredHq });
@@ -2906,6 +3047,8 @@
       world.owners = w.owners || {};
       world.players = w.players || [];
       world.bots = w.bots || [];
+      world.battles = w.battles || [];
+      world.pickups = w.pickups || [];
       world.center = { ...center };
       world.at = Date.now();
       version++;
@@ -3146,7 +3289,7 @@
     }
     if (t.kind === 'bot') {
       const b = (world.bots || []).find((x) => x.id === t.id);
-      return b && { at: { lat: b.center[0], lng: b.center[1] }, hp: b.hp, maxHp: b.maxHp, name: botName(b), icon: b.emoji, bot: b };
+      return b && { at: botLL(b), hp: b.hp, maxHp: b.maxHp, name: botName(b), icon: b.emoji, bot: b };
     }
     if (t.kind === 'player') {
       const p = world.players.find((x) => x.id === t.id);
@@ -3172,10 +3315,15 @@
       const r = await post('/v1/combat/shoot', { target: { kind: tg.kind, id: tg.id }, location: fix() });
       if (r.state) setMe(r.state);
       const res = r.result;
+      shotFx(tg, res.hit);
       floatText(tg, res.hit ? `−${Math.round(res.damage)}` : t('Miss'), !res.hit);
       if (res.hit) feel('hit');
       // Update the target locally so its health bar moves at once.
-      if (tg.kind === 'bot') { const b = world.bots.find((x) => x.id === tg.id); if (b) b.hp = res.target.hp; if (res.target.defeated) world.bots = world.bots.filter((x) => x.id !== tg.id); }
+      if (tg.kind === 'bot') {
+        const b = world.bots.find((x) => x.id === tg.id);
+        if (b) { b.hp = res.target.hp; if (res.bot) botUpdate(b, res.bot); }
+        if (res.target.defeated) world.bots = world.bots.filter((x) => x.id !== tg.id);
+      }
       if (tg.kind === 'player') { const p = world.players.find((x) => x.id === tg.id); if (p) { p.hp = res.target.hp; p.knockedOut = !!res.target.knockedOut; } }
       if (tg.kind === 'plant' || tg.kind === 'building') { const wc = world.cells.get(tg.cell); const o = wc && (tg.kind === 'plant' ? wc.plant : wc.building); if (o) { o.hp = res.target.hp; if (res.target.wilted) o.wilted = true; if (res.target.broken) o.broken = true; } }
       if (tg.kind === 'boss') {
@@ -3187,7 +3335,9 @@
       if (res.thorns) setTimeout(() => toast(t('Thorns! You lost {n} health.', { n: fmtNum(res.thorns.damage || 0) }), true, '🌵'), 1200);
       else if (res.guarded && res.hit) setTimeout(() => toast(t('A watchtower took part of the damage'), false, '🗼'), 1200);
       const loot = res.loot && res.loot.credits ? t(' · +{n} credits', { n: fmtNum(res.loot.credits) }) : '';
-      if (res.drop) toast(t("{emoji} {rarity} {name} found! It's in your bag.", { emoji: itemType(res.drop).emoji, rarity: rarityName(res.drop.rarity), name: itemName(res.drop) }), false, '🎁');
+      const killed = tg.kind === 'bot' && res.target.defeated && (res.troop || res.xp);
+      if (killed) killToast(res);
+      else if (res.drop) toast(t("{emoji} {rarity} {name} found! It's in your bag.", { emoji: itemType(res.drop).emoji, rarity: rarityName(res.drop.rarity), name: itemName(res.drop) }), false, '🎁');
       else if (res.bagFull) toast(t('Defeated, but your bag is full. Make room for the next drop.'), true);
       else if (res.target.knockedOut) toast(t('{name} is knocked out', { name: targetInfo(tg) ? targetInfo(tg).name : t('Player') }) + loot, false, '💥');
       else if (res.target.wilted) toast(t('The plant wilted') + loot, false, '🥀');
@@ -3322,6 +3472,9 @@
       if (D) out.rows.push({ key: 'duel', icon: '⚔️', tint: 'red', title: t('Challenge to a Duel'), sub: dwhy || t('30 seconds of tapping · stake {coin} {n}', { coin: E.coin, n: fmtNum(D.stake) }), why: !!dwhy, button: t('Duel'), enabled: !dwhy, run: () => duelChallenge(p) });
       out.rows.push({ key: 'trade', icon: '🤝', tint: 'green', title: t('Trade in Person'), sub: t('Swap boosters, standing together'), button: t('Trade'), enabled: !locationBlock(), run: () => tradeStart(p) });
     }
+    armyRow(out, tg.kind === 'bot' ? { kind: 'bot', id: tg.id } : p ? { kind: 'player', id: p.id } : null);
+    if (info.bot && info.bot.battleId) out.tags.push({ tint: 'red', icon: '⚔️', text: t('An army is fighting it') });
+    else if (info.bot && me && info.bot.aggroOn === me.player.id) out.tags.push({ tint: 'red', icon: '😠', text: t('It’s chasing you!') });
     out.note = tg.kind === 'bot'
       ? t('The further away, the harder to hit. Boosters like {scope} and {rapid} help.', { scope: boosterLabel('scope', '🎯 Scope'), rapid: boosterLabel('rapid', '🔥 Rapid Fire') })
       : t('Knock them out and they lose {pct} of their credits to you (max {max}).', { pct: pct(Math.round(cfg.combat.knockoutLootShare * 100)), max: fmtNum(cfg.combat.knockoutLootMax) });
@@ -3484,6 +3637,19 @@
     if (!STY[k]) STY[k] = { fill: color, fillOpacity: mapDark ? 0.3 : 0.26, stroke: color, strokeOpacity: 0, width: 0, z: 5 };
     return k;
   }
+  /** A darker shade of a color (0 = the same, 1 = black). */
+  function shade(color, k) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(color || '');
+    if (!m) return color;
+    const n = parseInt(m[1], 16), f = (v) => Math.round(v * (1 - k)).toString(16).padStart(2, '0');
+    return `#${f(n >> 16)}${f((n >> 8) & 255)}${f(n & 255)}`;
+  }
+  /** The style key for a base (own hexes enclosed by walls): a deeper shade of the territory tint, laid over it. */
+  function baseKey(color) {
+    const k = `b:${color}`;
+    if (!STY[k]) STY[k] = { fill: shade(color, mapDark ? 0.2 : 0.38), fillOpacity: mapDark ? 0.42 : 0.36, stroke: color, strokeOpacity: 0, width: 0, z: 6 };
+    return k;
+  }
   let map = null; // the active engine
   let lastTapAt = 0; // the player's last tap on the map (the away summary never interrupts)
   const mapScale = () => (map ? map.metersPerPixel() : MAP.mpp);
@@ -3530,7 +3696,7 @@
     const styleCache = {};
     const st = (k) => (styleCache[k] = styleCache[k] || style(k));
     const coord = (p) => new mk.Coordinate(p.lat, p.lng);
-    const hexes = new Map(), outlines = [], shapes = {};
+    const hexes = new Map(), outlines = [], shapes = {}, lines = {};
     let sel = null, route = null;
     const reach = new mk.CircleOverlay(coord(center), REACH, { style: st('reach') });
     const acc = new mk.CircleOverlay(coord(center), 1, { style: st('acc') });
@@ -3604,6 +3770,18 @@
         route = new mk.PolylineOverlay(path.map(coord), { style: new mk.Style({ strokeColor: routeColor(), lineWidth: 3, lineDash: [1, 8], lineCap: 'round', strokeOpacity: 0.95 }) });
         route.enabled = false;
         m.addOverlay(route);
+      },
+      // Thin line layers (walls, the deploy hatch): [{ paths: [[{lat,lng}, …], …], color, width, opacity, dash }].
+      setLines(layer, list) {
+        const old = lines[layer];
+        if (old && old.length) m.removeOverlays(old);
+        const next = [];
+        for (const x of list || []) {
+          const style = new mk.Style({ strokeColor: x.color, strokeOpacity: x.opacity == null ? 1 : x.opacity, lineWidth: x.width || 2, lineCap: 'round', lineJoin: 'round', ...(x.dash ? { lineDash: x.dash } : {}) });
+          for (const p of x.paths) { const o = new mk.PolylineOverlay(p.map(coord), { style }); o.enabled = false; next.push(o); }
+        }
+        lines[layer] = next;
+        if (next.length) m.addOverlays(next);
       },
       // Extra shape layers (event areas, meeting points): circles and polygons.
       setShapes(layer, list) {
@@ -3687,7 +3865,7 @@
     // The walking route: a thin dotted line (round dots along an invisible stroke).
     const routeOpts = () => ({ clickable: false, strokeOpacity: 0, zIndex: 30, icons: [{ icon: { path: gm.SymbolPath.CIRCLE, scale: 1.7, strokeOpacity: 0, fillOpacity: 0.95, fillColor: routeColor() }, offset: '0', repeat: '9px' }] });
     const route = new gm.Polyline({ map: m, path: [], visible: false, ...routeOpts() });
-    const markers = new Set(), shapes = {};
+    const markers = new Set(), shapes = {}, lines = {};
     class Overlay extends gm.OverlayView {
       constructor() { super(); this.root = document.createElement('div'); this.root.className = 'ov'; }
       onAdd() { this.getPanes().markerLayer.appendChild(this.root); }
@@ -3750,6 +3928,14 @@
         route.setOptions(routeOpts());
       },
       setRoute(path) { route.setPath(path || []); route.setVisible(!!path); },
+      setLines(layer, list) {
+        for (const o of lines[layer] || []) o.setMap(null);
+        lines[layer] = [];
+        for (const x of list || []) {
+          const dash = x.dash ? { strokeOpacity: 0, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: x.opacity == null ? 1 : x.opacity, strokeColor: x.color, strokeWeight: x.width || 2, scale: 1 }, offset: '0', repeat: `${(x.dash[0] || 2) + (x.dash[1] || 4)}px` }] } : { strokeOpacity: x.opacity == null ? 1 : x.opacity };
+          for (const p of x.paths) lines[layer].push(new gm.Polyline({ map: m, path: p, clickable: false, strokeColor: x.color, strokeWeight: x.width || 2, zIndex: x.z || 8, ...dash }));
+        }
+      },
       setShapes(layer, list) {
         for (const o of shapes[layer] || []) o.setMap(null);
         shapes[layer] = (list || []).map((x) => {
@@ -3822,7 +4008,7 @@
     // SVG, not canvas: during a pinch the vector shapes scale smoothly instead of a stretched bitmap that sharpens at the end.
     const pane = (name, z) => { m.createPane(name).style.zIndex = z; return L.svg({ pane: name, padding: 0.5 }); };
     const rHex = pane('cocHex', 401), rOut = pane('cocOut', 402), rReach = pane('cocReach', 403), rSel = pane('cocSel', 404), rRoute = pane('cocRoute', 405);
-    const rZone = pane('cocZone', 399), shapes = {};
+    const rZone = pane('cocZone', 399), shapes = {}, lines = {}, rLine = pane('cocLine', 402);
     const routeStyle = () => ({ color: routeColor(), weight: 3.2, opacity: 0.95, dashArray: '0.1 9', lineCap: 'round', interactive: false });
     const route = L.polyline([], { ...routeStyle(), renderer: rRoute });
     let routeShown = false;
@@ -3915,6 +4101,12 @@
         if (!!path !== routeShown) { routeShown = !!path; path ? route.addTo(m) : route.remove(); }
       },
       setSelection(path) { sel.setLatLngs(path || []); },
+      setLines(layer, list) {
+        for (const o of lines[layer] || []) o.remove();
+        lines[layer] = (list || []).filter((x) => x.paths.length).map((x) => L.polyline(x.paths.map((p) => p.map((q) => [q.lat, q.lng])), {
+          color: x.color, weight: x.width || 2, opacity: x.opacity == null ? 1 : x.opacity, lineCap: 'round', lineJoin: 'round', dashArray: x.dash ? x.dash.join(' ') : null, interactive: false, smoothFactor: 0, renderer: rLine,
+        }).addTo(m));
+      },
       setShapes(layer, list) {
         for (const o of shapes[layer] || []) o.remove();
         shapes[layer] = (list || []).map((x) => {
@@ -3937,6 +4129,8 @@
         const mk = new Pin(elm, p, z || 0).addTo(m);
         return { move(q) { mk.setLatLng(q); }, remove() { mk.remove(); } };
       },
+      // A zoom animation is running (pins glide to their new spots with it): moving pins wait for its end.
+      busy() { return !!m._animatingZoom; },
       attribution: 'OpenStreetMap',
       native: m,
     };
@@ -3973,7 +4167,11 @@
       lastTapAt = Date.now();
       if (!me || !pos || Date.now() - heldAt < 1200) return;
       const id = cellAt(lat, lng);
+      if (wm.on) return wallTap(id);
+      if (dp.on) return deployTap(id);
       if (placing) return placeAt(id);
+      const pk = pickupAt(lat, lng);
+      if (pk) return tapPickup(pk);
       if (tapCollect(id)) { if (selected !== id) select(id); return; } // collect and show it
       const found = findAt(lat, lng);
       if (found) return openFind(found);
@@ -4002,7 +4200,7 @@
   const shownHexes = new Set();
   function styleKey(id) {
     const o = ownerOf(id);
-    if (o) return o !== 'me' ? 'rival' : placing && reachSet.has(id) && !myByCell.has(id) ? 'lot' : 'own';
+    if (o) return o !== 'me' ? 'rival' : (placing || wm.on) && reachSet.has(id) && !myByCell.has(id) ? 'lot' : 'own';
     const r = reachSet.has(id);
     if (frontier.has(id)) return r ? 'claimR' : 'claim';
     return r ? 'nR' : 'n';
@@ -4014,7 +4212,7 @@
   function syncGrid() {
     if (!map || !me || !pos) return;
     const want = new Set(frontier);
-    if (placing) for (const id of reachSet) if (myCellSet.has(id)) want.add(id);
+    if (placing || wm.on) for (const id of reachSet) if (myCellSet.has(id)) want.add(id);
     for (const id of [...shownHexes]) {
       if (!want.has(id)) { map.removeHex(id); shownHexes.delete(id); }
     }
@@ -4040,7 +4238,15 @@
     return out;
   }
   function syncOutlines() {
-    map.setOutlines(territoryGroups().map((g) => ({ key: tintKey(g.color), polygons: h3.cellsToMultiPolygon(g.ids, true) })));
+    const list = [];
+    for (const g of territoryGroups()) {
+      list.push({ key: tintKey(g.color), polygons: h3.cellsToMultiPolygon(g.ids, true) });
+      // A base (own hexes inside standing walls): a deeper shade of the same tint on top.
+      const base = baseCells(g.owner);
+      if (base.length) list.push({ key: baseKey(g.color), polygons: h3.cellsToMultiPolygon(base, true) });
+    }
+    map.setOutlines(list);
+    lastOutlines = list.map((x) => ({ key: x.key, polygons: x.polygons.length }));
   }
   function computeFrontier() {
     const f = new Set();
@@ -4058,6 +4264,8 @@
     syncTiles();
     syncPlayers();
     syncBots();
+    syncWalls();
+    syncPickups();
   }
   function updateReach(force) {
     if (!me || !map || !pos) return;
@@ -4104,9 +4312,9 @@
       let pin = pins.get(key);
       if (!pin) {
         const el = document.createElement('div');
-        el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="sub"></div><div class="lvl"></div><div class="nm"></div></div>';
+        el.innerHTML = '<div class="pi"><div class="cap"></div><div class="pb"></div><div class="sub"></div><div class="lvl"></div><div class="nm"></div><div class="hpb"></div></div>';
         const c = cell(b.cell);
-        pin = { el, cellId: b.cell, cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), sub: el.querySelector('.sub'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), glyph: '', subGlyph: '' };
+        pin = { el, cellId: b.cell, cap: el.querySelector('.cap'), pb: el.querySelector('.pb'), sub: el.querySelector('.sub'), lvl: el.querySelector('.lvl'), nm: el.querySelector('.nm'), hpb: el.querySelector('.hpb'), glyph: '', subGlyph: '', hpk: '' };
         pin.handle = map.addMarker(el, { lat: c.lat, lng: c.lng }, 5);
         pins.set(key, pin);
       }
@@ -4116,7 +4324,10 @@
         pin.handle.move({ lat: c.lat, lng: c.lng });
       }
       const active = b.state === 'active' || (b.own && endsIn(b) <= 0);
-      pin.el.className = `pin t-${b.type} ${b.own ? 'own' : 'rival'}${b.own && !reachSet.has(b.cell) ? ' far' : ''}`;
+      pin.el.className = `pin t-${b.type} ${b.own ? 'own' : 'rival'}${b.own && !reachSet.has(b.cell) ? ' far' : ''}${b.broken ? ' broken' : ''}`;
+      // Health when damaged (defense buildings after a battle or shots); nothing when whole.
+      const hpk = active && b.maxHp && b.hp != null && b.hp < b.maxHp ? `${Math.round(b.hp)}|${b.maxHp}` : '';
+      if (pin.hpk !== hpk) { pin.hpk = hpk; pin.hpb.innerHTML = hpk ? hpHtml(b.hp, b.maxHp) : ''; }
       const glyph = active ? emojiFor(b.type) : E.building;
       if (pin.glyph !== glyph) { pin.glyph = glyph; pin.pb.textContent = glyph; }
       pin.lvl.hidden = true; // levels show in the sheet, not on the map
@@ -4162,32 +4373,36 @@
       t.key = key;
       t.el.className = `tt${p.wilted ? ' wilted' : ''}${w.under ? ' under' : ''}`;
       t.el.style.setProperty('--d', `-${phaseOf(id, 5.6)}s`);
-      t.el.innerHTML = `${w.pot ? `<span class="pot">${esc(w.pot)}</span>` : ''}<i>${p.emoji || stageOf(p.level).emoji}</i>${w.face ? `<span class="ow">${esc(w.face)}</span>` : ''}${full ? '<span class="full">🪙</span>' : ''}${grow ? `<span class="grow">${grow}</span>` : ''}${hpHtml(p.hp, p.maxHp)}`;
+      t.el.innerHTML = `${w.pot ? `<span class="pot">${esc(w.pot)}</span>` : ''}<i>${p.emoji || stageOf(p.level).emoji}</i>${w.face ? `<span class="ow">${esc(w.face)}</span>` : ''}${full ? '<span class="full">🪙</span>' : ''}${grow ? `<span class="grow">${grow}</span>` : ''}${p.wilted ? '' : hpHtml(p.hp, p.maxHp)}`;
     }
   }
 
-  // Animal bots: shoot them for booster items.
+  // Animal bots: shoot them for booster items. They roam along their path (moved every frame, see
+  // botsFrame), and chase you when you shot them.
   const botPins = new Map();
   function syncBots() {
     if (!map) return;
-    const seen = new Set();
+    const seen = new Set(), now = serverNow();
     for (const b of world.bots || []) {
       seen.add(b.id);
       let pin = botPins.get(b.id);
+      const at = botLL(b, now);
       if (!pin) {
         const el = document.createElement('div');
         el.className = 'bot';
-        pin = { el, handle: map.addMarker(el, { lat: b.center[0], lng: b.center[1] }, 4), key: '' };
+        pin = { el, handle: map.addMarker(el, at, 4), key: '', at };
+        el._ll = at;
         botPins.set(b.id, pin);
       }
+      pin.b = b;
       const aimed = target && target.kind === 'bot' && target.id === b.id && !b.friendly;
-      const key = `${b.hp}|${aimed}`;
+      const angry = !!(me && b.aggroOn && b.aggroOn === me.player.id);
+      const key = `${b.hp}|${aimed}|${angry}|${b.emoji}`;
       if (pin.key !== key) {
         pin.key = key;
-        const wd = 16 + (b.id.length * 7 + b.id.charCodeAt(0)) % 9; // each animal its own pace
-        pin.el.style.setProperty('--wd', `${wd}s`);
-        pin.el.style.setProperty('--d', `-${phaseOf(b.id, wd)}s`);
+        pin.el.classList.toggle('angry', angry);
         pin.el.innerHTML = `${aimed ? '<div class="aim"></div>' : ''}<div class="be">${b.emoji}</div>${hpHtml(b.hp, b.maxHp)}`;
+        pin.be = pin.el.querySelector('.be');
       }
     }
     for (const [id, pin] of botPins) if (!seen.has(id)) { pin.handle.remove(); botPins.delete(id); }
@@ -4198,7 +4413,7 @@
     const t = map.toPx({ lat, lng });
     let best = null, bestD = 26;
     for (const b of world.bots || []) {
-      const q = map.toPx({ lat: b.center[0], lng: b.center[1] });
+      const at = botLL(b), q = map.toPx(at);
       const d = Math.hypot(q.x - t.x, q.y + 14 - t.y);
       if (d < bestD) { bestD = d; best = b.id; }
     }
@@ -4476,7 +4691,7 @@
     const b = e.target.closest('[data-go]');
     if (!b || Date.now() - homeDragEnd < 300) return;
     const go = b.dataset.go;
-    if (['journey', 'inbox', 'social', 'season', 'defense'].includes(go)) return openPageById(go);
+    if (['journey', 'inbox', 'social', 'season', 'defense', 'army'].includes(go)) return openPageById(go);
     ({ shop: openShop, leaders: openLeaders, missions: openMissions, today: openToday, crew: openCrew, howto: () => openModal('howto'), settings: openSettings, photo: enterPhoto })[go]();
   });
   homeEl.addEventListener('wheel', (e) => { if (homeDetent === 1 && e.deltaY > 0) setHome(2); }, { passive: true });
@@ -5161,7 +5376,7 @@
         `${priceBtn('data-bag', bag.upgradeCost, credits() < bag.upgradeCost)}</div>`);
     }
     for (const [type, bd] of Object.entries(cfg.buildings)) {
-      if (!bd.buildable || !soldHere(type) || buyBlock(type) || cards.length >= 4 || !feat('shop')) continue;
+      if (!bd.buildable || !soldHere(type) || !buildFeat(type) || buyBlock(type) || cards.length >= 4 || !feat('shop')) continue;
       const l = bd.levels[0];
       cards.push(`<div class="fcard g-${GRAD[type] || 'red'}"><div class="fbig">${emojiFor(type)}</div><small>${esc(catName(bd.category))}</small><b>${esc(loc(bd))}</b><p>${esc(cap1(effect(type, l)) || loc(bd, 'description'))}</p>` +
         `${priceBtn(`data-buy="${type}"`, costOf(l), false)}</div>`);
@@ -5175,7 +5390,7 @@
       for (const [cat, label] of CATEGORIES) {
         const rows = [];
         for (const [type, bd] of Object.entries(cfg.buildings)) {
-          if (!bd.buildable || bd.category !== cat || !soldHere(type)) continue;
+          if (!bd.buildable || bd.category !== cat || !soldHere(type) || !buildFeat(type)) continue;
           const l = bd.levels[0], why = buyBlock(type), lim = me.limits[type] || { built: 0, max: 0 }, tint = TINT_FOR[type] || 'gray';
           const locked = l.requiredHq > hq;
           const count = locked ? t('Unlocks at HQ {n}', { n: l.requiredHq }) : t('{a} of {b} built', { a: lim.built + invOf(type), b: lim.max });
@@ -5187,6 +5402,11 @@
           }
         }
         if (rows.length) sections.push(`<h4 class="sec-h">${esc(t(label))}</h4><div class="group">${rows.join('')}</div>`);
+      }
+      if (feat('walls') && hq && me.walls) {
+        const W = me.walls, wc = (cfgOf('walls') && cfgOf('walls').cost && cfgOf('walls').cost.credits) || 0;
+        sections.unshift(`<h4 class="sec-h">${esc(t('Walls'))}</h4><div class="group">` + shopRow('🧱', 'gray', esc(t('Walls')), t('{a} of {b} built · {coin} {n} each. Walls around your hexes make them your base.', { a: W.built, b: W.max, coin: E.coin, n: fmtNum(wc) }),
+          `<button class="price" type="button" data-walls>${esc(t('Build'))}</button>`) + '</div>');
       }
       sections.push(`<p class="sec-f">${t('You pay when you buy. The building waits in your inventory; place it on one of your plants within reach and construction starts.')}</p>`);
       $('shopNext').innerHTML = nextHqUnlocks(hq);
@@ -5227,7 +5447,7 @@
     const row = (icon, tint, title, sub) => rows.push(`<div class="row t"><div class="tile sm tint-${tint}">${icon}</div><div class="row-main"><div class="row-title">${esc(title)}</div>${sub ? `<div class="row-sub">${esc(sub)}</div>` : ''}</div></div>`);
     if (nx.builders > cur.builders) row(E.builder, 'orange', tn(nx.builders, '{n} builder', '{n} builders'), t('now {n}', { n: cur.builders }));
     for (const [type, bd] of Object.entries(cfg.buildings)) {
-      if (!bd.buildable || !soldHere(type)) continue;
+      if (!bd.buildable || !soldHere(type) || !buildFeat(type)) continue;
       const a = cur.buildingLimits[type] || 0, b = nx.buildingLimits[type] || 0;
       const newLevels = bd.levels.filter((l) => l.requiredHq === hq + 1).map((l) => l.level);
       const parts = [];
@@ -5255,6 +5475,7 @@
       await command(() => post(`/v1/market/${mb.dataset.mbuy}/buy`, {}), (r) => toast(t('{what} is in your bag', { what: itemToast(r.result.item) }), false, '🧺'));
       return loadMarket(true);
     }
+    if (e.target.closest('[data-walls]')) return wallStart();
     const buy = e.target.closest('[data-buy]'), put = e.target.closest('[data-place]');
     if (buy && !buy.disabled) {
       await doBuy(buy.dataset.buy);
@@ -5264,7 +5485,7 @@
 
   let started = false; // the level bar and tools show once the game has started
   function layoutControls() {
-    const h = sheetOpen ? openSheetH() : !$('placeBar').hidden ? $('placeBar').offsetHeight : 0;
+    const h = sheetOpen ? openSheetH() : !$('placeBar').hidden ? $('placeBar').offsetHeight : !$('modeBar').hidden ? $('modeBar').offsetHeight : 0;
     if (sheetOpen && sheetKind === 'plant') placePs();
     const bar = $('home');
     bar.hidden = !started;
@@ -5290,6 +5511,7 @@
     panel = null;
     target = t;
     selRing(null);
+    syncRange();
     sheetKind = 'hex';
     psEl.classList.add('off');
     renderSheet();
@@ -5308,6 +5530,7 @@
     if (had) { syncBots(); syncPlayers(); }
     panel = fn;
     selRing(null);
+    syncRange();
     sheetKind = 'hex';
     psEl.classList.add('off');
     if (homeDetent) setHome(false);
@@ -5323,6 +5546,7 @@
     if (id || !selected) { const had = target; target = null; if (had) { syncBots(); syncPlayers(); } }
     if (!selected) {
       selRing(null);
+      syncRange();
       if (sheetOpen) {
         sheetOpen = false;
         sheetEl.style.transform = '';
@@ -5334,6 +5558,7 @@
       return;
     }
     selRing(selected);
+    syncRange();
     sheetOpen = true;
     if (isPlainPlant(selected)) openPlant();
     else {
@@ -5852,11 +6077,14 @@
     if (route.on && route.stops.length) parts.push(`<button class="capsule sm mglass" type="button" data-route aria-label="${esc(t('Walking route: {dist}, about {time}', { dist: fmtDist(route.meters), time: fmtDur(route.minutes * 60) }))}"><span class="emo">🧭</span><span>${esc(t('{dist} · {time}', { dist: fmtDist(route.meters), time: fmtDur(route.minutes * 60) }))}</span></button>`);
     if (tr.ferry && tr.ferry.pending) parts.push(`<button class="capsule sm chest" type="button" data-ferry><span class="emo">🎁</span><span>${esc(t('Ferry chest'))}</span></button>`);
     parts.unshift(...bigChips());
+    parts.unshift(...battleChips());
     const key = parts.join('');
     if (key !== chipsKey) { chipsKey = key; box.innerHTML = key; }
     box.hidden = !parts.length;
   }
   $('liveChips').addEventListener('click', (e) => {
+    const bx = e.target.closest('[data-battle]');
+    if (bx) return openBattlePanel(bx.dataset.battle);
     const r = e.target.closest('[data-remote]');
     if (r) { if (!r.disabled) doRemote(); return; }
     const ev = e.target.closest('[data-ev]');
@@ -6697,7 +6925,7 @@
     if (!map) return;
     if (me && pos) syncOutlines();
     if (map.restyle) map.restyle(mapDark);
-    if (me && pos) restyleGrid();
+    if (me && pos) { restyleGrid(); syncWalls(); if (dp.on) { dp.mapKey = ''; syncDeployMap(); } }
     if (route.on) drawRoute();
   }
   /** VoiceOver: dialogs, tabs and labels the markup alone doesn't give. */
@@ -7700,7 +7928,7 @@
     if (fn) fn(el.value, el, p);
   });
   function openPageById(id, push, seg) {
-    const make = { journey: journeyPage, inbox: inboxPage, social: socialPage, season: seasonPage, defense: defensePage, notif: notifPage, wardrobe: wardrobePage, blocks: blocksPage, mentor: socialPage }[id];
+    const make = { journey: journeyPage, inbox: inboxPage, social: socialPage, season: seasonPage, defense: defensePage, notif: notifPage, wardrobe: wardrobePage, blocks: blocksPage, mentor: socialPage, army: armyPage }[id];
     if (make) openPage(make(seg), push);
   }
 
@@ -8392,6 +8620,10 @@
     }
     const b = strat.bounties && (strat.bounties.near || []).find((x) => x.target && x.target.id === owner);
     if (b) out.tags.push({ tint: 'orange', icon: '💰', text: t('Bounty {coin} {n}', { coin: E.coin, n: fmtNum(b.credits) }) });
+    armyRow(out, { kind: 'player', id: owner });
+    const ow = world.owners[owner];
+    if (ow && ow.walls && ow.walls.includes(id)) out.tags.push({ tint: 'gray', icon: '🧱', text: t('Wall') });
+    else if (ow && ow.enclosed && ow.enclosed.includes(id)) out.tags.push({ tint: 'gray', icon: '🧱', text: t('Behind their walls') });
   }
   async function doRaid(cellId) {
     const R = raidCfg();
@@ -8429,6 +8661,7 @@
 
   /** Rows for your own building: a watchtower's guard and upkeep, a wall's bonus. */
   function ownBuildingExtras(out, b) {
+    combatBuildingRows(out, b);
     const D = strat.defense;
     if (towerType(b.type)) {
       loadDefense(false);
@@ -8532,6 +8765,12 @@
     const top = (L.topAttackers || []).slice(0, 5).map((x) => rowHtml({ icon: avatarOf(x.attacker), av: true, title: playerName(x.attacker), sub: tn(x.hits, '{n} hit · {d} damage · {when}', '{n} hits · {d} damage · {when}', { d: fmtNum(x.damage), when: agoText(x.lastAt) }), a: x.attacker && x.attacker.id ? 'profile' : undefined, v: x.attacker && x.attacker.id }));
     if (top.length) html += group(top, t('Top Attackers'));
     const rows = (L.entries || []).slice(0, 60).map((x) => {
+      if (x.battleId || (x.target && x.target.kind === 'battle')) {
+        const bid = x.battleId || x.target.id;
+        return rowHtml({ icon: avatarOf(x.attacker), av: true, title: t('{name} attacked your base', { name: playerName(x.attacker) }),
+          sub: [typeof x.destroyed === 'number' ? tn(x.destroyed, '{n} building down', '{n} buildings down') : x.destroyed ? t('Buildings went down') : t('Your base held'), x.loot ? t('{n} credits taken', { n: fmtNum(x.loot) }) : '', agoText(x.at)].filter(Boolean).join(' · '),
+          btn: { label: t('Replay'), a: 'replay', v: bid } });
+      }
       const what = x.target.kind === 'building' ? `${emojiFor(x.target.type)} ${bName(x.target.type)}` : `${(myPlants.get(x.target.id) || {}).emoji || '🌱'} ${t('plant')}`;
       return rowHtml({ icon: avatarOf(x.attacker), av: true, title: t('{name} hit your {what}', { name: playerName(x.attacker), what }), sub: `−${fmtNum(x.damage)}${x.destroyed ? ' · ' + (x.target.kind === 'building' ? t('broken') : t('wilted')) : ''}${x.loot ? ' · ' + t('{n} credits taken', { n: fmtNum(x.loot) }) : ''} · ${agoText(x.at)}` });
     });
@@ -8596,6 +8835,7 @@
       render: (p) => (p.err ? errHtml(p.err) : { log: defLogHtml, raids: defRaidsHtml, towers: defTowersHtml, bounties: defBountiesHtml }[p.seg]()),
       tick: (p) => p.seg === 'raids',
       acts: {
+        replay: (id) => { closeModal('pg'); watchBattle(id, true); },
         raidOpen: (id) => { closeModal('pg'); openPanel(() => raidInfo(id)); },
         fund: (v) => { const [id, ph] = v.split('|'); pickFund(id, Number(ph)); },
         shop: () => { closeModal('pg'); openShop(); },
@@ -9412,7 +9652,7 @@
     if (selected || target || panel) renderSheet();
   }
   /** Sheet actions of locked features, by the action's key (or kind). */
-  const KEY_FEAT = { feed: 'cats', feedboss: 'bosses', open: 'treasure', pick: 'seeds', stopin: 'stops', plin: 'places', checkin: 'landmarks',
+  const KEY_FEAT = { attack: 'army', walls: 'walls', army: 'army', feed: 'cats', feedboss: 'bosses', open: 'treasure', pick: 'seeds', stopin: 'stops', plin: 'places', checkin: 'landmarks',
     raid: 'raids', raidrun: 'raids', finish: 'raids', duel: 'duels', trade: 'trades', gift: 'gifts', shop: 'shop', ach: 'achievements', ms: 'missions' };
   function actionFeat(a) {
     if (a.kind === 'fire' || a.key === 'fire') return a.target && a.target.kind === 'boss' ? 'bosses' : 'combat';
@@ -9691,7 +9931,7 @@
   const nextAction = () => nbaCandidates().find((a) => !nbaSnoozed(a.key) && !tipShown(a.key)) || null;
   /** The capsule waits while anything covers the map: a sheet, a page, the intro, the tour or placing. */
   function nbaBlocked() {
-    return !started || !me || !pos || appEl.classList.contains('intro') || tour.state === 'on' || sheetOpen || homeDetent > 0 || !!placing || photo.on ||
+    return !started || !me || !pos || appEl.classList.contains('intro') || tour.state === 'on' || sheetOpen || homeDetent > 0 || !!placing || wm.on || dp.on || photo.on ||
       !!document.querySelector('.modal.open') || !$('unlock').hidden || !$('duel').hidden || !$('alert').hidden || Date.now() < nbaQuiet;
   }
   function renderNba() {
@@ -9871,6 +10111,1041 @@
   const phaseOf = (id, period) => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0; return ((performance.now() / 1000 + (Math.abs(h) % 997) / 7) % period).toFixed(2); };
   document.addEventListener('visibilitychange', () => appEl.classList.toggle('idle-off', document.hidden));
 
+  // ------------------------------------------------------------------ combat update: walls, defenses, the army, battles, live animals
+  // docs/06-combat-plan.md and docs/api/combat.md. Everything that moves on the map (roaming animals,
+  // battle units, bullets) is an anchored map marker moved in the one animation-frame loop, so it stays
+  // exactly on its spot while the map pans and zooms. Bullets and puffs come from small reused pools;
+  // the map itself never moves for any of it.
+  const hexM = () => (cfg && cfg.hexMeters) || spacing || 20;
+  const speciesOf = (sp) => (cfg && cfg.bots && cfg.bots.species && cfg.bots.species[sp]) || null;
+  const troopOf = (sp) => { const s = speciesOf(sp); return (s && s.troop) || null; };
+  const troopSpecies = () => Object.keys((cfg && cfg.bots && cfg.bots.species) || {}).filter((k) => troopOf(k) && !(speciesOf(k).eventOnly && !((me && me.army && me.army.troops) || {})[k]));
+  const spEmoji = (sp) => (speciesOf(sp) && speciesOf(sp).emoji) || '🐾';
+  const spName = (sp) => loc(speciesOf(sp)) || sp;
+  const myArmy = () => (me && me.army) || { capacity: 0, used: 0, troops: {} };
+  const armyCount = () => Object.entries(myArmy().troops || {}).reduce((a, [k, n]) => a + (troopOf(k) ? n : 0), 0);
+  const wallCfg = () => cfgOf('walls') || { cost: { credits: 0 }, maxBatch: 40 };
+  const wallCost = () => (wallCfg().cost && wallCfg().cost.credits) || 0;
+  const ROLE = { raider: 'Raider', tank: 'Tank', swarm: 'Swarm', bomber: 'Bomber', flyer: 'Flyer', breaker: 'Wall Breaker', wizard: 'Wizard', dragon: 'Dragon' };
+  const roleName = (r) => (ROLE[r] ? t(ROLE[r]) : cap1(String(r || '')));
+  const GOES_FOR = { resources: 'goes for plants', defenses: 'goes for defenses', walls: 'goes for walls', any: 'goes for anything' };
+  const troopsText = (tr) => Object.entries(tr || {}).filter(([, n]) => n > 0).map(([k, n]) => `${spEmoji(k)} ×${n}`).join(' ');
+  const statsText = (T) => `❤️ ${fmtNum(T.hp)} · 💥 ${t('{n}/s', { n: NUM.format(T.dps) })} · 🏃 ${NUM.format(T.speed)} · 🏠 ${T.housing}`;
+  /** Buildings of a feature you haven't unlocked yet aren't sold: defenses at `defenses`, the Army Camp at `army`. */
+  function buildFeat(type) {
+    const bd = cfg && cfg.buildings[type];
+    if (!bd) return true;
+    if (type === 'army_camp') return feat('army');
+    if (bd.category === 'defense') return feat('defenses');
+    return true;
+  }
+  const wallSig = (m) => { const w = m && m.walls; return w ? `${(w.cells || []).join()}/${(w.broken || []).join()}/${(w.enclosed || []).join()}` : ''; };
+  /** An owner's base: their own hexes inside their standing walls ('me' or a player id). */
+  function baseCells(owner) {
+    if (owner === 'me') return ((me && me.walls && me.walls.enclosed) || []).filter((id) => myCellSet.has(id));
+    const o = world.owners[owner];
+    return (o && o.enclosed) || [];
+  }
+  const llOf = (c) => ({ lat: c[0], lng: c[1] });
+  const lerpLL = (a, b, k) => ({ lat: a.lat + (b.lat - a.lat) * k, lng: a.lng + (b.lng - a.lng) * k });
+
+  // ---------------- walls on the map: a thin dark line from wall hex to wall hex (cracked and light when broken)
+  let wallsKey = '', wallStats = { solid: 0, cracked: 0, fresh: 0, dots: 0 }, lastOutlines = [];
+  function syncWalls() {
+    if (!map || !me || !map.setLines) return;
+    const groups = [];
+    const mine = new Set((me.walls && me.walls.cells) || []), mineBroken = new Set((me.walls && me.walls.broken) || []);
+    if (wm.on) { for (const id of wm.del) mine.delete(id); for (const id of wm.add) mine.add(id); }
+    groups.push({ cells: mine, broken: mineBroken, fresh: wm.on ? wm.add : null });
+    for (const [oid, o] of Object.entries(world.owners || {})) {
+      if (oid === me.player.id || !o || !o.walls || !o.walls.length) continue;
+      groups.push({ cells: new Set(o.walls), broken: new Set(o.walls.filter((id) => { const c = world.cells.get(id); return c && c.wall && c.wall.broken; })), fresh: null });
+    }
+    for (const pb of bt.plays.values()) for (const id of pb.breached) for (const g of groups) if (g.cells.has(id)) g.broken.add(id);
+    const key = `${mapDark}|` + groups.map((g) => `${[...g.cells].join()}/${[...g.broken].join()}/${g.fresh ? [...g.fresh].join() : ''}`).join('|');
+    if (key === wallsKey) return;
+    wallsKey = key;
+    const solid = [], cracked = [], fresh = [], dots = [];
+    for (const g of groups) {
+      for (const id of g.cells) {
+        let n = 0;
+        for (const nb of h3.gridDisk(id, 1)) {
+          if (nb === id || !g.cells.has(nb)) continue;
+          n++;
+          if (nb < id) continue;
+          const a = cell(id), b = cell(nb), seg = [{ lat: a.lat, lng: a.lng }, { lat: b.lat, lng: b.lng }];
+          (g.fresh && (g.fresh.has(id) || g.fresh.has(nb)) ? fresh : g.broken.has(id) || g.broken.has(nb) ? cracked : solid).push(seg);
+        }
+        if (!n) dots.push({ id, fresh: !!(g.fresh && g.fresh.has(id)), broken: g.broken.has(id) });
+      }
+    }
+    const ink = mapDark ? '#e5e5ea' : '#1c1c1e';
+    map.setLines('walls', [
+      { paths: solid, color: ink, width: 3, opacity: 0.8 },
+      { paths: cracked, color: ink, width: 2.5, opacity: 0.34, dash: [2, 6] },
+      { paths: fresh, color: COL.blue, width: 3, opacity: 0.95 },
+    ]);
+    const r = hexM() * 0.13;
+    map.setShapes('wallDots', dots.map((d) => { const c = cell(d.id); return { circle: { lat: c.lat, lng: c.lng }, r, fill: d.fresh ? COL.blue : ink, fillOpacity: d.broken ? 0.3 : 0.8 }; }));
+    wallStats = { solid: solid.length, cracked: cracked.length, fresh: fresh.length, dots: dots.length };
+  }
+
+  // ---------------- wall mode: tap your hexes to add or remove wall segments, then save them in batches
+  const wm = { on: false, add: new Set(), del: new Set(), busy: false };
+  const wallCount = () => ((me && me.walls && me.walls.built) || 0) + wm.add.size - wm.del.size;
+  function wallStart() {
+    if (!me || !feat('walls')) return;
+    if (!hqLevel()) return toast(t('Found your Headquarters first.'), true);
+    closeModal('shop');
+    if (pgOpen()) closeModal('pg');
+    if (placing) stopPlacing();
+    if (dp.on) deployStop();
+    select(null);
+    if (homeDetent) setHome(false);
+    wm.on = true;
+    wm.add.clear();
+    wm.del.clear();
+    renderModeBar();
+    syncGrid();
+    restyleGrid();
+    syncWalls();
+  }
+  function wallStop() {
+    wm.on = false;
+    wm.add.clear();
+    wm.del.clear();
+    hideModeBar();
+    syncGrid();
+    restyleGrid();
+    syncWalls();
+  }
+  function wallTap(id) {
+    if (wm.busy || !me) return;
+    const W = me.walls || { cells: [], max: 0 }, has = (W.cells || []).includes(id);
+    if (!myCellSet.has(id)) return toast(t('Walls go on your own hexes.'), true, '🧱');
+    if (myByCell.has(id)) return toast(t('A building stands here. Walls go on free hexes.'), true, '🧱');
+    if (has) { if (wm.del.has(id)) wm.del.delete(id); else wm.del.add(id); }
+    else if (wm.add.has(id)) wm.add.delete(id);
+    else {
+      if (wallCount() >= W.max) return toast(errText({ code: 'WALL_LIMIT', details: { max: W.max, built: W.built } }), true, '🧱');
+      const d = distM(pos, cell(id)), why = locationBlock() || (d > REACH ? t('Walk closer: {dist} away', { dist: fmtDist(d) }) : null);
+      if (why) return toast(why, true, E.walk);
+      wm.add.add(id);
+    }
+    renderModeBar();
+    syncWalls();
+  }
+  async function wallSave() {
+    if (wm.busy) return;
+    if (!wm.add.size && !wm.del.size) return wallStop();
+    wm.busy = true;
+    renderModeBar();
+    let built = 0, removed = 0, cost = 0, ok = true;
+    try {
+      if (wm.del.size) {
+        const r = await api('DELETE', '/v1/walls', { cells: [...wm.del] }, { idem: newKey() });
+        removed = r.result.removed.length;
+        wm.del.clear();
+        if (r.state) setMe(r.state);
+      }
+      const adds = [...wm.add], B = wallCfg().maxBatch || 40;
+      for (let i = 0; i < adds.length; i += B) {
+        const r = await post('/v1/walls', { cells: adds.slice(i, i + B), location: fix() });
+        built += r.result.built.length;
+        cost += (r.result.cost && r.result.cost.credits) || 0;
+        for (const id of r.result.built) wm.add.delete(id);
+        if (r.state) setMe(r.state);
+      }
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      ok = false;
+      toast(errText(e), true, '🧱');
+      if (e.code === 'LOCATION_STALE') syncLocation(true);
+    }
+    wm.busy = false;
+    if (ok) {
+      const parts = [];
+      if (built) parts.push(tn(built, 'Built {n} wall for {c} credits', 'Built {n} walls for {c} credits', { c: fmtNum(cost) }));
+      if (removed) parts.push(tn(removed, 'Removed {n} wall', 'Removed {n} walls'));
+      const base = baseCells('me').length;
+      if (base) parts.push(tn(base, 'your base: {n} hex', 'your base: {n} hexes'));
+      if (parts.length) toast(parts.join(' · '), false, '🧱');
+      wallStop();
+    } else { renderModeBar(); syncWalls(); }
+    refreshUi();
+  }
+
+  // ---------------- the bottom bar of wall mode and deploy mode
+  function renderModeBar() {
+    if (!me) return;
+    const go = $('modeGo'), alt = $('modeAlt'), chips = $('modeChips');
+    if (wm.on) {
+      const W = me.walls || { max: 0, built: 0 }, c = wm.add.size * wallCost(), changes = wm.add.size + wm.del.size;
+      setTile($('modeTile'), '🧱', 'gray', 'lg');
+      setText($('modeTitle'), t('Walls {a}/{b}', { a: wallCount(), b: W.max }));
+      setText($('modeSub'), t('Tap your hexes to add or remove walls · {coin} {n} each', { coin: E.coin, n: fmtNum(wallCost()) }));
+      chips.hidden = true;
+      alt.hidden = true;
+      go.textContent = wm.busy ? t('Saving…') : !changes ? t('Done') : c ? t('Save · {coin} {n}', { coin: E.coin, n: fmtNum(c) }) : t('Save');
+      go.disabled = wm.busy || c > credits();
+    } else if (dp.on) {
+      const info = deployTargetInfo(dp.tg), placed = dp.order.length, total = armyCount();
+      setTile($('modeTile'), info.icon, 'red', 'lg');
+      setText($('modeTitle'), dp.tg.kind === 'bot' ? t('Send your army: {name}', { name: info.name }) : t('Attack {name}', { name: info.name }));
+      setText($('modeSub'), dp.tg.kind === 'bot' ? t('Tap hexes near it to drop · {a} of {b} placed', { a: placed, b: total }) : t('Tap outside their walls to drop · {a} of {b} placed', { a: placed, b: total }));
+      const tr = myArmy().troops || {};
+      const html = Object.keys(tr).filter((k) => tr[k] > 0 && troopOf(k)).map((k) => {
+        const left = tr[k] - dropped(k);
+        return `<button class="dchip${dp.pick === k ? ' on' : ''}" type="button" data-sp="${esc(k)}"${left > 0 ? '' : ' disabled'} aria-label="${esc(spName(k))}"><span class="emo">${spEmoji(k)}</span><b>${left}</b></button>`;
+      }).join('') + (dp.order.length && dp.pick && tr[dp.pick] - dropped(dp.pick) > 0 ? `<button class="dchip all" type="button" data-all>${esc(t('All here'))}</button>` : '');
+      if (chips.innerHTML !== html) chips.innerHTML = html;
+      chips.hidden = false;
+      alt.hidden = false;
+      alt.textContent = t('Undo');
+      alt.disabled = !placed || dp.busy;
+      go.textContent = dp.busy ? t('Sending…') : placed ? `⚔️ ${dp.tg.kind === 'bot' ? t('Send · {n}', { n: placed }) : t('Attack · {n}', { n: placed })}` : t('Tap the map to drop');
+      go.disabled = dp.busy || !placed;
+    } else return hideModeBar();
+    if ($('modeBar').hidden) { $('modeBar').hidden = false; layoutControls(); }
+  }
+  function hideModeBar() {
+    if ($('modeBar').hidden) return;
+    $('modeBar').hidden = true;
+    layoutControls();
+  }
+  $('modeCancel').addEventListener('click', () => (wm.on ? wallStop() : deployStop()));
+  $('modeGo').addEventListener('click', () => (wm.on ? wallSave() : deployGo()));
+  $('modeAlt').addEventListener('click', () => deployUndo());
+  $('modeChips').addEventListener('click', (e) => {
+    const c = e.target.closest('[data-sp]');
+    if (c && !c.disabled) { dp.pick = c.dataset.sp; return renderModeBar(); }
+    if (e.target.closest('[data-all]')) deployAll();
+  });
+
+  // ---------------- your own buildings: repair, defense stats, walls from the HQ, the army from a camp
+  function combatBuildingRows(out, b) {
+    const L = lvl(b.type, b.level) || {}, D = b.defense || L.defense;
+    if (b.broken && b.type !== 'hq') {
+      const c = Math.ceil(costOf(L) * ((cfgOf('defenses') && cfgOf('defenses').repairCostShare) || 0.3));
+      const why = credits() < c ? t('Need {n} credits', { n: fmtNum(c) }) : locationBlock();
+      out.rows.unshift({ key: 'repair', icon: '🔧', tint: 'orange', title: t('Repair Now · {coin} {n}', { coin: E.coin, n: fmtNum(c) }),
+        sub: why || t('Broken: it doesn’t work until it recovers, or until you repair it.'), why: !!why, button: t('Repair'), enabled: !why, run: () => doRepair(b.id) });
+    }
+    if (D && (D.dps || D.range)) out.rows.push({ key: 'dstats', icon: '🎯', tint: 'red', title: t('Shoots {n} damage per second', { n: NUM.format(D.dps) }), sub: defenseText(D), button: '', enabled: false });
+    if (b.type === 'hq' && me.walls) {
+      out.rows.push({ key: 'walls', icon: '🧱', tint: 'gray', title: t('Walls {a}/{b}', { a: me.walls.built, b: me.walls.max }),
+        sub: baseCells('me').length ? tn(baseCells('me').length, 'Your base: {n} hex inside your walls', 'Your base: {n} hexes inside your walls') : t('Wall in your hexes: inside, they are your base'), button: t('Build'), enabled: true, run: wallStart });
+    }
+    const cap = b.armyCapacity || L.armyCapacity;
+    if (cap) out.rows.push({ key: 'army', icon: '🐾', tint: 'green', title: t('Army {a}/{b}', { a: myArmy().used, b: myArmy().capacity }), sub: t('+{n} army space from this camp', { n: cap }), button: t('Open'), enabled: true, run: () => openPage(armyPage()) });
+  }
+  function defenseText(D) {
+    const m = D.rangeMeters || D.range * hexM(), mr = D.minRangeMeters != null ? D.minRangeMeters : (D.minRange || 0) * hexM();
+    return [t('range {dist}', { dist: fmtDist(m) }), D.air && D.ground ? t('air and ground') : D.air ? t('air only') : t('ground only'), D.splash ? t('splash') : '', mr ? t('not closer than {dist}', { dist: fmtDist(mr) }) : ''].filter(Boolean).join(' · ');
+  }
+  const doRepair = (id) => run('POST', `/v1/buildings/${encodeURIComponent(id)}/repair`, { location: fix() }, (x) => t('{name} repaired', { name: bName(x.building.type) }), '🔧');
+  // The range ring of a defense building: only while it's selected.
+  let rangeKey = '';
+  function syncRange() {
+    if (!map) return;
+    const list = [], b = selected && buildingOn(selected);
+    const D = b && (b.defense || (b.own ? (lvl(b.type, b.level) || {}).defense : null));
+    if (D && (D.rangeMeters || D.range)) {
+      const c = cell(selected), r = D.rangeMeters || D.range * hexM(), mr = D.minRangeMeters != null ? D.minRangeMeters : (D.minRange || 0) * hexM(), col = b.own ? COL.blue : COL.rival;
+      list.push({ circle: { lat: c.lat, lng: c.lng }, r, fill: col, fillOpacity: 0.06, stroke: col, strokeOpacity: 0.6, width: 1.5 });
+      if (mr > 0) list.push({ circle: { lat: c.lat, lng: c.lng }, r: mr, fill: col, fillOpacity: 0, stroke: col, strokeOpacity: 0.35, width: 1 });
+    }
+    const key = JSON.stringify(list);
+    if (key === rangeKey) return;
+    rangeKey = key;
+    map.setShapes('range', list);
+  }
+
+  // ---------------- attacking: from a rival's base or a wild animal, then drop your animals on hexes
+  const dp = { on: false, tg: null, pick: null, drops: new Map(), order: [], pins: new Map(), busy: false, forbidden: new Map(), valid: new Set(), mapKey: '' };
+  const dropped = (sp) => dp.order.filter((x) => x.sp === sp).length;
+  // The server takes up to 20 deploy entries (one per species and hex).
+  const DROP_GROUPS = 20;
+  const dropGroups = () => [...dp.drops.values()].reduce((n, d) => n + Object.keys(d).length, 0);
+  function activeAttack() {
+    const now = serverNow();
+    return [...bt.plays.values()].some((pb) => pb.v.role === 'attacker' && !pb.replay && Date.parse(pb.v.endsAt) > now) ||
+      (world.battles || []).some((b) => me && b.attacker && b.attacker.id === me.player.id && Date.parse(b.endsAt) > now);
+  }
+  function deployTargetInfo(tg) {
+    if (!tg) return { name: '', icon: '❔', at: null };
+    if (tg.kind === 'bot') {
+      const b = (world.bots || []).find((x) => x.id === tg.id);
+      return { name: b ? botName(b) : t('Wild animal'), icon: b ? b.emoji : '🐾', at: b ? botLL(b) : tg.at || null, bot: b };
+    }
+    const o = world.owners[tg.id], p = world.players.find((x) => x.id === tg.id);
+    return { name: (o && o.username) || (p && p.username) || t('Rival'), icon: (o && o.avatar) || (p && avatarOf(p)) || E.rival, at: null };
+  }
+  /** "Attack" on a rival's base or player, "Send Your Army" on a wild animal. */
+  function armyRow(out, tg) {
+    if (!tg || !me || !cfgOf('battles')) return;
+    if (tg.kind === 'player' && tg.id === me.player.id) return;
+    const bot = tg.kind === 'bot' && (world.bots || []).find((b) => b.id === tg.id);
+    if (bot && (bot.friendly || !troopOf(bot.species) && !speciesOf(bot.species))) return;
+    const n = armyCount();
+    const why = !hqLevel() ? t('Found your Headquarters first.') : !n ? t('No animals yet: defeat wild animals and they join your army.')
+      : activeAttack() ? t('Your army is still out') : bot && bot.battleId ? t('An army is fighting it already') : null;
+    out.rows.push({ key: 'attack', icon: '🐾', tint: 'red', title: tg.kind === 'bot' ? t('Send Your Army') : t('Attack Their Base'),
+      sub: why || tn(n, '{n} animal ready · drop it outside their walls', '{n} animals ready · drop them outside their walls'), why: !!why,
+      button: tg.kind === 'bot' ? t('Send') : t('Attack'), enabled: !why, run: () => deployStart(tg) });
+  }
+  function deployStart(tg) {
+    if (!me || !feat('army') || !tg) return;
+    if (!armyCount()) return toast(t('No animals yet: defeat wild animals and they join your army.'), true, '🐾');
+    if (wm.on) wallStop();
+    if (placing) stopPlacing();
+    if (pgOpen()) closeModal('pg');
+    closeModal('shop');
+    const info = deployTargetInfo(tg);
+    select(null);
+    if (homeDetent) setHome(false);
+    dp.on = true;
+    dp.tg = { kind: tg.kind, id: tg.id, at: info.at };
+    dp.drops = new Map();
+    dp.order = [];
+    dp.busy = false;
+    dp.mapKey = '';
+    const tr = myArmy().troops || {};
+    dp.pick = Object.keys(tr).find((k) => tr[k] > 0 && troopOf(k)) || null;
+    renderModeBar();
+    syncDeployMap();
+  }
+  function deployStop() {
+    dp.on = false;
+    dp.tg = null;
+    dp.drops = new Map();
+    dp.order = [];
+    syncDropPins();
+    if (map) { map.setShapes('deploy', []); if (map.setLines) map.setLines('hatch', []); }
+    dp.mapKey = '';
+    hideModeBar();
+  }
+  /** Why your animals can't be dropped on this hex (null = fine). The server checks again. */
+  function dropWhy(id) {
+    const f = dp.forbidden.get(id);
+    if (f) return errText({ code: 'DROP_FORBIDDEN', details: { cell: id, reason: f } });
+    const B = cfgOf('battles') || {}, d = distM(pos, cell(id));
+    if (B.deployReachMeters && d > B.deployReachMeters) return t('Too far from you: drop within {n} m.', { n: B.deployReachMeters });
+    const ring = (a, b) => { try { return h3.gridDistance(a, b); } catch (e) { return Infinity; } };
+    const first = dp.order.length ? dp.order[0].id : null;
+    if (first && B.dropRings && ring(first, id) > B.dropRings) return errText({ code: 'DROP_TOO_FAR', details: { maxRings: B.dropRings } });
+    if (dp.tg.kind === 'bot') {
+      const b = (world.bots || []).find((x) => x.id === dp.tg.id), at = b ? botLL(b) : dp.tg.at;
+      if (at && B.dropRings && ring(cellAt(at.lat, at.lng), id) > B.dropRings) return t('Drop them within {n} hexes of it.', { n: B.dropRings });
+    }
+    return locationBlock();
+  }
+  function deployTap(id) {
+    if (dp.busy || !dp.on) return;
+    const why = dropWhy(id);
+    if (why) return toast(why, true, '🚫');
+    const tr = myArmy().troops || {}, sp = dp.pick;
+    if (!sp || tr[sp] - dropped(sp) < 1) return toast(t('Pick an animal below first.'), true, '🐾');
+    if (!(dp.drops.get(id) || {})[sp] && dropGroups() >= DROP_GROUPS) return toast(t('That’s {n} drop groups already: add these animals to a hex you used.', { n: DROP_GROUPS }), true, '🐾');
+    addDrop(id, sp, 1);
+  }
+  function addDrop(id, sp, n) {
+    const tr = myArmy().troops || {};
+    for (let i = 0; i < n; i++) dp.order.push({ id, sp });
+    const d = dp.drops.get(id) || {};
+    d[sp] = (d[sp] || 0) + n;
+    dp.drops.set(id, d);
+    if (tr[sp] - dropped(sp) < 1) dp.pick = Object.keys(tr).find((k) => troopOf(k) && tr[k] - dropped(k) > 0) || sp;
+    renderModeBar();
+    syncDropPins();
+    syncDeployMap();
+  }
+  function deployAll() {
+    const tr = myArmy().troops || {}, sp = dp.pick, left = sp ? tr[sp] - dropped(sp) : 0;
+    const id = dp.order.length ? dp.order[dp.order.length - 1].id : null;
+    if (!id) return toast(t('Tap a hex on the map first.'), true, '🐾');
+    if (left > 0) addDrop(id, sp, left);
+  }
+  function deployUndo() {
+    const x = dp.order.pop();
+    if (!x) return;
+    const d = dp.drops.get(x.id);
+    if (d) { d[x.sp]--; if (d[x.sp] <= 0) delete d[x.sp]; if (!Object.keys(d).length) dp.drops.delete(x.id); }
+    dp.pick = x.sp;
+    renderModeBar();
+    syncDropPins();
+    syncDeployMap();
+  }
+  async function deployGo() {
+    if (dp.busy || !dp.on) return;
+    const deploy = [];
+    for (const [c, d] of dp.drops) for (const [sp, n] of Object.entries(d)) if (n > 0) deploy.push({ species: sp, count: n, cell: c });
+    if (!deploy.length) return toast(t('Tap hexes on the map to drop your animals.'), true, '🐾');
+    dp.busy = true;
+    renderModeBar();
+    try {
+      const r = await post('/v1/battles', { target: { kind: dp.tg.kind, id: dp.tg.id }, deploy, location: fix() });
+      if (r.state) setMe(r.state);
+      const v = r.result.battle;
+      deployStop();
+      feel('hit');
+      startPlayback(v, {});
+      toast(v.target.kind === 'bot' ? t('Your army is on its way!') : t('Attack! Your animals are going in.'), false, '⚔️');
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      toast(errText(e), true);
+      if (e.code === 'DROP_FORBIDDEN' && e.details && e.details.cell) { dp.forbidden.set(e.details.cell, e.details.reason || 'enclosed'); dp.mapKey = ''; syncDeployMap(); }
+      if (e.code === 'LOCATION_STALE') syncLocation(true);
+      if (e.code === 'NOT_ENOUGH_TROOPS') loadMe();
+    } finally {
+      dp.busy = false;
+      if (dp.on) renderModeBar();
+    }
+  }
+  // Drop hexes: a small bubble with the animals waiting there.
+  function syncDropPins() {
+    if (!map) return;
+    for (const [id, pin] of dp.pins) if (!dp.drops.has(id)) { pin.h.remove(); dp.pins.delete(id); }
+    for (const [id, d] of dp.drops) {
+      let pin = dp.pins.get(id);
+      if (!pin) { const el = document.createElement('div'); el.className = 'dropm'; const c = cell(id); pin = { el, h: map.addMarker(el, { lat: c.lat, lng: c.lng }, 8) }; dp.pins.set(id, pin); }
+      const html = `<span>${Object.entries(d).map(([k, n]) => `${spEmoji(k)}${n > 1 ? `<b>${n}</b>` : ''}`).join('')}</span>`;
+      if (pin.el.innerHTML !== html) pin.el.innerHTML = html;
+    }
+  }
+  /** Parallel diagonal lines across a hex (a light hatch), in lat/lng. */
+  function hatchOf(id, step) {
+    const c = cell(id), k = Math.cos(c.lat * RAD) * MLAT;
+    const P = c.path.map((q) => ({ x: (q.lng - c.lng) * k, y: (q.lat - c.lat) * MLAT }));
+    const out = [], R = hexM() * 0.62;
+    for (let d = -R; d <= R; d += step) {
+      const pts = [];
+      for (let i = 0; i < P.length; i++) {
+        const a = P[i], b = P[(i + 1) % P.length], da = (a.x - a.y) / Math.SQRT2 - d, db = (b.x - b.y) / Math.SQRT2 - d;
+        if ((da < 0) !== (db < 0)) { const f = da / (da - db); pts.push({ x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }); }
+      }
+      if (pts.length >= 2) out.push(pts.slice(0, 2).map((p) => ({ lat: c.lat + p.y / MLAT, lng: c.lng + p.x / k })));
+    }
+    return out;
+  }
+  /** While deploying: where you may drop (light) and the hexes behind their walls (a light red hatch). */
+  function syncDeployMap() {
+    if (!map || !dp.on || !pos) return;
+    const B = cfgOf('battles') || {}, forb = new Map();
+    if (dp.tg.kind === 'player') {
+      const o = world.owners[dp.tg.id] || {};
+      for (const id of o.walls || []) forb.set(id, 'wall');
+      for (const id of o.enclosed || []) if (!forb.has(id)) forb.set(id, 'enclosed');
+    }
+    for (const [id, why] of dp.forbidden) if (!forb.has(id)) forb.set(id, why);
+    dp.forbidden = forb;
+    const rings = Math.ceil((B.deployReachMeters || REACH) / hexM()) + 1, valid = [];
+    const saved = dp.valid;
+    for (const id of h3.gridDisk(cellAt(pos.lat, pos.lng), rings)) if (!forb.has(id) && !dropWhyQuiet(id)) valid.push(id);
+    dp.valid = new Set(valid);
+    const key = `${valid.join()}|${[...forb.keys()].join()}|${mapDark}`;
+    if (key === dp.mapKey) return;
+    dp.mapKey = key;
+    void saved;
+    const shapes = [];
+    if (valid.length) for (const poly of h3.cellsToMultiPolygon(valid, false)) shapes.push({ rings: poly, fill: '#ffffff', fillOpacity: mapDark ? 0.14 : 0.38, stroke: COL.blue, strokeOpacity: 0.45, width: 1.2 });
+    if (forb.size) for (const poly of h3.cellsToMultiPolygon([...forb.keys()], false)) shapes.push({ rings: poly, fill: '#ff3b30', fillOpacity: 0.1, stroke: '#ff3b30', strokeOpacity: 0.45, width: 1 });
+    map.setShapes('deploy', shapes);
+    const hatch = [];
+    for (const id of forb.keys()) hatch.push(...hatchOf(id, hexM() * 0.17));
+    if (map.setLines) map.setLines('hatch', [{ paths: hatch, color: '#ff3b30', width: 1.2, opacity: 0.55 }]);
+  }
+  function dropWhyQuiet(id) {
+    const B = cfgOf('battles') || {};
+    if (B.deployReachMeters && distM(pos, cell(id)) > B.deployReachMeters) return true;
+    const ring = (a, b) => { try { return h3.gridDistance(a, b); } catch (e) { return Infinity; } };
+    if (dp.order.length && B.dropRings && ring(dp.order[0].id, id) > B.dropRings) return true;
+    if (dp.tg.kind === 'bot') {
+      const b = (world.bots || []).find((x) => x.id === dp.tg.id), at = b ? botLL(b) : dp.tg.at;
+      if (at && B.dropRings && ring(cellAt(at.lat, at.lng), id) > B.dropRings) return true;
+    }
+    return false;
+  }
+
+  // ---------------- bullets (white dots), hit flashes and puffs: pooled, moved in the frame loop
+  const bullets = { free: [], live: [], made: 0, spawned: 0 };
+  const BULLET_MAX = 64;
+  function fireBullet(from, to, flashEl) {
+    if (!map || !from || !to || photo.on) return;
+    let b = bullets.free.pop();
+    if (!b) {
+      if (bullets.made >= BULLET_MAX) b = bullets.live.shift();
+      else {
+        const el = document.createElement('div');
+        el.className = 'bul';
+        el.innerHTML = '<i></i>';
+        b = { el, h: map.addMarker(el, from, 9) };
+        bullets.made++;
+      }
+    }
+    const d = distM(from, to);
+    b.a = from;
+    b.b = to;
+    b.t0 = performance.now();
+    b.dur = Math.max(90, Math.min(340, d * 4.2));
+    b.flash = flashEl || null;
+    b.h.move(from);
+    b.el._ll = from;
+    b.el.style.visibility = 'visible';
+    bullets.live.push(b);
+    bullets.spawned++;
+  }
+  function bulletsFrame(now) {
+    const L = bullets.live;
+    for (let i = L.length - 1; i >= 0; i--) {
+      const b = L[i], k = (now - b.t0) / b.dur;
+      if (k >= 1) {
+        b.el.style.visibility = 'hidden';
+        L.splice(i, 1);
+        bullets.free.push(b);
+        if (b.flash) flash(b.flash);
+        continue;
+      }
+      if (k < 0) continue;
+      const q = lerpLL(b.a, b.b, k);
+      b.h.move(q);
+      b.el._ll = q;
+    }
+  }
+  const flashAt = new WeakMap();
+  function flash(el) {
+    if (!el || RM || !el.animate) return;
+    const now = performance.now();
+    if (now - (flashAt.get(el) || 0) < 110) return;
+    flashAt.set(el, now);
+    el.animate([{ scale: '1.3' }, { scale: '1' }], { duration: 170, easing: 'ease-out' });
+  }
+  const puffFree = [];
+  let puffLive = 0;
+  function burst(at, emoji) {
+    if (!map || RM || !at || puffLive >= 14 || photo.on) return;
+    let el = puffFree.pop();
+    if (!el) { el = document.createElement('div'); el.className = 'cpf'; el.innerHTML = '<i></i>'; }
+    el.firstChild.textContent = emoji;
+    const h = map.addMarker(el, at, 10);
+    puffLive++;
+    const done = () => { h.remove(); puffFree.push(el); puffLive--; };
+    if (!el.firstChild.animate) return setTimeout(done, 600);
+    const a = el.firstChild.animate([{ opacity: 1, scale: '.5' }, { opacity: 0.95, scale: '1.15', offset: 0.35 }, { opacity: 0, scale: '1.45' }], { duration: 640, easing: 'ease-out' });
+    a.onfinish = done;
+  }
+  /** Your own shot: a white dot from you to the target (a miss flies a little off). */
+  function shotFx(tg, hit) {
+    const info = targetInfo(tg);
+    if (!info || !pos) return;
+    let to = info.at;
+    if (!hit) { const a = Math.random() * Math.PI * 2, r = 4 + Math.random() * 4; to = { lat: to.lat + (r * Math.cos(a)) / MLAT, lng: to.lng + (r * Math.sin(a)) / (MLAT * Math.cos(to.lat * RAD)) }; }
+    const pin = tg.kind === 'bot' && botPins.get(tg.id);
+    fireBullet({ ...pos }, to, hit ? (pin && pin.be) || null : null);
+  }
+
+  // ---------------- live wild animals: they walk their path, and chase and shoot back when you shot them
+  /** Where an animal is now: along its path (waypoints with times), else its center. */
+  function botLL(b, now) {
+    const p = b.path;
+    if (!p || !p.length) return llOf(b.center);
+    if (!b._pt || b._pt.length !== p.length) { b._pt = p.map((x) => Date.parse(x.at)); b._pi = 0; }
+    const T = now === undefined ? serverNow() : now, ts = b._pt;
+    if (T <= ts[0]) return llOf(p[0].center);
+    let i = b._pi || 0;
+    if (i >= ts.length || ts[i] > T) i = 0;
+    while (i < ts.length - 1 && ts[i + 1] <= T) i++;
+    b._pi = i;
+    if (i >= ts.length - 1) return llOf(p[p.length - 1].center);
+    const a = p[i].center, c = p[i + 1].center;
+    if (a[0] === c[0] && a[1] === c[1]) return llOf(a);
+    const k = (T - ts[i]) / Math.max(1, ts[i + 1] - ts[i]);
+    return { lat: a[0] + (c[0] - a[0]) * k, lng: a[1] + (c[1] - a[1]) * k };
+  }
+  function botUpdate(b, x) {
+    if (x.center) b.center = x.center;
+    if (x.path) { b.path = x.path; b._pt = null; }
+    b.aggroOn = x.aggroOn || null;
+    syncBots();
+  }
+  function botsFrame(now) {
+    if (!botPins.size) return;
+    const sNow = serverNow(), mine = me && me.player.id;
+    for (const pin of botPins.values()) {
+      const b = pin.b;
+      if (!b) continue;
+      const at = botLL(b, sNow);
+      if (at.lat !== pin.at.lat || at.lng !== pin.at.lng) {
+        pin.at = at;
+        pin.el._ll = at;
+        pin.handle.move(at);
+      }
+      if (mine && b.aggroOn === mine && pos && !b.friendly) {
+        const A = speciesOf(b.species) && speciesOf(b.species).attack;
+        if (A && distM(at, pos) <= (A.rangeMeters || 8) * 1.15 + 3 && now - (pin.shotAt || 0) >= (A.everySeconds || 1.5) * 1000) {
+          pin.shotAt = now;
+          fireBullet(at, { ...pos }, mePe);
+        }
+      }
+    }
+  }
+  /** A wild animal you defeated: it joins your army (or waits on the ground), an XP star, maybe a booster. */
+  function killToast(res) {
+    const tr = res.troop, sp = (tr && tr.species) || (res.target && res.target.species);
+    const xp = res.xp ? ` · ${t('+{n} XP', { n: fmtNum(res.xp) })} ⭐` : '';
+    const msg = !tr ? t('Defeated!') : tr.to === 'army' ? t('{emoji} {name} joined your army', { emoji: spEmoji(sp), name: spName(sp) })
+      : t('Your army is full: {emoji} waits on the ground for you', { emoji: spEmoji(sp) });
+    toast(msg + xp, false, tr && tr.to === 'army' ? '🐾' : '⭐');
+    feel('coin');
+    if (res.drop) setTimeout(() => toast(t("{emoji} {rarity} {name} found! It's in your bag.", { emoji: itemType(res.drop).emoji, rarity: rarityName(res.drop.rarity), name: itemName(res.drop) }), false, '🎁'), 2000);
+    else if (res.bagFull) setTimeout(() => toast(t('Defeated, but your bag is full. Make room for the next drop.'), true), 2000);
+  }
+
+  // ---------------- your animals on the ground (kills with a full army, survivors of a battle)
+  const pickPins = new Map();
+  function syncPickups() {
+    if (!map) return;
+    const seen = new Set();
+    for (const p of world.pickups || []) {
+      seen.add(p.id);
+      let pin = pickPins.get(p.id);
+      if (!pin) { const el = document.createElement('div'); el.className = 'pk'; pin = { el, handle: map.addMarker(el, llOf(p.center), 4), key: '' }; pickPins.set(p.id, pin); }
+      const n = Object.values(p.troops || {}).reduce((a, x) => a + x, 0), key = `${(p.emoji || []).join('')}|${n}`;
+      if (pin.key !== key) { pin.key = key; pin.el.innerHTML = `<i>${esc((p.emoji || []).slice(0, 3).join('') || '🐾')}</i>${n > 1 ? `<b>${n}</b>` : ''}`; }
+    }
+    for (const [id, pin] of pickPins) if (!seen.has(id)) { pin.handle.remove(); pickPins.delete(id); }
+  }
+  function pickupAt(lat, lng) {
+    if (!pickPins.size) return null;
+    const q0 = map.toPx({ lat, lng });
+    let best = null, bd = 24;
+    for (const p of world.pickups || []) { const q = map.toPx(llOf(p.center)), d = Math.hypot(q.x - q0.x, q.y - q0.y); if (d < bd) { bd = d; best = p; } }
+    return best;
+  }
+  const collectM = () => (cfgOf('army') && cfgOf('army').collectMeters) || 70;
+  async function tapPickup(p) {
+    const d = pos ? distM(pos, llOf(p.center)) : Infinity;
+    if (d > collectM()) return toast(t('Walk closer to pick them up: {dist} away', { dist: fmtDist(d) }), true, E.walk);
+    const r = await run('POST', `/v1/pickups/${encodeURIComponent(p.id)}/collect`, { location: fix() },
+      (x) => t('{what} back in your army', { what: troopsText(x.collected) }) + (Object.keys(x.left || {}).length ? t(' · the rest waits: your army is full') : ''), '🐾');
+    if (r) {
+      const left = r.left || {};
+      if (Object.keys(left).length) p.troops = left;
+      else world.pickups = (world.pickups || []).filter((x) => x.id !== p.id);
+      syncPickups();
+      pageRefresh();
+    }
+    return r;
+  }
+
+  // ---------------- battles: the server's timeline, played on the map in real time (or as a replay)
+  const bt = { plays: new Map(), seen: new Set(), results: new Set(), stats: new Map(), last: null, mine: null };
+  const unitFree = [], barFree = [];
+  async function watchBattle(id, replay, quiet) {
+    try {
+      const r = await api('GET', `/v1/battles/${encodeURIComponent(id)}`);
+      const v = r.battle;
+      if (!replay && Date.parse(v.endsAt) <= serverNow()) { if (!quiet) toast(t('This battle is over. Watch the replay.'), true); return null; }
+      const pb = startPlayback(v, { replay });
+      if (replay && pos && distM(pos, llOf(v.center)) > 600) toast(t('The replay plays at the battle: {dist} away', { dist: fmtDist(distM(pos, llOf(v.center))) }), false, '⚔️');
+      return pb;
+    } catch (e) {
+      if (!(e instanceof ApiError)) throw e;
+      if (!quiet) toast(errText(e), true);
+      return null;
+    }
+  }
+  function startPlayback(v, opts) {
+    const old = bt.plays.get(v.id);
+    if (old) finishPlayback(old, true);
+    const mine = me && v.attacker && v.attacker.id === me.player.id;
+    const pb = {
+      id: v.id, v, replay: !!opts.replay, T: -1, i: 0, t0: performance.now(),
+      cells: v.cells.map((c) => llOf(c.center)),
+      units: (v.units || []).map((d) => ({ d, x: null, at: null, mv: null, hp: d.maxHp, state: 'wait', unit: true })),
+      structs: (v.structures || []).map((d) => ({ d, hp: d.hp, down: false, el: undefined, inner: null, own: null, bar: null })),
+      loot: 0, destroyed: 0, total: (v.structures || []).filter((s) => s.category !== 'wall').length, hqDown: false, fightOver: false,
+      breached: new Set(), dirty: new Set(), wallsDirty: false, foe: !mine, ended: false,
+    };
+    bt.plays.set(v.id, pb);
+    bt.seen.add(v.id);
+    renderLiveChips();
+    return pb;
+  }
+  const structAt = (pb, s) => pb.cells[s.d.cell];
+  function unitAt(u, t) {
+    const m = u.mv;
+    if (!m) return u.at;
+    const k = m.t1 > m.t0 ? Math.max(0, Math.min(1, (t - m.t0) / (m.t1 - m.t0))) : 1;
+    return lerpLL(m.a, m.b, k);
+  }
+  function structEl(pb, s) {
+    if (s.el !== undefined) return s.el;
+    const d = s.d;
+    let el = null, inner = null;
+    if (d.kind === 'hq' || d.kind === 'building') { const p = pins.get(d.ref); if (p) { el = p.el; inner = p.pb; } }
+    else if (d.kind === 'plant') { const tl = tiles.get(d.ref); if (tl) { el = tl.el; inner = tl.el.querySelector('i'); } }
+    else if (d.kind === 'bot') { const bp = botPins.get(d.ref); if (bp) { el = bp.el; inner = bp.be; } }
+    if (!el && d.kind !== 'wall' && map) {
+      // Not on the map yet (outside the loaded area): the battle shows it itself.
+      el = document.createElement('div');
+      el.className = 'bst';
+      el.innerHTML = `<i>${esc(d.emoji || '🏠')}</i>`;
+      inner = el.firstChild;
+      s.own = map.addMarker(el, structAt(pb, s), 3);
+    }
+    s.el = el;
+    s.inner = inner;
+    return el;
+  }
+  function spawnUnit(pb, u, at) {
+    let x = unitFree.pop();
+    if (!x) {
+      const el = document.createElement('div');
+      el.innerHTML = '<i class="ue"></i><b class="ub" hidden><i></i></b>';
+      x = { el, ue: el.firstChild, bar: el.lastChild, fill: el.lastChild.firstChild, h: null };
+    }
+    x.el.className = `bu${u.d.air ? ' air' : ''}${pb.foe ? ' foe' : ''}`;
+    x.ue.textContent = u.d.emoji;
+    x.bar.hidden = true;
+    x.fill.style.width = '100%';
+    x.h = map.addMarker(x.el, at, 7);
+    x.el._ll = at;
+    x.at = at;
+    u.x = x;
+  }
+  function freeUnit(u) {
+    if (!u.x) return;
+    u.x.h.remove();
+    u.x.h = null;
+    unitFree.push(u.x);
+    u.x = null;
+  }
+  function placeUnit(u, at) {
+    const x = u.x;
+    if (!x || (x.at && x.at.lat === at.lat && x.at.lng === at.lng)) return;
+    x.at = at;
+    x.el._ll = at;
+    x.h.move(at);
+  }
+  function applyEvent(pb, e, vis) {
+    const U = pb.units, S = pb.structs;
+    switch (e.e) {
+      case 'spawn': {
+        const u = U[e.u];
+        if (!u) break;
+        u.state = 'field';
+        u.at = pb.cells[e.c];
+        u.mv = null;
+        if (map) spawnUnit(pb, u, u.at);
+        if (vis && u.x) flash(u.x.ue);
+        break;
+      }
+      case 'move': {
+        const u = U[e.u];
+        if (!u) break;
+        const from = unitAt(u, e.t) || pb.cells[e.c];
+        u.at = from;
+        u.mv = { a: from, b: pb.cells[e.c], t0: e.t, t1: e.at };
+        break;
+      }
+      case 'hit': {
+        const u = U[e.u], s = S[e.s];
+        if (!s) break;
+        s.hp = e.hp;
+        if (s.d.category !== 'wall') pb.dirty.add(s);
+        if (vis) { structEl(pb, s); if (!e.splash && u) fireBullet(unitAt(u, pb.T) || u.at, structAt(pb, s), s.inner); else flash(s.inner); }
+        break;
+      }
+      case 'shot': {
+        const u = U[e.u], s = S[e.s];
+        if (!u) break;
+        u.hp = e.hp;
+        pb.dirty.add(u);
+        for (const x of e.splash || []) { const o = U[x.u]; if (o) { o.hp = x.hp; pb.dirty.add(o); } }
+        if (vis && s) fireBullet(structAt(pb, s), unitAt(u, pb.T) || u.at, u.x && u.x.ue);
+        break;
+      }
+      case 'loot': pb.loot += e.credits || 0; break;
+      case 'destroy': {
+        const s = S[e.s];
+        if (!s || s.down) break;
+        s.down = true;
+        s.hp = 0;
+        if (s.d.category === 'wall') { pb.breached.add(pb.v.cells[s.d.cell].id); pb.wallsDirty = true; }
+        else {
+          pb.destroyed++;
+          if (s.d.kind === 'hq') pb.hqDown = true;
+          const el = structEl(pb, s);
+          if (el) el.dataset.bdown = '1';
+          pb.dirty.add(s);
+        }
+        if (vis) burst(structAt(pb, s), s.d.category === 'wall' ? '💨' : '💥');
+        break;
+      }
+      case 'die': {
+        const u = U[e.u];
+        if (!u) break;
+        const at = unitAt(u, e.t) || u.at;
+        u.state = 'dead';
+        u.mv = null;
+        freeUnit(u);
+        if (vis) burst(at, '💨');
+        break;
+      }
+      case 'explode': if (vis) burst(pb.cells[e.c], '💥'); break;
+      case 'end': pb.fightOver = true; break;
+      case 'drop': {
+        const u = U[e.u];
+        if (!u) break;
+        u.state = 'down';
+        u.mv = null;
+        u.at = pb.cells[e.c];
+        if (u.x) { placeUnit(u, u.at); u.x.el.classList.add('lie'); u.x.bar.hidden = true; }
+        break;
+      }
+      default: break;
+    }
+  }
+  function pbFrame(pb, now) {
+    const T = pb.replay ? (now - pb.t0) / 1000 : (serverNow() - Date.parse(pb.v.startedAt)) / 1000;
+    const ev = pb.v.events || [];
+    const prevT = pb.T;
+    pb.T = T;
+    while (pb.i < ev.length && ev[pb.i].t <= T) {
+      const e = ev[pb.i++];
+      applyEvent(pb, e, T - e.t < 0.4 && prevT >= 0);
+    }
+    for (const u of pb.units) {
+      if (!u.mv || !u.x) continue;
+      placeUnit(u, unitAt(u, T));
+      if (T >= u.mv.t1) { u.at = u.mv.b; u.mv = null; }
+    }
+    if (pb.dirty.size) {
+      for (const o of pb.dirty) {
+        if (o.unit) {
+          if (!o.x) continue;
+          const f = Math.max(0, o.hp / o.d.maxHp);
+          o.x.bar.hidden = f >= 1 || o.state === 'down';
+          o.x.fill.style.width = `${(f * 100).toFixed(1)}%`;
+        } else {
+          const f = o.d.maxHp ? Math.max(0, o.hp / o.d.maxHp) : 1;
+          if (!o.bar && f < 1 && !o.down && map) {
+            const el = barFree.pop() || (() => { const x = document.createElement('div'); x.className = 'bhp'; x.innerHTML = '<div class="hpbar"><i></i></div>'; return x; })();
+            o.bar = { el, fill: el.firstChild.firstChild, h: map.addMarker(el, structAt(pb, o), 6) };
+          }
+          if (o.bar) {
+            if (o.down || f >= 1) { o.bar.h.remove(); barFree.push(o.bar.el); o.bar = null; }
+            else { o.bar.fill.style.width = `${(f * 100).toFixed(1)}%`; o.bar.el.firstChild.classList.toggle('low', f < 0.35); }
+          }
+        }
+      }
+      pb.dirty.clear();
+    }
+    if (pb.wallsDirty) { pb.wallsDirty = false; syncWalls(); }
+    if (T >= (pb.v.durationSeconds || 0) + 0.8 && pb.i >= ev.length) finishPlayback(pb);
+  }
+  function pbStats(pb) {
+    const p = pb.total ? Math.round((pb.destroyed / pb.total) * 100) : 0;
+    const stars = (p >= 50 ? 1 : 0) + (pb.hqDown ? 1 : 0) + (p >= 100 ? 1 : 0);
+    const botS = pb.v.target.kind === 'bot' ? pb.structs.find((s) => s.d.kind === 'bot') : null;
+    const onField = pb.units.filter((u) => u.state === 'field').length;
+    return { pct: p, stars, loot: pb.loot, onField, dead: pb.units.filter((u) => u.state === 'dead').length, down: pb.units.filter((u) => u.state === 'down').length,
+      botFrac: botS ? Math.max(0, botS.hp / botS.d.maxHp) : null, left: Math.max(0, (pb.v.fightSeconds || 0) - pb.T), T: pb.T };
+  }
+  /** The middle of a battle: between what's attacked and where the animals were dropped. */
+  function battleMiddle(pb) {
+    const mid = (pts) => (pts.length ? { lat: pts.reduce((a, p) => a + p.lat, 0) / pts.length, lng: pts.reduce((a, p) => a + p.lng, 0) / pts.length } : null);
+    const a = mid(pb.structs.filter((s) => s.d.category !== 'wall').map((s) => structAt(pb, s))), b = mid(pb.units.map((u) => pb.cells[u.d.drop]).filter(Boolean));
+    return a && b ? lerpLL(a, b, 0.35) : a || b || llOf(pb.v.center);
+  }
+  const clockText = (s) => { const n = Math.max(0, Math.ceil(s)); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
+  function finishPlayback(pb, silent) {
+    if (pb.ended) return;
+    pb.ended = true;
+    bt.plays.delete(pb.id);
+    bt.stats.set(pb.id, pbStats(pb));
+    for (const u of pb.units) freeUnit(u);
+    const downs = [];
+    for (const s of pb.structs) {
+      if (s.bar) { s.bar.h.remove(); barFree.push(s.bar.el); s.bar = null; }
+      if (s.own) { s.own.remove(); s.own = null; }
+      else if (s.el && s.down) downs.push(s.el);
+    }
+    const clear = () => { for (const el of downs) delete el.dataset.bdown; };
+    if (pb.replay || silent) clear();
+    else { world.at = 0; Promise.all([loadMe(), loadWorld(pos)]).then(clear, clear); }
+    syncWalls();
+    renderLiveChips();
+    if (!pb.replay && !silent && (pb.v.role === 'attacker' || pb.v.role === 'defender')) pollResult(pb.id, 0);
+    if (panel && panel._battle === pb.id) renderSheet();
+  }
+  async function pollResult(id, tries) {
+    if (bt.results.has(id)) return;
+    try {
+      const v = (await api('GET', `/v1/battles/${encodeURIComponent(id)}`)).battle;
+      if (v.result && v.result.applied) {
+        bt.results.add(id);
+        bt.last = v;
+        showBattleResult(v);
+        loadMe();
+        world.at = 0;
+        loadWorld(pos);
+        return;
+      }
+    } catch (e) { if (e && e.code === 'BATTLE_NOT_FOUND') return; }
+    if (tries < 14) setTimeout(() => pollResult(id, tries + 1), 2500);
+  }
+  function starsText(n) { return '★'.repeat(n) + '☆'.repeat(Math.max(0, 3 - n)); }
+  function battleResultText(v) {
+    const R = v.result || {}, rw = R.rewards || {}, st = bt.stats.get(v.id);
+    const stars = st ? st.stars : (R.destruction >= 50 ? 1 : 0) + (R.destruction >= 100 ? 2 : 0);
+    const xp = rw.xp ? ` · ${t('+{n} XP', { n: fmtNum(rw.xp) })} ⭐` : '';
+    const surv = Object.keys(R.survivors || {}).length ? ` · ${t('survivors wait at the drop hex')}` : '';
+    if (v.role === 'defender') return tn(R.destroyed || 0, '{name} attacked your base: {n} building down', '{name} attacked your base: {n} buildings down', { name: playerName(v.attacker) }) + (R.loot ? ` · ${t('{n} credits taken', { n: fmtNum(R.loot) })}` : '');
+    if (v.target.kind === 'bot') return (R.botDefeated ? t('Your army won!') : t('It got away.')) + xp + surv;
+    return t('Attack over: {stars} · {pct} destroyed', { stars: starsText(stars), pct: pct(R.destruction || 0) }) + (R.loot ? ` · ${E.coin} ${fmtNum(R.loot)}` : '') + xp + surv;
+  }
+  function showBattleResult(v) { toast(battleResultText(v), false, v.role === 'defender' ? '🛡️' : '⚔️'); }
+  /** The battle capsules in the top chips: time left, stars, destroyed, loot. */
+  function battleChips() {
+    const out = [];
+    for (const pb of bt.plays.values()) {
+      if (out.length >= 2) break;
+      const st = pbStats(pb), clock = pb.T < 0 ? '' : st.left > 0 ? clockText(st.left) : t('Returning');
+      const score = pb.v.target.kind === 'bot' ? `<span>${esc(pb.structs.find((s) => s.d.kind === 'bot') ? pb.structs.find((s) => s.d.kind === 'bot').d.emoji : '🐾')} ${pct(Math.round((st.botFrac == null ? 1 : st.botFrac) * 100))}</span>`
+        : `<span class="stars">${starsText(st.stars)}</span><span>${pct(st.pct)}</span>`;
+      out.push(`<button class="capsule sm mglass bchip" type="button" data-battle="${esc(pb.id)}"><span class="emo">${pb.replay ? '↺' : '⚔️'}</span><span class="clk">${esc(clock)}</span>${score}${st.loot ? `<span>${E.coin} ${fmtShort(st.loot)}</span>` : ''}</button>`);
+    }
+    return out;
+  }
+  function openBattlePanel(id) {
+    const fn = () => battleInfo(id);
+    fn._battle = id;
+    openPanel(fn);
+    panel._battle = id;
+  }
+  function battleInfo(id) {
+    const out = blankOut(), pb = bt.plays.get(id), v = pb ? pb.v : bt.last && bt.last.id === id ? bt.last : null;
+    if (!v) { out.title = t('Battle over'); return out; }
+    const who = v.target.kind === 'bot' ? t('a wild animal') : playerName(v.defender);
+    out.title = v.role === 'defender' ? t('{name} attacks your base', { name: playerName(v.attacker) }) : v.role === 'attacker' ? (v.target.kind === 'bot' ? t('Your army vs {name}', { name: who }) : t('Your attack on {name}', { name: who }))
+      : t('{a} attacks {b}', { a: playerName(v.attacker), b: who });
+    out.tile = { icon: pb && pb.replay ? '↺' : '⚔️', tint: 'red' };
+    if (pb) {
+      const st = pbStats(pb);
+      out.sub = pb.replay ? t('Replay') : st.left > 0 ? t('{time} left in the fight', { time: clockText(st.left) }) : t('The survivors walk back');
+      out.progress = v.target.kind === 'bot' ? { label: t('Its health'), value: pct(Math.round((st.botFrac == null ? 1 : st.botFrac) * 100)), frac: st.botFrac == null ? 1 : st.botFrac, tint: 'red' }
+        : { label: t('Destroyed'), value: pct(st.pct), frac: st.pct / 100, tint: 'orange' };
+      if (v.target.kind !== 'bot') out.tags.push({ tint: 'yellow', icon: '⭐', text: starsText(st.stars) });
+      out.tags.push({ tint: 'green', icon: '🐾', text: t('{n} fighting', { n: st.onField }) });
+      if (st.dead) out.tags.push({ tint: 'gray', icon: '💨', text: t('{n} lost', { n: st.dead }) });
+      if (st.loot) out.tags.push({ tint: 'yellow', icon: E.coin, text: fmtNum(st.loot) });
+      out.primary.push({ key: 'bshow', label: t('Show on the Map'), icon: '📍', enabled: true, cls: 'tinted', run: () => { setFollow(false); map.setCenter(battleMiddle(pb), true); } });
+      out.primary.push({ key: 'bstop', label: pb.replay ? t('Stop the Replay') : t('Stop Watching'), icon: '⏹️', enabled: true, cls: 'gray', run: () => { finishPlayback(pb, true); select(null); } });
+    } else {
+      out.sub = t('Battle over');
+      out.note = battleResultText(v);
+      out.primary.push({ key: 'breplay', label: t('Replay'), icon: '↺', enabled: true, run: () => { select(null); watchBattle(id, true); } });
+    }
+    return out;
+  }
+
+  // ---------------- the Army page: your animals, what lies on the ground, your battles
+  function armyHtml() {
+    const A = myArmy(), tr = A.troops || {};
+    let html = `<div class="group army-cap"><div class="row t"><div class="tile sm tint-green">🐾</div><div class="row-main"><div class="row-title">${esc(t('Army Space'))}</div>` +
+      `${barHtml(A.capacity ? A.used / A.capacity : 0, A.used >= A.capacity ? 'orange' : 'green')}</div><span class="row-value">${esc(t('{a} of {b}', { a: A.used, b: A.capacity }))}</span></div></div>`;
+    const all = troopSpecies(), owned = all.filter((k) => tr[k] > 0), others = all.filter((k) => !(tr[k] > 0));
+    const row = (k, n) => {
+      const T = troopOf(k);
+      return rowHtml({ icon: spEmoji(k), tint: T.air ? 'blue' : 'orange', titleHtml: `${esc(spName(k))} <small>${esc(roleName(T.role))}${T.air ? ' · ' + esc(t('flies')) : ''}</small>`,
+        sub: loc(T, 'description') || t(GOES_FOR[T.targets] || 'goes for anything'), extra: `<div class="row-sub tstats">${esc(statsText(T))} · ${esc(t(GOES_FOR[T.targets] || 'goes for anything'))}</div>`, value: n ? `×${n}` : undefined, cls: n ? '' : 'dim' });
+    };
+    html += owned.length ? group(owned.map((k) => row(k, tr[k])), t('Your Animals')) : `<h4 class="sec-h">${esc(t('Your Animals'))}</h4>` + emptyRow(t('No animals yet: defeat wild animals and they join your army.'));
+    const pk = (world.pickups || []).map((p) => {
+      const d = pos ? distM(pos, llOf(p.center)) : 0, far = d > collectM();
+      return rowHtml({ icon: (p.emoji || [])[0] || '🐾', tint: 'green', title: troopsText(p.troops), sub: `${p.source === 'battle' ? t('Back from battle') : t('From a hunt')} · ${fmtDist(d)}${p.expiresAt ? ' · ' + t('gone in {time}', { time: leftText(p.expiresAt) }) : ''}`,
+        btn: { label: t('Collect'), a: 'collect', v: p.id, off: far } });
+    });
+    if (pk.length) html += group(pk, t('On the Ground'), t('Walk within {n} m of them, then tap them on the map or here.', { n: collectM() }));
+    if (others.length) html += group(others.map((k) => row(k, 0)), t('More Animals'), t('Defeat them in the wild and they join you.'));
+    html += `<p class="sec-f">${esc(t('To attack, open a rival’s base or a wild animal and tap Attack. Drop your animals outside their walls: each kind goes for its favourite target and breaks walls in its way.'))}</p>`;
+    return html;
+  }
+  function battlesHtml() {
+    const M = bt.mine;
+    if (!M) return loadingHtml();
+    const now = serverNow();
+    const row = (b, def) => {
+      const R = b.result || {}, live = Date.parse(b.endsAt) > now;
+      const who = def ? b.attacker : b.defender;
+      const title = def ? t('{name} attacked you', { name: playerName(b.attacker) }) : b.target.kind === 'bot' ? t('Your army vs a wild animal') : t('You attacked {name}', { name: playerName(b.defender) });
+      const sub = live ? t('Fighting now') : [b.target.kind === 'bot' ? (R.botDefeated ? t('Won') : t('It got away')) : t('{pct} destroyed', { pct: pct(R.destruction || 0) }), R.loot ? `${E.coin} ${fmtNum(R.loot)}` : '', agoText(b.startedAt)].filter(Boolean).join(' · ');
+      return rowHtml({ icon: who ? avatarOf(who) : '🐾', av: !!who, title, sub, btn: live ? { label: t('Watch'), a: 'watch', v: b.id } : { label: t('Replay'), a: 'replay', v: b.id } });
+    };
+    let html = '';
+    html += (M.attacks || []).length ? group(M.attacks.map((b) => row(b, false)), t('Your Attacks')) : `<h4 class="sec-h">${esc(t('Your Attacks'))}</h4>` + emptyRow(t('No attacks this week.'));
+    html += (M.defenses || []).length ? group(M.defenses.map((b) => row(b, true)), t('On Your Base')) : `<h4 class="sec-h">${esc(t('On Your Base'))}</h4>` + emptyRow(t('Nobody attacked your base this week.'));
+    return html;
+  }
+  function armyPage(seg) {
+    return {
+      id: 'army', seg: seg || 'troops', segs: [['troops', 'Animals'], ['battles', 'Battles']],
+      title: () => t('Army'),
+      load: async (p) => { if (p.seg === 'battles') bt.mine = await api('GET', '/v1/battles?mine=1'); else await loadMe(); },
+      render: (p) => (p.err ? errHtml(p.err) : p.seg === 'battles' ? battlesHtml() : armyHtml()),
+      acts: {
+        collect: (id) => { const p = (world.pickups || []).find((x) => x.id === id); if (p) tapPickup(p); },
+        replay: (id) => { closeModal('pg'); watchBattle(id, true); },
+        watch: (id) => { closeModal('pg'); if (bt.plays.has(id)) openBattlePanel(id); else watchBattle(id, false).then((pb) => pb && openBattlePanel(id)); },
+      },
+    };
+  }
+
+  // ---------------- "attacked your base" notifications open the replay (from the service worker, or ?battle=<id>)
+  const battleFromUrl = (() => {
+    try {
+      const u = new URL(location.href), v = u.searchParams.get('battle');
+      if (v) { u.searchParams.delete('battle'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
+      return v;
+    } catch (e) { return null; }
+  })();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', (e) => { const d = e.data || {}; if (d.type === 'open-battle' && d.id && me && started) watchBattle(String(d.id), true); });
+
+  // ---------------- the frame loop and the tick
+  let cfFrames = 0;
+  function combatFrame(now) {
+    if (!map || !me) return;
+    cfFrames++;
+    // While the map runs a zoom animation, pins glide with it; moving one now would leave its spot.
+    if (map.busy && map.busy()) return;
+    botsFrame(now);
+    if (bt.plays.size) for (const pb of [...bt.plays.values()]) pbFrame(pb, now);
+    if (bullets.live.length) bulletsFrame(now);
+  }
+  function combatTick(n) {
+    if (!me || !started) return;
+    if (battleFromUrl && !bt.urlDone) { bt.urlDone = true; watchBattle(battleFromUrl, true); }
+    // Battles near you: watch the ones in progress (the server lists them in the world view).
+    if (n % 4 === 0) {
+      for (const b of world.battles || []) {
+        if (bt.plays.size >= 3) break;
+        if (bt.seen.has(b.id) || Date.parse(b.endsAt) <= serverNow()) continue;
+        bt.seen.add(b.id);
+        watchBattle(b.id, false, true);
+      }
+    }
+    // An animal chasing you: its path and your health come from the server; ask often while it lasts.
+    const chased = (world.bots || []).some((b) => b.aggroOn === me.player.id);
+    if (chased) {
+      if (n % 8 === 0) loadMe();
+      if (n % 12 === 6) { world.at = 0; loadWorld(pos); }
+    }
+    if (dp.on && n % 8 === 0) syncDeployMap();
+    if ($('armyBadge')) { const k = (world.pickups || []).length; $('armyBadge').hidden = !k; if (k) setText($('armyBadge'), String(k)); }
+  }
+
   // ------------------------------------------------------------------ loop
   let last = performance.now(), lastFollow = 0;
   function frame(t) {
@@ -9887,6 +11162,7 @@
       if (!moved && mode === 'sim' && pos) lsSet(SIM_POS, JSON.stringify(pos));
       refreshStatus();
     }
+    combatFrame(t);
     requestAnimationFrame(frame);
   }
   let tickN = 0;
@@ -9907,6 +11183,7 @@
     if (me && started && (tickN % 240 === 9 || (tickN % 8 === 3 && live.eventsPos && pos && distM(live.eventsPos, pos) > 2000))) loadEvents();
     if (tickN % 480 === 17 && me && started) loadLandmarks(true);
     if (tickN % 4 === 1) clientTick(tickN);
+    combatTick(tickN);
     if (tickN % 4 === 2) bigTick(tickN >> 2);
   }
 
@@ -10068,6 +11345,35 @@
     get creditsShown() { return $('credits').textContent; },
     get missions() { return msState.data; },
     fix: () => fix(),
+    // Combat update: walls, defenses, the army, battles, live animals.
+    get wallMode() { return { on: wm.on, add: [...wm.add], del: [...wm.del], count: wm.on ? wallCount() : (me && me.walls ? me.walls.built : 0), max: me && me.walls ? me.walls.max : 0, bar: !$('modeBar').hidden, title: $('modeTitle').textContent, go: $('modeGo').textContent, lines: { ...wallStats } }; },
+    wallStart: () => wallStart(),
+    wallTap: (id) => wallTap(id),
+    wallSave: () => wallSave(),
+    wallStop: () => wallStop(),
+    get outlines() { return lastOutlines.slice(); },
+    get rangeRing() { return rangeKey ? JSON.parse(rangeKey) : []; },
+    get deploy() { return { on: dp.on, target: dp.tg && { kind: dp.tg.kind, id: dp.tg.id }, pick: dp.pick, drops: [...dp.drops].map(([cell, troops]) => ({ cell, troops: { ...troops } })), forbidden: [...dp.forbidden.keys()], valid: [...dp.valid], chips: [...document.querySelectorAll('#modeChips [data-sp]')].map((x) => x.dataset.sp), title: $('modeTitle').textContent, go: $('modeGo').textContent }; },
+    deployStart: (tg) => deployStart(tg),
+    deployPick: (sp) => { dp.pick = sp; renderModeBar(); },
+    deployTap: (id) => deployTap(id),
+    deployWhy: (id) => dropWhy(id),
+    deployGo: () => deployGo(),
+    deployStop: () => deployStop(),
+    get battle() { return [...bt.plays.values()].map((pb) => { const st = pbStats(pb); return { id: pb.id, role: pb.v.role, target: pb.v.target, replay: pb.replay, T: pb.T, duration: pb.v.durationSeconds, events: pb.v.events.length, done: pb.i, units: pb.units.length, onField: st.onField, dead: st.dead, down: st.down, destroyed: pb.destroyed, total: pb.total, pct: st.pct, stars: st.stars, loot: pb.loot, unitEls: pb.units.filter((u) => u.x).length, lying: pb.units.filter((u) => u.x && u.x.el.classList.contains('lie')).length, downEls: document.querySelectorAll('[data-bdown]').length, breached: pb.breached.size }; }); },
+    battleUnits: (id) => { const pb = bt.plays.get(id) || [...bt.plays.values()][0]; return pb ? pb.units.filter((u) => u.x).map((u) => ({ emoji: u.d.emoji, lat: u.x.at.lat, lng: u.x.at.lng, el: !!u.x.el.isConnected })) : []; },
+    get battleLast() { return bt.last ? { id: bt.last.id, role: bt.last.role, result: bt.last.result, text: battleResultText(bt.last) } : null; },
+    get battleStats() { return [...bt.stats].map(([id, s]) => ({ id, ...s })); },
+    watchBattle: (id, replay) => watchBattle(id, !!replay).then((pb) => !!pb),
+    openBattle: (id) => openBattlePanel(id || [...bt.plays.keys()][0]),
+    get bullets() { return { live: bullets.live.length, spawned: bullets.spawned, made: bullets.made }; },
+    botPos: (id) => { const b = (world.bots || []).find((x) => x.id === id); return b ? botLL(b) : null; },
+    botMarker: (id) => { const p = botPins.get(id); return p ? { lat: p.at.lat, lng: p.at.lng, angry: p.el.classList.contains('angry') } : null; },
+    get pickups() { return (world.pickups || []).map((p) => ({ id: p.id, troops: p.troops, center: p.center, pin: pickPins.has(p.id) })); },
+    collectPickup: (id) => { const p = (world.pickups || []).find((x) => x.id === id); return p ? tapPickup(p).then((r) => !!r) : Promise.resolve(false); },
+    get army() { return myArmy(); },
+    get frames() { return cfFrames; },
+    buildFeat: (type) => buildFeat(type),
   };
 
   boot();

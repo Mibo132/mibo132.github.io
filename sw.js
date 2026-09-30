@@ -22,13 +22,19 @@ self.addEventListener('push', (e) => {
   );
 });
 
-// A tap on a notification brings the game to the front (or opens it).
+// A tap on a notification brings the game to the front (or opens it). "Attacked your base" (kind
+// battle) opens the replay of that battle.
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
+  const d = e.notification.data || {}, battle = d.kind === 'battle' && d.battleId ? String(d.battleId) : null;
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-      for (const c of list) if ('focus' in c) return c.focus();
-      return self.clients.openWindow('./');
+      for (const c of list) {
+        if (!('focus' in c)) continue;
+        if (battle) c.postMessage({ type: 'open-battle', id: battle });
+        return c.focus();
+      }
+      return self.clients.openWindow(battle ? `./?battle=${encodeURIComponent(battle)}` : './');
     }),
   );
 });
